@@ -40,5 +40,5 @@ class Bloat(NPC):
         }
 
         # stats = Stats(input_stats)
-        super().__init__(input_stats)
+        super().__init__(input_stats, weak_to_salve=True)
 

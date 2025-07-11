@@ -17,7 +17,8 @@ class Player:
     def do_attack(self, monster):
         if(self.weapon is None):
             self.equip_weapon(Fists())
-            self.calc_all_the_things()
+        
+        self.calc_all_the_things(monster_weak_to_salve=monster.is_weak_to_salve)
 
         return self.weapon.do_attack(
             max_hit=self.max_hit, 
@@ -41,13 +42,13 @@ class Player:
 
 
     #region Roll Calculation
-    def calc_all_the_things(self):
+    def calc_all_the_things(self, monster_weak_to_salve=False):
         self.attack_style = self.weapon.attack_style
         self.effective_att_level = self.calc_eff_attack_level()
         self.effective_str_level = self.calc_eff_strength_level()
         self.effective_def_level = self.calc_eff_defence_level()
-        self.max_hit = self.calc_max_hit()
-        self.attack_roll = self.calc_att_roll()
+        self.max_hit = self.calc_max_hit(monster_weak_to_salve)
+        self.attack_roll = self.calc_att_roll(monster_weak_to_salve)
         self.def_roll = self.calc_def_roll()
 
     def calc_eff_attack_level(self):
@@ -85,19 +86,20 @@ class Player:
         if(self.attack_style == "Controlled"): eff_def_lvl += 1
         eff_def_lvl += 8
         return eff_def_lvl
-    def calc_att_roll(self):
+    def calc_att_roll(self, monster_weak_to_salve=False):
         attack_roll = self.effective_att_level * (self.stats.slash_attack_bonus + 64)
-        if(self.wearing_salve): attack_roll *= 1.20
+        if(self.wearing_salve and monster_weak_to_salve):
+            attack_roll *= 1.20
         return math.floor(attack_roll)
     def calc_def_roll(self):
         def_roll = self.effective_def_level * (self.stats.slash_def + 64)
         return def_roll
-    def calc_max_hit(self):
+    def calc_max_hit(self, monster_weak_to_salve=False):
         max_hit = self.effective_str_level * (self.stats.melee_strength_bonus + 64)
         max_hit += 320
         max_hit /= 640
         max_hit = math.floor(max_hit)
-        if(self.wearing_salve): 
+        if(self.wearing_salve and monster_weak_to_salve): 
             max_hit *= 1.2
         return math.floor(max_hit)
     #endregion

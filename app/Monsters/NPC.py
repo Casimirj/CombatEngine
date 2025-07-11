@@ -77,13 +77,14 @@ class NPC:
 
 
 
-    def __init__(self, stats=None, minimum_def = 0):
+    def __init__(self, stats=None, weak_to_salve=False, minimum_def = 0):
         if stats == None:
             raise ValueError("Stats cannot be null")
         self.stats = Stats(stats)
 
         self.minimum_def = minimum_def
         self.current_hp = self.stats.hp_level
+        self.is_weak_to_salve = weak_to_salve
 
         self.def_roll = self.calc_def_roll()
 
