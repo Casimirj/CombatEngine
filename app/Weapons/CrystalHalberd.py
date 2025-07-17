@@ -3,8 +3,8 @@ import random
 
 from beartype import beartype
 
-from Weapon import Weapon
-from NPC import NPC
+from Weapons.Weapon import Weapon
+from Monsters.NPC import NPC
 from Stats import Stats
 
 

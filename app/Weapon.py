@@ -1,6 +1,6 @@
 import random
 
-from Monsters.NPC import NPC
+from NPC import NPC
 
 class Weapon():
 
@@ -58,7 +58,7 @@ class Weapon():
         if(not self.has_special_attack):
             print("We tried to spec with a weapon which does not have a special attack, using a normal attack")
             return self.do_attack(
-                max_hit=max_hit, 
+                max_hit=max_hit,
                 player_attack_roll=player_attack_roll, 
                 npc_def_roll=npc_def_roll
             )

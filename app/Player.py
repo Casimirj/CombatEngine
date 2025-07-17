@@ -3,10 +3,10 @@ import math
 from beartype import beartype
 from typing import Optional, Union
 
-from Monsters.NPC import NPC
+from NPC import NPC
 from Stats import Stats
 from Weapons.Fists import Fists
-from Weapons.Weapon import Weapon
+from Weapon import Weapon
 
 class Player:
 

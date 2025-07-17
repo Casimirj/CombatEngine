@@ -13,7 +13,7 @@ from Loadouts.OathTorvaRancour import player as oath_torva_rancour
 from Loadouts.OathTorvaSalve import player as oath_torva_salve
 
 
-number_of_players = 3
+number_of_players = 5
 
 scythe = Scythe()
 nox = NoxHally()
@@ -111,10 +111,6 @@ player.equip_weapon(bgs)
 hit = player.do_attack(bloat, special_attack=True)
 bloat.reduce_hp(hit)
 
-
-# bloat.stats.print_stats()
-# print(player.current_special_attack)
-
 print(f"Bgs hit a {hit}")
 
 player.equip_weapon(scythe)
@@ -139,10 +135,6 @@ bloat = Bloat(number_of_players)
 player.equip_weapon(bgs)
 hit = player.do_attack(bloat, special_attack=True)
 bloat.reduce_hp(hit)
-
-
-# bloat.stats.print_stats()
-# print(player.current_special_attack)
 
 print(f"Bgs hit a {hit}")
 

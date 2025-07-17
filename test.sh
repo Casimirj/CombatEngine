@@ -5,9 +5,13 @@ start_time=$(date +%s.%N)
 
 
 clear
+cd venv/bin
+. activate
+cd ../../
+
+
 export PYTHONPATH="./app"
 python3 test.py
-
 
 
 end_time=$(date +%s.%N)

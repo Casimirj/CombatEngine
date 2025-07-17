@@ -1,7 +1,7 @@
 
 import random
 import math
-from Weapons.Weapon import Weapon
+from Weapon import Weapon
 from Stats import Stats
 
 

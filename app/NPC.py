@@ -27,8 +27,8 @@ class NPC:
             if attack_style.capitalize() == "Crush": def_bonus = self.stats.crush_def
             if attack_style.capitalize() == "Stab": def_bonus = self.stats.stab_def
 
-        def_roll = (self.stats.def_level + 9) * (def_bonus + 64)
-        return def_roll
+        self.def_roll = (self.stats.def_level + 9) * (def_bonus + 64)
+        return self.def_roll
 
     def reduce_defense(self, damage_amount:int):
         new_def = max(self.stats.def_level - damage_amount, self.minimum_def)
@@ -94,8 +94,9 @@ class NPC:
         self.minimum_def = minimum_def
         self.current_hp = self.stats.hp_level
         self.is_weak_to_salve = weak_to_salve
+        
+        self.def_roll = 0
 
-        self.def_roll = self.calc_def_roll()
 
 
 
