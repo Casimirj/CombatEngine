@@ -41,4 +41,5 @@ class P2Verzik(NPC):
         }
 
         # stats = Stats(input_stats)
-        super().__init__(input_stats, weak_to_salve=False)
+        super().__init__(input_stats, weak_to_salve=False, minimum_def=200)
+
