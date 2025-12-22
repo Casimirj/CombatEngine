@@ -33,16 +33,16 @@ class NPC:
     def reduce_defense(self, damage_amount:int):
         new_def = max(self.stats.def_level - damage_amount, self.minimum_def)
         actual_reduction = self.stats.def_level - new_def
-        self.stats.def_level = new_def
+        self.stats.def_level = int(new_def)
 
     def reduce_defense_dwh(self):
         current_def = self.stats.def_level
-        reduce_amount = current_def * .30
+        reduce_amount = int(current_def * .30)
         return self.reduce_defense(reduce_amount)
 
     def reduce_defense_maul(self):
         current_def = self.stats.def_level
-        reduce_amount = current_def * .35
+        reduce_amount = int(current_def * .35)
         return self.reduce_defense(reduce_amount)
     
     def reduce_defense_ralos(self):
@@ -96,6 +96,7 @@ class NPC:
         self.is_weak_to_salve = weak_to_salve
         
         self.def_roll = 0
+
 
 
 
