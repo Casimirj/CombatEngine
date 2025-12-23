@@ -37,14 +37,14 @@ class CrystalHalberd(Weapon):
         hit_def_roll = random.randint(1, npc_def_roll)
 
         splat_1_hit = random.randint(1, player_attack_roll) >= hit_def_roll
-        splat_2_hit = random.randint(1, player_attack_roll) >= hit_def_roll
+        splat_2_hit = random.randint(1, player_attack_roll*.75) >= hit_def_roll
         
         damage_total = 0
 
         if splat_1_hit:
-            damage_total += random.randint(1, max_hit*1.05)
+            damage_total += random.randint(1, max_hit*1.1)
         if splat_2_hit:
-            damage_total += random.randint(1, max_hit*1.05)
+            damage_total += random.randint(1, max_hit*1.1)
         
         return damage_total
             
