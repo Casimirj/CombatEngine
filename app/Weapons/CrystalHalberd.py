@@ -25,7 +25,7 @@ class CrystalHalberd(Weapon):
             combat_style="Melee",
             attack_type="Slash",
             attack_style="Aggressive",
-            attack_speed=4,
+            attack_speed=7,
             attack_range=1,
             has_special_attack=True,
             special_attack_style="Slash",
