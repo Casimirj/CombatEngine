@@ -8,7 +8,7 @@ cd ..\..
 
 # Set PYTHONPATH and run the test script
 $env:PYTHONPATH = "./app"
-python test.py
+python test-bloat.py
 
 deactivate
 

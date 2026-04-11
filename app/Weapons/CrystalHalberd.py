@@ -3,8 +3,8 @@ import random
 
 from beartype import beartype
 
-from Weapons.Weapon import Weapon
-from Monsters.NPC import NPC
+from Weapon import Weapon
+from NPC import NPC
 from Stats import Stats
 
 from Weapon import Weapon
@@ -37,7 +37,7 @@ class CrystalHalberd(Weapon):
         hit_def_roll = random.randint(1, npc_def_roll)
 
         splat_1_hit = random.randint(1, player_attack_roll) >= hit_def_roll
-        splat_2_hit = random.randint(1, player_attack_roll*.75) >= hit_def_roll
+        splat_2_hit = random.randint(1, int(player_attack_roll*.75)) >= hit_def_roll
         
         damage_total = 0
 

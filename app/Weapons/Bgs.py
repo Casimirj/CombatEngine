@@ -33,4 +33,4 @@ class Bgs(Weapon):
 
         if adjusted_hit > 0:
             monster.reduce_defense_bgs(damage_amount=adjusted_hit)
-        return hit
+        return adjusted_hit

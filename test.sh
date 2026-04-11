@@ -11,7 +11,7 @@ cd ../../
 
 
 export PYTHONPATH="./app"
-python3 test.py
+python3 test-bloat.py
 
 
 end_time=$(date +%s.%N)
