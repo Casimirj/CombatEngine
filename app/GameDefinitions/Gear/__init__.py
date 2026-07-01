@@ -39,6 +39,11 @@ from . import VoidKnightGloves    # noqa: F401
 from . import VoidRangerHelm      # noqa: F401
 from . import VoidMageHelm        # noqa: F401
 from . import VoidMeleeHelm       # noqa: F401
+from . import AmuletOfTorture     # noqa: F401
+from . import BerserkerRingI      # noqa: F401
+from . import PrimordialBoots     # noqa: F401
+from . import AmuletOfFury        # noqa: F401
+from . import AmuletOfStrength    # noqa: F401
 
 
 __all__ = [
@@ -79,4 +84,9 @@ __all__ = [
     "VoidRangerHelm",
     "VoidMageHelm",
     "VoidMeleeHelm",
+    "AmuletOfTorture",
+    "BerserkerRingI",
+    "PrimordialBoots",
+    "AmuletOfFury",
+    "AmuletOfStrength",
 ]

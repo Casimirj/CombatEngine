@@ -1,12 +1,23 @@
 import json
 import math
 from beartype import beartype
-from typing import Optional, Union
+from typing import Optional
 
 from app.Monster import Monster
 from app.Stats import Stats
 from app.Weapon import Weapon
 from app.GameDefinitions.Weapons.Fists import Fists
+from app.Enums.gear_slot import GearSlot
+from app.GearItem import Gear
+from app.GameDefinitions.Gear.VoidRangerHelm import VoidRangerHelm
+from app.GameDefinitions.Gear.VoidMageHelm import VoidMageHelm
+from app.GameDefinitions.Gear.VoidMeleeHelm import VoidMeleeHelm
+from app.GameDefinitions.Gear.EliteVoidTop import EliteVoidTop
+from app.GameDefinitions.Gear.EliteVoidRobe import EliteVoidRobe
+from app.GameDefinitions.Gear.VoidKnightGloves import VoidKnightGloves
+from app.GameDefinitions.Gear.Salve import Salve as SalveGear
+from app.Registries.GearRegistry import GearRegistry
+from app.Exceptions.InvalidLoadoutException import InvalidLoadoutException
 
 from app.Enums import Potion, Prayer
 
@@ -56,19 +67,94 @@ class Player:
         if self.weapon is not None:
             self.unequip_weapon(self.weapon)
         self.weapon = weapon
-        self.stats.increase(extra_stats=weapon.stats)
+        self.compute_gear_stats()
 
     @beartype
     def unequip_weapon(self, weapon:Weapon):
-        self.stats.decrease(extra_stats=weapon.stats)
         self.weapon = Fists()
+        self.compute_gear_stats()
 
 
+    # --- Gear system ---
+
+    @beartype
+    def equip_gear(self, gear: Gear):
+        """Equip a piece of gear into the appropriate slot and recompute stats."""
+
+        existing = self.gear.get(gear.slot)
+        if existing is not None and existing.name != gear.name:
+            raise InvalidLoadoutException(
+                f"Slot conflict: '{gear.name}' and '{existing.name}' "
+                f"both occupy the {gear.slot.name.lower()} slot."
+            )
+
+        self.gear[gear.slot] = gear
+
+        self._detect_void_set()
+        self._detect_salve()
+        self.compute_gear_stats()
+
+    @beartype
+    def unequip_gear(self, slot: GearSlot):
+        """Unequip whatever gear occupies *slot* and recompute stats."""
+        old = self.gear.pop(slot, None)
+        if old is None:
+            return
+
+        self._detect_void_set()
+        self._detect_salve()
+        self.compute_gear_stats()
+
+    def compute_gear_stats(self):
+        """Recompute self.stats from base_stats + all equipped gear + weapon."""
+        self.stats = self.base_stats.copy()
+
+        for gear in self.gear.values():
+            gear_stats = gear.build()
+            temp = Stats(gear_stats)
+            self.stats.increase(temp)
+
+        if self.weapon is not None:
+            self.stats.increase(extra_stats=self.weapon.stats)
+
+    def _detect_void_set(self):
+        """Check the equipped gear for a complete void set and set flags."""
+        _VOID_HELMS = {
+            VoidRangerHelm.name: "ranged",
+            VoidMageHelm.name:   "mage",
+            VoidMeleeHelm.name:  "melee",
+        }
+
+        helm = self.gear.get(GearSlot.HEAD)
+        body = self.gear.get(GearSlot.BODY)
+        legs = self.gear.get(GearSlot.LEGS)
+        hands = self.gear.get(GearSlot.HANDS)
+
+        if (
+            helm is not None and helm.name in _VOID_HELMS
+            and body is not None and body.name == EliteVoidTop.name
+            and legs is not None and legs.name == EliteVoidRobe.name
+            and hands is not None and hands.name == VoidKnightGloves.name
+        ):
+            self.wearing_void = True
+            self.void_style = _VOID_HELMS[helm.name]
+        else:
+            self.wearing_void = False
+            self.void_style = None
+
+    def _detect_salve(self):
+        """Check the equipped gear for a salve amulet and set wearing_salve flag."""
+        neck = self.gear.get(GearSlot.NECK)
+        self.wearing_salve = neck is not None and neck.name == SalveGear.name
 
 
     #region Roll Calculation
     @beartype
     def calc_all_the_things(self, combat_style:str=None, attack_type:str=None, monster_weak_to_salve:Optional[bool]=False):
+        self.compute_gear_stats()
+        self._detect_void_set()
+        self._detect_salve()
+
         if combat_style is not None and combat_style.capitalize() == "Ranged":
             self.effective_ranged_att_level = self.calc_eff_ranged_attack_level()
             self.effective_ranged_str_level = self.calc_eff_ranged_strength_level()
@@ -97,6 +183,8 @@ class Player:
         if(self.weapon.attack_style == "Controlled"): eff_att_level += 1
         
         eff_att_level += 8
+        if(self.wearing_void and self.void_style == "melee"):
+            eff_att_level = math.floor(eff_att_level * 1.10)
         return eff_att_level
     def calc_eff_strength_level(self):
         eff_str_level = self.stats.strength_level
@@ -111,16 +199,21 @@ class Player:
         if(self.weapon.attack_style == "Controlled"): eff_str_level += 1
         
         eff_str_level += 8
+        if(self.wearing_void and self.void_style == "melee"):
+            eff_str_level = math.floor(eff_str_level * 1.10)
         return eff_str_level
     def calc_eff_defence_level(self):
         eff_def_lvl = self.stats.def_level
+        
         for potion in self.boosts:
             eff_def_lvl += Potion.compute_boost(self.stats.def_level, potion.defence_percentage, potion.defence_flat)
         if(self.prayer.def_mult > 0):
             eff_def_lvl *= self.prayer.def_mult
             eff_def_lvl = math.floor(eff_def_lvl)
+            
         if(self.weapon.attack_style == "Defensive"): eff_def_lvl += 3
         if(self.weapon.attack_style == "Controlled"): eff_def_lvl += 1
+        
         eff_def_lvl += 8
         return eff_def_lvl
 
@@ -136,6 +229,8 @@ class Player:
         if(self.weapon.attack_style == "Accurate"): eff_ranged_atk += 3
 
         eff_ranged_atk += 8
+        if(self.wearing_void and self.void_style == "ranged"):
+            eff_ranged_atk = math.floor(eff_ranged_atk * 1.10)
         return eff_ranged_atk
 
     def calc_eff_ranged_strength_level(self):
@@ -213,8 +308,6 @@ class Player:
         attack_roll = self.effective_att_level * (attack_bonus + 64)
         if(self.wearing_salve and monster_weak_to_salve):
             attack_roll *= 1.20
-        if(self.wearing_void and self.void_style == "melee"):
-            attack_roll *= 1.10
         return math.floor(attack_roll)
     @beartype
     def calc_def_roll(self, attack_style:str=None):
@@ -237,28 +330,28 @@ class Player:
         max_hit = math.floor(max_hit)
         if(self.wearing_salve and monster_weak_to_salve): 
             max_hit *= 1.2
-        if(self.wearing_void and self.void_style == "melee"):
-            max_hit *= 1.125
         return math.floor(max_hit)
     
     #endregion
-
 
 
     @beartype
     def __init__(self, 
         stats:          dict    = None,
         weapon:         Weapon  = None,
-        boosts:         list    = [Potion.SUPER_COMBAT],
-        prayer:         Prayer  = Prayer.PIETY,
+        boosts:         list    = [Potion.NONE],
+        prayer:         Prayer  = Prayer.NONE,
         wearing_salve:  bool    = False,
         wearing_void:   bool    = False,
         void_style:     Optional[str]     = None,
+        loadout:        Optional[object] = None,
         ):
         
         if stats is None:
             raise ValueError("Stats cannot be null")
-        self.stats = Stats(stats)
+
+        self.base_stats = Stats(stats)
+        self.stats = self.base_stats.copy()
 
         self.current_hp = self.stats.hp_level
         self.current_prayer = self.stats.prayer_level
@@ -272,7 +365,18 @@ class Player:
         self.prayer = prayer
         self.weapon = weapon
 
+        self.gear: dict = {}
+
         if self.weapon is None:
             self.equip_weapon(Fists())
         else:
             self.weapon=weapon
+
+        # Equip loadout gear if provided
+        if loadout is not None:
+            if loadout.gear_names is not None:
+                for gear_name in loadout.gear_names:
+                    gear = GearRegistry.get(gear_name)
+                    if gear is None:
+                        raise KeyError(f"Unknown gear: {gear_name}")
+                    self.equip_gear(gear)

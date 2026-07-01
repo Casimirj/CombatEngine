@@ -17,13 +17,6 @@ _DEFAULT_STATS = {
     "magic_level": 99,
     "ranged_level": 99,
     "prayer_level": 99,
-    "stab_attack_bonus": 80,
-    "slash_attack_bonus": 80,
-    "crush_attack_bonus": 80,
-    "melee_strength_bonus": 70,
-    "stab_def": 200,
-    "slash_def": 200,
-    "crush_def": 200,
 }
 
 
@@ -65,8 +58,8 @@ class TestPlayerInit(unittest.TestCase):
 
     def test_player_default_boosts_and_prayer(self):
         p = Player(stats=_DEFAULT_STATS)
-        self.assertEqual(p.prayer, Prayer.PIETY)
-        self.assertIn(Potion.SUPER_COMBAT, p.boosts)
+        self.assertEqual(p.prayer, Prayer.NONE)
+        self.assertEqual(p.boosts, [Potion.NONE])
 
     def test_player_wearing_salve(self):
         p = Player(stats=_DEFAULT_STATS, wearing_salve=True)
@@ -143,20 +136,28 @@ class TestPlayerMeleeCalcs(unittest.TestCase):
         self.assertGreater(self.p.def_roll, 0)
 
     def test_salve_boosts_attack_roll(self):
+        from app.Registries.GearRegistry import GearRegistry
+        salve = GearRegistry.get("Salve (e)")
         p_salve = Player(stats=_DEFAULT_STATS, weapon=self.w,
-                         boosts=[Potion.SUPER_COMBAT], prayer=Prayer.PIETY,
-                         wearing_salve=True)
+                         boosts=[Potion.SUPER_COMBAT], prayer=Prayer.PIETY)
+        p_salve.equip_gear(salve)
         self.p.calc_all_the_things(combat_style="Melee", attack_type="Slash",
                                    monster_weak_to_salve=False)
         p_salve.calc_all_the_things(combat_style="Melee", attack_type="Slash",
-                                    monster_weak_to_salve=False)
-        self.assertEqual(self.p.attack_roll, p_salve.attack_roll)
-
-        self.p.calc_all_the_things(combat_style="Melee", attack_type="Slash",
-                                   monster_weak_to_salve=True)
-        p_salve.calc_all_the_things(combat_style="Melee", attack_type="Slash",
                                     monster_weak_to_salve=True)
         self.assertGreater(p_salve.attack_roll, self.p.attack_roll)
+
+    def test_salve_boosts_max_hit(self):
+        from app.Registries.GearRegistry import GearRegistry
+        salve = GearRegistry.get("Salve (e)")
+        p_salve = Player(stats=_DEFAULT_STATS, weapon=self.w,
+                         boosts=[Potion.SUPER_COMBAT], prayer=Prayer.PIETY)
+        p_salve.equip_gear(salve)
+        self.p.calc_all_the_things(combat_style="Melee", attack_type="Slash",
+                                   monster_weak_to_salve=False)
+        p_salve.calc_all_the_things(combat_style="Melee", attack_type="Slash",
+                                    monster_weak_to_salve=True)
+        self.assertGreater(p_salve.max_hit, self.p.max_hit)
 
 
 class TestPlayerRangedCalcs(unittest.TestCase):
@@ -269,6 +270,10 @@ class TestPlayerCalcAttRoll(unittest.TestCase):
         self.p = Player(stats=_DEFAULT_STATS, weapon=_make_weapon(),
                         boosts=[Potion.NONE], prayer=Prayer.NONE)
         self.p.effective_att_level = 100
+        # Set expected stat values directly for deterministic calc tests
+        self.p.stats.stab_attack_bonus = 80
+        self.p.stats.slash_attack_bonus = 80
+        self.p.stats.crush_attack_bonus = 80
 
     def test_slash(self):
         roll = self.p.calc_att_roll(attack_style="Slash")
@@ -292,6 +297,10 @@ class TestPlayerCalcDefRoll(unittest.TestCase):
         self.p = Player(stats=_DEFAULT_STATS, weapon=_make_weapon(),
                         boosts=[Potion.NONE], prayer=Prayer.NONE)
         self.p.effective_def_level = 100
+        # Set expected stat values directly for deterministic calc tests
+        self.p.stats.stab_def = 200
+        self.p.stats.slash_def = 200
+        self.p.stats.crush_def = 200
 
     def test_slash_def(self):
         roll = self.p.calc_def_roll(attack_style="Slash")

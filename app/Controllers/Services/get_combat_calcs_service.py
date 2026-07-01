@@ -1,7 +1,7 @@
 from app.Controllers.Models.get_combat_calcs import GetCombatCalcsInput, GetCombatCalcsOutput
 from app.Controllers.Models.get_combat_calcs.response import PlayerInfo, PlayerStats, PlayerGear, PlayerSetup
 from app.GameDefinitions.Loadouts import LoadoutRegistry
-from app.GameDefinitions.Loadouts.Custom import Custom
+from app.Loadout import Loadout
 from app.Registries.MonsterRegistry import MonsterRegistry
 from app.Registries.WeaponRegistry import WeaponRegistry
 from app.Stats import Stats
@@ -12,7 +12,7 @@ def _resolve_player(loadout_name: str, gear_input, player_levels: dict | None) -
         if gear_input is None:
             raise ValueError("Gear input is required for the Custom loadout.")
         levels = Stats(player_levels) if player_levels else None
-        return Custom(gear_names=gear_input.pieces, player_levels=levels).build()
+        return Loadout(gear_names=gear_input.pieces, player_levels=levels).build()
 
     player = LoadoutRegistry.get(loadout_name)
     if player is None:

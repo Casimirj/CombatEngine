@@ -3,10 +3,10 @@ from app.Enums.gear_slot import GearSlot
 from app.Registries.GearRegistry import GearRegistry
 
 
-class Salve(Gear):
-    name = "Salve (e)"
-    slot = GearSlot.NECK
-    aliases = ["salve ie", "salve e", "salve amulet", "salve"]
+class BerserkerRingI(Gear):
+    name = "Berserker ring (i)"
+    slot = GearSlot.RING
+    aliases = ["berserker ring (i)", "bring (i)", "bring(i)", "berserker ring i", "bring i"]
 
     def build(self) -> dict:
         return {
@@ -15,17 +15,17 @@ class Salve(Gear):
             "crush_attack_bonus":  0,
             "magic_attack_bonus":  0,
             "ranged_attack_bonus":  0,
-            "melee_strength_bonus":  0,
+            "melee_strength_bonus":  8,
             "ranged_strength_bonus":  0,
             "magic_strength_bonus":  0,
-            "stab_def":  3,
-            "slash_def":  3,
-            "crush_def":  3,
+            "stab_def":  0,
+            "slash_def":  0,
+            "crush_def":  8,
             "magic_def":  0,
             "ranged_def_light":  0,
             "ranged_def_med":  0,
-            "ranged_def_heavy":  0,
+            "ranged_def_heavy":  0
         }
 
 
-GearRegistry.register(Salve())
+GearRegistry.register(BerserkerRingI())

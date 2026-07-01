@@ -1,34 +1,13 @@
-from app.Player import Player
 from app.Loadout import Loadout
 from app.Registries.LoadoutRegistry import LoadoutRegistry
 
 
 class OathFireSalve(Loadout):
     name = "OathFireSalve"
-    aliases = ["fire salve", "infernal salve"]
+    aliases = ['fire salve', 'infernal salve']
 
-    def build(self) -> Player:
-        stats = {
-            'hp_level': 99,
-            'attack_level': 99,
-            'strength_level': 99,
-            'def_level': 99,
-            'magic_level': 99,
-            'ranged_level': 99,
-            'prayer_level': 99,
-
-            'slash_attack_bonus': 60,
-            'stab_attack_bonus': 22,
-            'crush_attack_bonus': 22,
-            'magic_attack_bonus': 0,
-            'ranged_attack_bonus': 0,
-
-            'melee_strength_bonus': 51,
-            'magic_strength_bonus': 0,
-            'ranged_strength_bonus': 0,
-        }
-        return Player(stats=stats, wearing_salve=True)
+    def build(self):
+        return Loadout(gear_names=['Oathplate helm', 'Fire cape', 'Salve (e)', 'Oathplate body', 'Oathplate legs', 'Ferocious gloves', 'Primordial boots', 'Berserker ring (i)', 'Avernic defender'], name=self.name).build()
 
 
 LoadoutRegistry.register(OathFireSalve())
-player = LoadoutRegistry.get("OathFireSalve")

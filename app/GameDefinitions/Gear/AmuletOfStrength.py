@@ -3,10 +3,10 @@ from app.Enums.gear_slot import GearSlot
 from app.Registries.GearRegistry import GearRegistry
 
 
-class Salve(Gear):
-    name = "Salve (e)"
+class AmuletOfStrength(Gear):
+    name = "Amulet of strength"
     slot = GearSlot.NECK
-    aliases = ["salve ie", "salve e", "salve amulet", "salve"]
+    aliases = ["strength amulet", "amulet of strength", "str amulet", "strength ammy"]
 
     def build(self) -> dict:
         return {
@@ -15,17 +15,17 @@ class Salve(Gear):
             "crush_attack_bonus":  0,
             "magic_attack_bonus":  0,
             "ranged_attack_bonus":  0,
-            "melee_strength_bonus":  0,
+            "melee_strength_bonus":  10,
             "ranged_strength_bonus":  0,
             "magic_strength_bonus":  0,
-            "stab_def":  3,
-            "slash_def":  3,
-            "crush_def":  3,
+            "stab_def":  0,
+            "slash_def":  0,
+            "crush_def":  0,
             "magic_def":  0,
             "ranged_def_light":  0,
             "ranged_def_med":  0,
-            "ranged_def_heavy":  0,
+            "ranged_def_heavy":  0
         }
 
 
-GearRegistry.register(Salve())
+GearRegistry.register(AmuletOfStrength())
