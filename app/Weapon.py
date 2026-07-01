@@ -1,8 +1,11 @@
 import random
 
-from app.NPC import NPC
+from app.Monster import Monster
+
 
 class Weapon():
+
+    aliases: list[str] = []
 
     def __init__(self, 
         name=None,
@@ -42,9 +45,11 @@ class Weapon():
         self.special_attack_style = special_attack_style.capitalize() if special_attack_style else "N/A"
         self.special_attack_cost = special_attack_cost
 
+        if self.combat_style == "Ranged" and self.attack_style == "Rapid":
+            self.attack_speed = max(1, self.attack_speed - 1)
 
-    def do_attack(self, max_hit, player_attack_roll, npc_def_roll):
-        # OSRS hit chance formula from the wiki DPS pages
+
+    def do_attack(self, max_hit, player_attack_roll, npc_def_roll, monster:Monster=None):
         if player_attack_roll > npc_def_roll:
             hit_chance = 1 - (npc_def_roll + 2) / (2 * (player_attack_roll + 1))
         else:
@@ -56,14 +61,14 @@ class Weapon():
             return 0
 
 
-    def do_special_attack(self, max_hit:int, player_attack_roll:int, npc_def_roll:int, monster:NPC=None):
+    def do_special_attack(self, max_hit:int, player_attack_roll:int, npc_def_roll:int, monster:Monster=None):
         if(not self.has_special_attack):
             print("We tried to spec with a weapon which does not have a special attack, using a normal attack")
             return self.do_attack(
                 max_hit=max_hit,
                 player_attack_roll=player_attack_roll, 
-                npc_def_roll=npc_def_roll
+                npc_def_roll=npc_def_roll,
+                monster=monster
             )
         else:
-            raise ReferenceError("You used a special attack on a weapon which does not implement the special attack function")
-            
+            raise ReferenceError("You tried to use a special attack on a weapon which does not implement the special attack function")

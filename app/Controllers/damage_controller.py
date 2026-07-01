@@ -11,6 +11,13 @@ from app.Controllers.Models.calculate_hit import CalculateHitInput
 from app.Controllers.Models.calculate_hit import CalculateHitOutput
 from app.Controllers.Services.calculate_hit_service import calculate_hit_damage
 
+from app.Controllers.Models.get_combat_calcs import GetCombatCalcsInput
+from app.Controllers.Models.get_combat_calcs import GetCombatCalcsOutput
+from app.Controllers.Services.get_combat_calcs_service import get_combat_calcs
+
+from app.Controllers.Models.test import TestInput, TestOutput
+from app.Controllers.Services.test_service import run_test
+
 
 CSS_PATH = Path(__file__).with_name("damage_controller.css")
 OPENAPI_URL = "/openapi.json"
@@ -36,9 +43,30 @@ def calculate_hit(
     payload: CalculateHitInput = Body(
         ...,
         openapi_examples={
-            "default": {
-                "summary": "Scythe Maiden",
+            "custom_scythe_maiden": {
+                "summary": "Custom Scythe Maiden",
                 "value": {
+                    "Loadout": "Custom",
+                    "Weapon": "Scythe of Vitur",
+                    "Monster": {
+                        "Name": "Maiden",
+                        "ReduceDefense": True,
+                        "Defense": 80,
+                    },
+                    "Scale": 3,
+                    "Gear": {
+                        "Pieces": ["Salve (e)"],
+                    },
+                    "PlayerLevels": {
+                        "attack_level": 99,
+                        "strength_level": 99,
+                    },
+                },
+            },
+            "named_loadout": {
+                "summary": "Named Loadout",
+                "value": {
+                    "Loadout": "OathTorvaRancour",
                     "Weapon": "Scythe of Vitur",
                     "Monster": {
                         "Name": "Maiden",
@@ -48,18 +76,6 @@ def calculate_hit(
                     "Scale": 3,
                 },
             },
-            "tbow_maiden": {
-                "summary": "Tbow Maiden",
-                "value": {
-                    "Weapon": "Twisted Bow",
-                    "Monster": {
-                        "Name": "Maiden",
-                        "ReduceDefense": True,
-                        "Defense": 80,
-                    },
-                    "Scale": 3,
-                },
-            }
         },
     ),
 ) -> CalculateHitOutput:
@@ -68,6 +84,79 @@ def calculate_hit(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return CalculateHitOutput(damage=damage, monster_defense=monster_defense)
+
+
+@app.post("/get_combat_calcs", response_model=GetCombatCalcsOutput)
+def combat_calcs(
+    payload: GetCombatCalcsInput = Body(
+        ...,
+        openapi_examples={
+            "custom_scythe_maiden": {
+                "summary": "Custom Scythe Maiden",
+                "value": {
+                    "Loadout": "Custom",
+                    "Weapon": "Scythe of Vitur",
+                    "Monster": {
+                        "Name": "Maiden",
+                        "ReduceDefense": True,
+                        "Defense": 80,
+                    },
+                    "Scale": 3,
+                    "Gear": {
+                        "Pieces": ["Salve (e)"],
+                    },
+                    "PlayerLevels": {
+                        "attack_level": 99,
+                        "strength_level": 99,
+                    },
+                },
+            },
+            "named_loadout": {
+                "summary": "Named Loadout",
+                "value": {
+                    "Loadout": "OathTorvaRancour",
+                    "Weapon": "Scythe of Vitur",
+                    "Monster": {
+                        "Name": "Maiden",
+                        "ReduceDefense": True,
+                        "Defense": 80,
+                    },
+                    "Scale": 3,
+                },
+            },
+        },
+    ),
+) -> GetCombatCalcsOutput:
+    try:
+        return get_combat_calcs(payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/run_test", response_model=TestOutput)
+def run_combat_test(
+    payload: TestInput = Body(
+        ...,
+        openapi_examples={
+            "default": {
+                "summary": "Scythe Bloat",
+                "value": {
+                    "Loadout": "OathTorvaRancour",
+                    "Weapon": "Scythe of Vitur",
+                    "Monster": {
+                        "Name": "Bloat",
+                        "ReduceDefense": False,
+                    },
+                    "Scale": 5,
+                },
+            },
+        },
+    ),
+) -> TestOutput:
+    try:
+        return run_test(payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 if not Config.is_prod:

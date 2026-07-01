@@ -2,11 +2,11 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .gear import GearInput
-from .monster import MonsterInput
+from ..calculate_hit.gear import GearInput
+from ..calculate_hit.monster import MonsterInput
 
 
-class CalculateHitInput(BaseModel):
+class GetCombatCalcsInput(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
     loadout: str = Field(alias="Loadout")

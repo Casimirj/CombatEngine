@@ -1,38 +1,38 @@
 from app.Controllers.Models.calculate_hit import CalculateHitInput
-from app.Monsters import Bloat, Maiden, P1Verzik, P2Verzik, P3Verzik, Sotetseg, Xarpus
-from app.Loadouts import OathTorvaRancour
-from app.Weapons.Scythe import Scythe
+from app.GameDefinitions.Loadouts import LoadoutRegistry
+from app.GameDefinitions.Loadouts.Custom import Custom
+from app.Registries.MonsterRegistry import MonsterRegistry
+from app.Registries.WeaponRegistry import WeaponRegistry
+from app.Stats import Stats
 
 
-MONSTER_CLASSES = {
-    "Bloat": Bloat,
-    "Maiden": Maiden,
-    "P1Verzik": P1Verzik,
-    "P2Verzik": P2Verzik,
-    "P3Verzik": P3Verzik,
-    "Sotetseg": Sotetseg,
-    "Xarpus": Xarpus,
-}
+def _resolve_player(loadout_name: str, gear_input, player_levels: dict | None) -> "Player":
+    if loadout_name.strip().lower() == "custom":
+        if gear_input is None:
+            raise ValueError("Gear input is required for the Custom loadout.")
+        levels = Stats(player_levels) if player_levels else None
+        return Custom(gear_names=gear_input.pieces, player_levels=levels).build()
+
+    player = LoadoutRegistry.get(loadout_name)
+    if player is None:
+        raise ValueError(f"Unknown loadout: {loadout_name}")
+    return player
 
 
 def calculate_hit_damage(payload: CalculateHitInput) -> tuple[int, int]:
-    monster_name = payload.monster.name
-
-    if monster_name not in MONSTER_CLASSES:
-        raise ValueError(f"Unknown monster: {monster_name}")
-
-    monster = MONSTER_CLASSES[monster_name](scale=payload.scale)
+    monster = MonsterRegistry.get(payload.monster.name, scale=payload.scale)
+    if monster is None:
+        raise ValueError(f"Unknown monster: {payload.monster.name}")
 
     if payload.monster.reduce_defense:
         monster.stats.def_level = int(payload.monster.defense)
 
-    weapon_name = payload.weapon
+    weapon = WeaponRegistry.get(payload.weapon)
+    if weapon is None:
+        raise ValueError(f"Unknown weapon: {payload.weapon}")
 
-    if weapon_name == "Scythe of Vitur":
-        player = OathTorvaRancour.player
-        player.equip_weapon(Scythe())
-        damage = player.do_attack(monster)
-    else:
-        damage = payload.scale
+    player = _resolve_player(payload.loadout, payload.gear_input, payload.player_levels)
+    player.equip_weapon(weapon)
+    damage = player.do_attack(monster)
 
     return damage, monster.stats.def_level

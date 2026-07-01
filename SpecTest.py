@@ -1,19 +1,23 @@
 from datetime import datetime
 
-from app.Loadouts.OathTorvaRancour import player as oath_torva_rancour
-from app.Loadouts.OathTorvaSalve import player as oath_torva_salve
-from app.Monsters.Maiden import Maiden
-from app.Monsters.Nylo_boss import P3Verzik as Nylo_boss
-from app.Monsters.Sotetseg import Sotetseg
-from app.Monsters.Xarpus import Xarpus
+from app.GameDefinitions.Loadouts import LoadoutRegistry
+
+oath_torva_rancour = LoadoutRegistry.get("OathTorvaRancour")
+from app.GameDefinitions.Loadouts import LoadoutRegistry
+
+oath_torva_salve = LoadoutRegistry.get("OathTorvaSalve")
+from app.GameDefinitions.Monsters.Maiden import Maiden
+from app.GameDefinitions.Monsters.Nylo_boss import P3Verzik as Nylo_boss
+from app.GameDefinitions.Monsters.Sotetseg import Sotetseg
+from app.GameDefinitions.Monsters.Xarpus import Xarpus
 from app.Player import Player
-from app.Weapons.Bgs import Bgs
-from app.Weapons.CrystalHalberd import CrystalHalberd
-from app.Weapons.DragonClaws import DragonClaws
-from app.Weapons.ElderMaul import ElderMaul
-from app.Weapons.Fists import Fists
-from app.Weapons.NoxHally import NoxHally
-from app.Weapons.Scythe import Scythe
+from app.GameDefinitions.Weapons.Bgs import Bgs
+from app.GameDefinitions.Weapons.CrystalHalberd import CrystalHalberd
+from app.GameDefinitions.Weapons.DragonClaws import DragonClaws
+from app.GameDefinitions.Weapons.ElderMaul import ElderMaul
+from app.GameDefinitions.Weapons.Fists import Fists
+from app.GameDefinitions.Weapons.NoxHally import NoxHally
+from app.GameDefinitions.Weapons.Scythe import Scythe
 
 
 number_of_players = 5
