@@ -5,7 +5,7 @@ from app.Registries.GearRegistry import GearRegistry
 
 class AvernicDefender(Gear):
     name = "Avernic defender"
-    slot = GearSlot.SHIELD
+    slot = GearSlot.OFFHAND
     aliases = ["avernic defender", "avernic", "avernic def"]
 
     def build(self) -> dict:

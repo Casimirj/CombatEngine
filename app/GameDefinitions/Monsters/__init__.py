@@ -1,5 +1,6 @@
 """Monster package."""
 
+from .Baba import Baba
 from .Bloat import Bloat
 from .Maiden import Maiden
 from .P1Verzik import P1Verzik

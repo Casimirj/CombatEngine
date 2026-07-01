@@ -5,7 +5,7 @@ from app.Registries.GearRegistry import GearRegistry
 
 class AvernicTreads(Gear):
     name = "Avernic treads"
-    slot = GearSlot.FEET
+    slot = GearSlot.BOOTS
     aliases = ["avernic treads", "avernic boots", "treads"]
 
     def build(self) -> dict:

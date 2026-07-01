@@ -5,7 +5,7 @@ from app.Registries.GearRegistry import GearRegistry
 
 class PrimordialBoots(Gear):
     name = "Primordial boots"
-    slot = GearSlot.FEET
+    slot = GearSlot.BOOTS
     aliases = ["primordial boots", "primordials", "prims", "prim boots"]
 
     def build(self) -> dict:

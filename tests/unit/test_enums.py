@@ -71,14 +71,14 @@ class TestPrayerProperties(unittest.TestCase):
 class TestGearSlot(unittest.TestCase):
     def test_distinct_values(self):
         slots = list(GearSlot)
-        self.assertEqual(len(slots), 10)
+        self.assertEqual(len(slots), 11)
         values = {s.value for s in slots}
-        self.assertEqual(len(values), 10)
+        self.assertEqual(len(values), 11)
 
     def test_expected_members(self):
         self.assertIn(GearSlot.HEAD, GearSlot)
         self.assertIn(GearSlot.WEAPON, GearSlot)
-        self.assertIn(GearSlot.SHIELD, GearSlot)
+        self.assertIn(GearSlot.OFFHAND, GearSlot)
         self.assertIn(GearSlot.RING, GearSlot)
 
 

@@ -8,9 +8,10 @@ class GearSlot(Enum):
     BODY = auto()
     LEGS = auto()
     HANDS = auto()
-    FEET = auto()
+    BOOTS = auto()
     RING = auto()
     WEAPON = auto()
 
 
-    SHIELD = auto()
+    OFFHAND = auto()
+    AMMO = auto()

@@ -24,7 +24,8 @@ class TwistedBow(Weapon):
             attack_style="Rapid",
             attack_speed=6,
             attack_range=10,
-            has_special_attack=False
+            has_special_attack=False,
+            ammo_type="arrows"
         )
 
     def _calc_tbow_multipliers(self, monster: Monster = None):

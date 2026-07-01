@@ -17,8 +17,8 @@ import unittest
 
 from app.Loadout import Loadout
 from app.Registries.WeaponRegistry import WeaponRegistry
-from app.Enums.prayer import Prayer
-from app.Enums.potion import Potion
+from app.Enums import Prayer
+from app.Enums import Potion
 
 SETUPS = [
     # ── Basic Setup ───────────────────────────────────────────────────

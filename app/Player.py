@@ -9,17 +9,16 @@ from app.Weapon import Weapon
 from app.GameDefinitions.Weapons.Fists import Fists
 from app.Enums.gear_slot import GearSlot
 from app.GearItem import Gear
-from app.GameDefinitions.Gear.VoidRangerHelm import VoidRangerHelm
-from app.GameDefinitions.Gear.VoidMageHelm import VoidMageHelm
-from app.GameDefinitions.Gear.VoidMeleeHelm import VoidMeleeHelm
-from app.GameDefinitions.Gear.EliteVoidTop import EliteVoidTop
-from app.GameDefinitions.Gear.EliteVoidRobe import EliteVoidRobe
-from app.GameDefinitions.Gear.VoidKnightGloves import VoidKnightGloves
-from app.GameDefinitions.Gear.Salve import Salve as SalveGear
+from app.GameDefinitions.Gear import VoidRangerHelm, VoidMageHelm, VoidMeleeHelm
+from app.GameDefinitions.Gear import EliteVoidTop, EliteVoidRobe, VoidKnightGloves
+from app.GameDefinitions.Gear import Salve as SalveGear
 from app.Registries.GearRegistry import GearRegistry
 from app.Exceptions.InvalidLoadoutException import InvalidLoadoutException
+from app.Exceptions.InvalidAmmunitionException import InvalidAmmunitionException
 
-from app.Enums import Potion, Prayer
+from app.Enums import Potion, Prayer  # compat namespace (value lookups)
+from app.GameDefinitions.Potion import Potion as PotionType
+from app.GameDefinitions.Prayer import Prayer as PrayerType
 
 class Player:
 
@@ -38,6 +37,7 @@ class Player:
     def do_attack(self, monster:Monster, special_attack=False):
         if self.weapon is None:
             self.equip_weapon(Fists())
+        self._validate_ammo()
         if special_attack and self.current_special_attack < self.weapon.special_attack_cost:
             print("We tried to use a special attack but did not have enough energy, so we did a normal attack")
             print(f"{self.weapon.name} requires {self.weapon.special_attack_cost} but we only had {self.current_special_attack}")
@@ -74,6 +74,27 @@ class Player:
         self.weapon = Fists()
         self.compute_gear_stats()
 
+
+    def _validate_ammo(self):
+        """Validate that equipped ammo matches the weapon's ammo_type.
+
+        If a bow is equipped and darts are in the ammo slot, or vice versa,
+        raise InvalidAmmunitionException.
+        """
+        if self.weapon is None or self.weapon.ammo_type is None:
+            return
+
+        ammo_gear = self.gear.get(GearSlot.AMMO)
+        if ammo_gear is None:
+            return
+
+        ammo_category = getattr(ammo_gear, "ammo_category", None)
+        if ammo_category is not None and ammo_category != self.weapon.ammo_type:
+            raise InvalidAmmunitionException(
+                f"Incompatible ammunition: '{ammo_gear.name}' ({ammo_category}) "
+                f"cannot be used with '{self.weapon.name}' "
+                f"which requires {self.weapon.ammo_type}."
+            )
 
     # --- Gear system ---
 
@@ -340,7 +361,7 @@ class Player:
         stats:          dict    = None,
         weapon:         Weapon  = None,
         boosts:         list    = [Potion.NONE],
-        prayer:         Prayer  = Prayer.NONE,
+        prayer:         PrayerType      = Prayer.NONE,
         wearing_salve:  bool    = False,
         wearing_void:   bool    = False,
         void_style:     Optional[str]     = None,

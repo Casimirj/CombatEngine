@@ -24,6 +24,7 @@ class ToxicBlowpipe(Weapon):
             attack_speed=3,
             attack_range=5,
             has_special_attack=True,
+            ammo_type="darts",
             special_attack_style="Ranged",
             special_attack_cost=50
         )

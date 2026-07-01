@@ -29,8 +29,8 @@ class TumekensShadow(Weapon):
         )
 
     def do_attack(self, max_hit, player_attack_roll, npc_def_roll, monster: Monster = None):
-        adjusted_attack_roll = player_attack_roll * 3
-        adjusted_max_hit = int(max_hit * 3)
+        adjusted_attack_roll = player_attack_roll * 4 if (monster and monster.is_toa_monster) else player_attack_roll * 3
+        adjusted_max_hit = int(max_hit * 4) if (monster and monster.is_toa_monster) else int(max_hit * 3)
 
         if adjusted_attack_roll > npc_def_roll:
             hit_chance = 1 - (npc_def_roll + 2) / (2 * (adjusted_attack_roll + 1))

@@ -302,7 +302,7 @@ class TestPlayerConstructorWithLoadout(unittest.TestCase):
         loadout = Loadout(gear_names=["Amulet of fury", "Primordial boots"])
         player = Player(stats=_DEFAULT_LEVELS, loadout=loadout)
         self.assertIn(GearSlot.NECK, player.gear)
-        self.assertIn(GearSlot.FEET, player.gear)
+        self.assertIn(GearSlot.BOOTS, player.gear)
         self.assertGreater(player.stats.crush_attack_bonus, 0)
 
     def test_player_with_loadout_detects_salve(self):

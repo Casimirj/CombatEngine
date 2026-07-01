@@ -103,7 +103,7 @@ class Monster:
         self.stats.magic_level = max(self.stats.magic_level - reduction, 0)
 
 
-    def __init__(self, stats:dict=None, weak_to_salve:bool=False, minimum_def:int=0):
+    def __init__(self, stats:dict=None, weak_to_salve:bool=False, minimum_def:int=0, is_toa_monster:bool=False):
         if stats == None:
             raise ValueError("Stats cannot be null")
         self.stats = Stats(stats)
@@ -111,5 +111,6 @@ class Monster:
         self.minimum_def = minimum_def
         self.current_hp = self.stats.hp_level
         self.is_weak_to_salve = weak_to_salve
+        self.is_toa_monster = is_toa_monster
         
         self.def_roll = 0

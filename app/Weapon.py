@@ -17,7 +17,8 @@ class Weapon():
         attack_range=None,
         has_special_attack=None,
         special_attack_style=None,
-        special_attack_cost=0
+        special_attack_cost=0,
+        ammo_type=None
         ):
 
         if(any([
@@ -44,6 +45,7 @@ class Weapon():
         self.has_special_attack = has_special_attack
         self.special_attack_style = special_attack_style.capitalize() if special_attack_style else "N/A"
         self.special_attack_cost = special_attack_cost
+        self.ammo_type = ammo_type
 
         if self.combat_style == "Ranged" and self.attack_style == "Rapid":
             self.attack_speed = max(1, self.attack_speed - 1)
