@@ -8,13 +8,13 @@ Organised into two sections:
 """
 
 import unittest
-from app.GearItem import Gear
-from app.Loadout import Loadout
-from app.Player import Player
-from app.Stats import Stats
-from app.Enums.gear_slot import GearSlot
-from app.Registries.GearRegistry import GearRegistry
-from app.Exceptions.InvalidLoadoutException import InvalidLoadoutException
+from app.Domain.GearItem import Gear
+from app.Domain.Loadout import Loadout
+from app.Domain.Player import Player
+from app.Domain.Stats import Stats
+from app.Domain.Enums.GearSlot import GearSlot
+from app.Data.Registries.GearRegistry import GearRegistry
+from app.Domain.Exceptions.InvalidLoadoutException import InvalidLoadoutException
 
 
 _DEFAULT_LEVELS = {
@@ -630,7 +630,7 @@ class TestContrib_OathplateSet(unittest.TestCase):
 def _make_weapon(name="Test Sword", combat_style="Melee", attack_type="Slash",
                  attack_style="Aggressive", attack_speed=4, has_special=False,
                  special_attack_style=None, special_attack_cost=0):
-    from app.Weapon import Weapon
+    from app.Domain.Weapon import Weapon
     return Weapon(
         name=name,
         stats=Stats({"stab_attack_bonus": 40, "melee_strength_bonus": 30}),

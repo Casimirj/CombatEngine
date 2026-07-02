@@ -1,16 +1,16 @@
 """Unit tests for MonsterRegistry, WeaponRegistry, GearRegistry, LoadoutRegistry."""
 
 import unittest
-from app.Monster import Monster
-from app.Weapon import Weapon
-from app.Stats import Stats
-from app.GearItem import Gear
-from app.Loadout import Loadout
-from app.Enums.gear_slot import GearSlot
-from app.Registries.MonsterRegistry import MonsterRegistry
-from app.Registries.WeaponRegistry import WeaponRegistry
-from app.Registries.GearRegistry import GearRegistry
-from app.Registries.LoadoutRegistry import LoadoutRegistry
+from app.Domain.Monster import Monster
+from app.Domain.Weapon import Weapon
+from app.Domain.Stats import Stats
+from app.Domain.GearItem import Gear
+from app.Domain.Loadout import Loadout
+from app.Domain.Enums.GearSlot import GearSlot
+from app.Data.Registries.MonsterRegistry import MonsterRegistry
+from app.Data.Registries.WeaponRegistry import WeaponRegistry
+from app.Data.Registries.GearRegistry import GearRegistry
+from app.Data.Registries.LoadoutRegistry import LoadoutRegistry
 
 
 # ---------------------------------------------------------------------------
@@ -163,7 +163,7 @@ class TestLoadoutRegistry(unittest.TestCase):
         _restore_registry_state(LoadoutRegistry, self._saved)
 
     def test_register_and_get(self):
-        from app.Player import Player
+        from app.Domain.Player import Player
 
         class TestLoadout(Loadout):
             name = "Test Loadout"
@@ -177,7 +177,7 @@ class TestLoadoutRegistry(unittest.TestCase):
         self.assertEqual(p.stats.hp_level, 99)
 
     def test_cached_player(self):
-        from app.Player import Player
+        from app.Domain.Player import Player
 
         class CachedLoadout(Loadout):
             name = "Cached"
@@ -191,7 +191,7 @@ class TestLoadoutRegistry(unittest.TestCase):
         self.assertIs(p1, p2)
 
     def test_loadout_alias(self):
-        from app.Player import Player
+        from app.Domain.Player import Player
 
         class AliasedLoadout(Loadout):
             name = "Aliased"
@@ -212,7 +212,7 @@ class TestWeaponRegistryConcrete(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        import app.GameDefinitions.Weapons  # noqa: F811 — ensure registered
+        import app.Data.Definitions.Weapons  # noqa: F811 — ensure registered
 
     def test_scythe_is_registered(self):
         w = WeaponRegistry.get("Scythe of Vitur")
@@ -238,7 +238,7 @@ class TestWeaponRegistryConcrete(unittest.TestCase):
 class TestMonsterRegistryConcrete(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        import app.GameDefinitions.Monsters  # noqa: F811 — ensure registered
+        import app.Data.Definitions.Monsters  # noqa: F811 — ensure registered
 
     def test_bloat_is_registered(self):
         m = MonsterRegistry.get("Bloat")

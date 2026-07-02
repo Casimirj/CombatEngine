@@ -1,7 +1,7 @@
 """Unit tests for BaseRegistry and key normalization."""
 
 import unittest
-from app.Registries.BaseRegistry import BaseRegistry, normalize_key
+from app.Data.Registries.BaseRegistry import BaseRegistry, normalize_key
 
 
 class TestNormalizeKey(unittest.TestCase):

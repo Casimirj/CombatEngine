@@ -2,7 +2,7 @@
 
 import unittest
 import math
-from app.Enums import Potion, Prayer, GearSlot
+from app.Domain.Enums import Potion, Prayer, GearSlot
 
 
 class TestPotionComputeBoost(unittest.TestCase):

@@ -19,10 +19,10 @@ Add new setups by appending a dict to SETUPS with:
 
 import unittest
 
-from app.Loadout import Loadout
-from app.Registries.WeaponRegistry import WeaponRegistry
-from app.Enums import Prayer
-from app.Enums import Potion
+from app.Domain.Loadout import Loadout
+from app.Data.Registries.WeaponRegistry import WeaponRegistry
+from app.Domain.Enums import Prayer
+from app.Domain.Enums import Potion
 
 SETUPS = [
     # ── Naked + Shadow ─────────────────────────────────────────────
@@ -47,13 +47,14 @@ SETUPS = [
             "magus ring",
             "imbued saradomin cape",
             "avernic treads",
+            "confliction gauntlets",
         ],
         "weapon": "tumeken",
         "prayer": Prayer.AUGURY,
-        "expected_base_accuracy_roll": 29172,
-        "expected_base_max_hit": 56,
-        "expected_shadow_accuracy_roll": 87516,
-        "expected_shadow_max_hit": 168,
+        "expected_base_accuracy_roll": 31812,
+        "expected_base_max_hit": 59,
+        "expected_shadow_accuracy_roll": 95436,
+        "expected_shadow_max_hit": 177,
     },
 ]
 

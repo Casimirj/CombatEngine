@@ -6,42 +6,52 @@ and magic attack bonus (capped at 250).
 
 Add new setups by appending a dict to SETUPS with:
     name                          — snake_case identifier for generated names
-    gear_names                    — list of gear registry keys
+    gear_names                    — list of gear registry keys (ammo included)
     weapon                        — weapon registry key
-    ammo                          — ammo gear registry key
     monster                       — monster registry key (e.g. "maiden")
     attack_style_override         — (optional) override weapon attack style
     prayer                        — (optional) Prayer enum; default NONE
     boosts                        — (optional) list of Potion enums
     expected_base_accuracy_roll   — expected player.attack_roll (before tbow multiplier)
     expected_base_max_hit         — expected player.max_hit (before tbow multiplier)
-    expected_tbow_accuracy_roll   — expected accuracy roll after tbow multiplier
-    expected_tbow_max_hit         — expected max hit after tbow multiplier
+    expected_actual_accuracy_roll   — expected accuracy roll after tbow multiplier
+    expected_actual_max_hit         — expected max hit after tbow multiplier
 """
 
 import math
 import unittest
 
-from app.Loadout import Loadout
-from app.Registries.WeaponRegistry import WeaponRegistry
-from app.Registries.GearRegistry import GearRegistry
-from app.Registries.MonsterRegistry import MonsterRegistry
-from app.Enums import Prayer
-from app.Enums import Potion
+from app.Domain.Loadout import Loadout
+from app.Data.Registries.WeaponRegistry import WeaponRegistry
+from app.Data.Registries.MonsterRegistry import MonsterRegistry
+from app.Domain.Enums import Prayer
+from app.Domain.Enums import Potion
 
 SETUPS = [
     # ── Naked + Twisted Bow + Dragon Arrows vs Maiden ───────────────────
     {
-        "name": "naked_tbow_dragon_arrows_vs_maiden",
-        "gear_names": [],
+        "name": "maiden_only_dragon_noboosts",
+        "gear_names": ["dragon arrows"],
         "weapon": "twisted bow",
-        "ammo": "dragon arrows",
         "monster": "maiden",
         "prayer": Prayer.NONE,
         "expected_base_accuracy_roll": 14338,
         "expected_base_max_hit": 34,
-        "expected_tbow_accuracy_roll": 34411,
-        "expected_tbow_max_hit": 107,
+        "expected_actual_accuracy_roll": 34411,
+        "expected_actual_max_hit": 107,
+    },
+    # ── Rigour + Ranging + Twisted Bow + Dragon Arrows vs Maiden ─────────
+    {
+        "name": "maiden_only_dragon",
+        "gear_names": ["dragon arrows"],
+        "weapon": "twisted bow",
+        "monster": "maiden",
+        "prayer": Prayer.RIGOUR,
+        "boosts": [Potion.RANGING],
+        "expected_base_accuracy_roll": 19028,
+        "expected_base_max_hit": 46,
+        "expected_actual_accuracy_roll": 45667,
+        "expected_actual_max_hit": 144,
     },
 ]
 
@@ -86,10 +96,10 @@ def _make_test_classes():
                 acc_mult, _ = player.weapon._calc_tbow_multipliers(monster)
                 adjusted = math.floor(player.attack_roll * acc_mult)
                 self.assertEqual(
-                    adjusted, setup["expected_tbow_accuracy_roll"],
+                    adjusted, setup["expected_actual_accuracy_roll"],
                     f"\n setup={setup['name']!r}"
                     f"\n gear={setup.get('gear_names', [])}"
-                    f"\n expected_tbow_accuracy_roll={setup['expected_tbow_accuracy_roll']}"
+                    f"\n expected_actual_accuracy_roll={setup['expected_actual_accuracy_roll']}"
                     f"\n actual_tbow_accuracy_roll={adjusted}"
                 )
             return test
@@ -101,10 +111,10 @@ def _make_test_classes():
                 _, dmg_mult = player.weapon._calc_tbow_multipliers(monster)
                 adjusted = math.floor(player.max_hit * dmg_mult)
                 self.assertEqual(
-                    adjusted, setup["expected_tbow_max_hit"],
+                    adjusted, setup["expected_actual_max_hit"],
                     f"\n setup={setup['name']!r}"
                     f"\n gear={setup.get('gear_names', [])}"
-                    f"\n expected_tbow_max_hit={setup['expected_tbow_max_hit']}"
+                    f"\n expected_actual_max_hit={setup['expected_actual_max_hit']}"
                     f"\n actual_tbow_max_hit={adjusted}"
                 )
             return test
@@ -112,8 +122,8 @@ def _make_test_classes():
         TestCls = type(class_name, (unittest.TestCase,), {
             "test_base_accuracy_roll":  build_accuracy_test(setup),
             "test_base_max_hit":        build_max_hit_test(setup),
-            "test_tbow_accuracy_roll":  build_tbow_accuracy_test(setup),
-            "test_tbow_max_hit":        build_tbow_max_hit_test(setup),
+            "test_actual_accuracy_roll":  build_tbow_accuracy_test(setup),
+            "test_actual_max_hit":        build_tbow_max_hit_test(setup),
         })
         globals()[class_name] = TestCls
 
@@ -123,13 +133,6 @@ def _build_player_and_monster_from_setup(setup):
 
     weapon = WeaponRegistry.get(setup["weapon"])
     player.equip_weapon(weapon)
-
-    if "ammo" in setup:
-        ammo_gear = GearRegistry.get(setup["ammo"])
-        if ammo_gear is not None:
-            from app.Enums.gear_slot import GearSlot
-            player.gear[GearSlot.AMMO] = ammo_gear
-            player.compute_gear_stats()
 
     if "attack_style_override" in setup:
         player.weapon.attack_style = setup["attack_style_override"]

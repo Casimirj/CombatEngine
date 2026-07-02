@@ -2,10 +2,10 @@
 
 import unittest
 
-from app.Loadout import Loadout
-from app.Registries.WeaponRegistry import WeaponRegistry
-from app.Enums import Prayer
-from app.Enums import Potion
+from app.Domain.Loadout import Loadout
+from app.Data.Registries.WeaponRegistry import WeaponRegistry
+from app.Domain.Enums import Prayer
+from app.Domain.Enums import Potion
 
 SETUPS = [
     {
