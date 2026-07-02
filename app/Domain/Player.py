@@ -16,9 +16,12 @@ from app.Data.Registries.GearRegistry import GearRegistry
 from app.Domain.Exceptions.InvalidLoadoutException import InvalidLoadoutException
 from app.Domain.Exceptions.InvalidAmmunitionException import InvalidAmmunitionException
 
-from app.Domain.Enums import Potion, Prayer  # compat namespace (value lookups)
-from app.Domain.Potion import Potion as PotionType
-from app.Domain.Prayer import Prayer as PrayerType
+from app.Domain.Potion import Potion
+from app.Domain.Prayer import Prayer
+from app.Data.Registries.PotionRegistry import PotionRegistry
+from app.Data.Registries.PrayerRegistry import PrayerRegistry
+
+
 
 class Player:
 
@@ -363,8 +366,8 @@ class Player:
         stats:          dict    = None,
         weapon:         Weapon  = None,
         loadout:        Optional[object] = None,
-        boosts:         list    = [Potion.NONE],
-        prayer:         PrayerType      = Prayer.NONE,
+        boosts:         list    = [PotionRegistry.get("NONE")],
+        prayer:         Prayer = PrayerRegistry.get("NONE"),
         wearing_salve:  bool    = False,
         wearing_void:   bool    = False,
         void_style:     Optional[str]     = None,

@@ -6,7 +6,8 @@ from app.Domain.Player import Player
 from app.Domain.Weapon import Weapon
 from app.Domain.Stats import Stats
 from app.Domain.Monster import Monster
-from app.Domain.Enums import Potion, Prayer
+from app.Data.Registries.PotionRegistry import PotionRegistry
+from app.Data.Registries.PrayerRegistry import PrayerRegistry
 
 
 _DEFAULT_STATS = {
@@ -58,8 +59,8 @@ class TestPlayerInit(unittest.TestCase):
 
     def test_player_default_boosts_and_prayer(self):
         p = Player(stats=_DEFAULT_STATS)
-        self.assertEqual(p.prayer, Prayer.NONE)
-        self.assertEqual(p.boosts, [Potion.NONE])
+        self.assertEqual(p.prayer, PrayerRegistry.get("none"))
+        self.assertEqual(p.boosts, [PotionRegistry.get("none")])
 
     def test_player_wearing_salve(self):
         p = Player(stats=_DEFAULT_STATS, wearing_salve=True)
@@ -113,7 +114,7 @@ class TestPlayerMeleeCalcs(unittest.TestCase):
     def setUp(self):
         self.w = _make_weapon()
         self.p = Player(stats=_DEFAULT_STATS, weapon=self.w,
-                        boosts=[Potion.SUPER_COMBAT], prayer=Prayer.PIETY)
+                        boosts=[PotionRegistry.get("super combat")], prayer=PrayerRegistry.get("piety"))
 
     def test_calc_effective_attack_level(self):
         lvl = self.p.calc_eff_attack_level()
@@ -139,7 +140,7 @@ class TestPlayerMeleeCalcs(unittest.TestCase):
         from app.Data.Registries.GearRegistry import GearRegistry
         salve = GearRegistry.get("Salve (e)")
         p_salve = Player(stats=_DEFAULT_STATS, weapon=self.w,
-                         boosts=[Potion.SUPER_COMBAT], prayer=Prayer.PIETY)
+                         boosts=[PotionRegistry.get("super combat")], prayer=PrayerRegistry.get("piety"))
         p_salve.equip_gear(salve)
         self.p.calc_all_the_things(combat_style="Melee", attack_type="Slash",
                                    monster_weak_to_salve=False)
@@ -151,7 +152,7 @@ class TestPlayerMeleeCalcs(unittest.TestCase):
         from app.Data.Registries.GearRegistry import GearRegistry
         salve = GearRegistry.get("Salve (e)")
         p_salve = Player(stats=_DEFAULT_STATS, weapon=self.w,
-                         boosts=[Potion.SUPER_COMBAT], prayer=Prayer.PIETY)
+                         boosts=[PotionRegistry.get("super combat")], prayer=PrayerRegistry.get("piety"))
         p_salve.equip_gear(salve)
         self.p.calc_all_the_things(combat_style="Melee", attack_type="Slash",
                                    monster_weak_to_salve=False)
@@ -176,7 +177,7 @@ class TestPlayerRangedCalcs(unittest.TestCase):
             has_special_attack=False,
         )
         self.p = Player(stats=_DEFAULT_STATS, weapon=self.w,
-                        boosts=[Potion.RANGING], prayer=Prayer.RIGOUR)
+                        boosts=[PotionRegistry.get("ranging")], prayer=PrayerRegistry.get("rigour"))
 
     def test_calc_effective_ranged_attack(self):
         lvl = self.p.calc_eff_ranged_attack_level()
@@ -211,7 +212,7 @@ class TestPlayerMagicCalcs(unittest.TestCase):
             has_special_attack=False,
         )
         self.p = Player(stats=_DEFAULT_STATS, weapon=self.w,
-                        boosts=[Potion.IMBUED_HEART], prayer=Prayer.AUGURY)
+                        boosts=[PotionRegistry.get("imbued heart")], prayer=PrayerRegistry.get("augury"))
 
     def test_calc_effective_magic_level(self):
         lvl = self.p.calc_eff_magic_level()
@@ -230,7 +231,7 @@ class TestPlayerDoAttack(unittest.TestCase):
     def setUp(self):
         self.w = _make_weapon()
         self.p = Player(stats=_DEFAULT_STATS, weapon=self.w,
-                        boosts=[Potion.SUPER_COMBAT], prayer=Prayer.PIETY)
+                        boosts=[PotionRegistry.get("super combat")], prayer=PrayerRegistry.get("piety"))
         self.m = Monster({"hp_level": 200, "def_level": 80, "slash_def": 100})
 
     def test_do_attack_returns_non_negative(self):
@@ -257,7 +258,7 @@ class TestPlayerDoAttack(unittest.TestCase):
             special_attack_cost=100,
         )
         p = Player(stats=_DEFAULT_STATS, weapon=w,
-                   boosts=[Potion.SUPER_COMBAT], prayer=Prayer.PIETY)
+                   boosts=[PotionRegistry.get("super combat")], prayer=PrayerRegistry.get("piety"))
         p.current_special_attack = 0
         damage = p.do_attack(self.m, special_attack=True)
         # Falls through to normal attack — returns int damage, not ReferenceError
@@ -268,7 +269,7 @@ class TestPlayerDoAttack(unittest.TestCase):
 class TestPlayerCalcAttRoll(unittest.TestCase):
     def setUp(self):
         self.p = Player(stats=_DEFAULT_STATS, weapon=_make_weapon(),
-                        boosts=[Potion.NONE], prayer=Prayer.NONE)
+                        boosts=[PotionRegistry.get("none")], prayer=PrayerRegistry.get("none"))
         self.p.effective_att_level = 100
         # Set expected stat values directly for deterministic calc tests
         self.p.stats.stab_attack_bonus = 80
@@ -295,7 +296,7 @@ class TestPlayerCalcAttRoll(unittest.TestCase):
 class TestPlayerCalcDefRoll(unittest.TestCase):
     def setUp(self):
         self.p = Player(stats=_DEFAULT_STATS, weapon=_make_weapon(),
-                        boosts=[Potion.NONE], prayer=Prayer.NONE)
+                        boosts=[PotionRegistry.get("none")], prayer=PrayerRegistry.get("none"))
         self.p.effective_def_level = 100
         # Set expected stat values directly for deterministic calc tests
         self.p.stats.stab_def = 200

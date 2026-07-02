@@ -15,8 +15,8 @@ import unittest
 
 from app.Domain.Loadout import Loadout
 from app.Data.Registries.WeaponRegistry import WeaponRegistry
-from app.Domain.Enums import Prayer
-from app.Domain.Enums import Potion
+from app.Data.Registries.PrayerRegistry import PrayerRegistry
+from app.Data.Registries.PotionRegistry import PotionRegistry
 
 SETUPS = [
     # ── Naked + Ayak ─────────────────────────────────────────────
@@ -24,7 +24,7 @@ SETUPS = [
         "name": "naked_ayak",
         "gear_names": [],
         "weapon": "ayak",
-        "prayer": Prayer.NONE,
+        "prayer": "none",
         "expected_accuracy_roll": 10152,
         "expected_max_hit": 37,
     },
@@ -42,7 +42,7 @@ SETUPS = [
             "confliction gauntlets",
         ],
         "weapon": "ayak",
-        "prayer": Prayer.AUGURY,
+        "prayer": "augury",
         "expected_accuracy_roll": 31152,
         "expected_max_hit": 59,
     },
@@ -99,10 +99,10 @@ def _build_player_from_setup(setup):
         player.weapon.attack_style = setup["attack_style_override"]
 
     if "prayer" in setup:
-        player.prayer = setup["prayer"]
+        player.prayer = PrayerRegistry.get(setup["prayer"])
 
     if "boosts" in setup:
-        player.boosts = setup["boosts"]
+        player.boosts = [PotionRegistry.get(b) for b in setup["boosts"]]
 
     return player
 

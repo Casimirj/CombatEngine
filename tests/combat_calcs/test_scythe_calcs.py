@@ -17,15 +17,15 @@ import unittest
 
 from app.Domain.Loadout import Loadout
 from app.Data.Registries.WeaponRegistry import WeaponRegistry
-from app.Domain.Enums import Prayer
-from app.Domain.Enums import Potion
+from app.Data.Registries.PrayerRegistry import PrayerRegistry
+from app.Data.Registries.PotionRegistry import PotionRegistry
 
 SETUPS = [
     # ── Basic Setup ───────────────────────────────────────────────────
     {
         "name": "TOO_setup",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "torva full helm",
             "oathplate body",
@@ -43,8 +43,8 @@ SETUPS = [
     # ── Basic + oathplate helm ────────────────────────────────────────
     {
         "name": "OOO_oathplate_helm",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "oathplate helm",
             "oathplate body",
@@ -62,8 +62,8 @@ SETUPS = [
     # ── Basic + fire cape ─────────────────────────────────────────────
     {
         "name": "TOO_fire_cape",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "torva full helm",
             "oathplate body",
@@ -92,16 +92,16 @@ SETUPS = [
             "infernal cape",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.NONE,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "none",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 33642,
         "expected_max_hit": 41,  # scythe total: 41 + 20 + 10 = 71
     },
     # ── Basic + accurate style ────────────────────────────────────────
     {
         "name": "TOO_accurate_style",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "torva full helm",
             "oathplate body",
@@ -120,7 +120,7 @@ SETUPS = [
     # ── Basic + no supercombat ────────────────────────────────────────
     {
         "name": "TOO_no_supercombat",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "torva full helm",
             "oathplate body",
@@ -132,7 +132,7 @@ SETUPS = [
             "infernal cape",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.NONE],
+        "boosts": ["none"],
         "expected_accuracy_roll": 33642,
         "expected_max_hit": 42,  # scythe total: 42 + 21 + 10 = 73
     },
@@ -150,16 +150,16 @@ SETUPS = [
             "infernal cape",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.NONE,
-        "boosts": [Potion.NONE],
+        "prayer": "none",
+        "boosts": ["none"],
         "expected_accuracy_roll": 28569,
         "expected_max_hit": 35,  # scythe total: 35 + 17 + 8 = 60
     },
     # ── Basic + torva body + torva legs ───────────────────────────────
     {
         "name": "TTT_torva_body_legs",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "torva full helm",
             "torva platebody",
@@ -177,8 +177,8 @@ SETUPS = [
     # ── Basic + bandos + no necklace ──────────────────────────────────
     {
         "name": "TOO_bandos_no_neck",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "torva full helm",
             "bandos chestplate",
@@ -195,8 +195,8 @@ SETUPS = [
     # ── Basic + bandos + no necklace + no gloves ──────────────────────
     {
         "name": "TOO_bandos_no_neck_no_gloves",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "torva full helm",
             "bandos chestplate",
@@ -212,8 +212,8 @@ SETUPS = [
     # ── OOO: oathplate helm/body/legs variants ─────────────────────────
     {
         "name": "OOO_torture",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "oathplate helm",
             "oathplate body",
@@ -231,8 +231,8 @@ SETUPS = [
     },
     {
         "name": "OOO_fury",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "oathplate helm",
             "oathplate body",
@@ -250,8 +250,8 @@ SETUPS = [
     },
     {
         "name": "OOO_strength",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "oathplate helm",
             "oathplate body",
@@ -269,8 +269,8 @@ SETUPS = [
     },
     {
         "name": "OOO_bring",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "oathplate helm",
             "oathplate body",
@@ -288,8 +288,8 @@ SETUPS = [
     },
     {
         "name": "OOO_prims",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "oathplate helm",
             "oathplate body",
@@ -319,8 +319,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.CHIVALRY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "chivalry",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 43758,
         "expected_max_hit": 49,  # scythe total: 49 + 24 + 12 = 85
     },
@@ -338,8 +338,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.ULTIMATE_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "ultimate strength",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 38556,
         "expected_max_hit": 48,  # scythe total: 48 + 24 + 12 = 84
     },
@@ -357,14 +357,14 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.BURST_OF_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "BURST_OF_STRENGTH",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 40086,
         "expected_max_hit": 44,  # scythe total: 44 + 22 + 11 = 77
     },
     {
         "name": "OOO_zamorak_brew",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "oathplate helm",
             "oathplate body",
@@ -377,13 +377,13 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.ZAMORAK_BREW],
+        "boosts": ["zamorak brew"],
         "expected_accuracy_roll": 43452,
         "expected_max_hit": 49,  # scythe total: 49 + 24 + 12 = 85
     },
     {
         "name": "OOO_ancient_brew",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "oathplate helm",
             "oathplate body",
@@ -396,13 +396,13 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.ANCIENT_BREW],
+        "boosts": ["ancient brew"],
         "expected_accuracy_roll": 34578,
         "expected_max_hit": 39,  # scythe total: 39 + 19 + 9 = 67
     },
     {
         "name": "OOO_super_attack",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "oathplate helm",
             "oathplate body",
@@ -415,7 +415,7 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.SUPER_ATTACK],
+        "boosts": ["SUPER_ATTACK"],
         "expected_accuracy_roll": 45594,
         "expected_max_hit": 44,  # scythe total: 44 + 22 + 11 = 77
     },
@@ -433,8 +433,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.CHIVALRY,
-        "boosts": [Potion.ZAMORAK_BREW],
+        "prayer": "chivalry",
+        "boosts": ["zamorak brew"],
         "expected_accuracy_roll": 41616,
         "expected_max_hit": 47,  # scythe total: 47 + 23 + 11 = 81
     },
@@ -452,8 +452,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.NONE,
-        "boosts": [Potion.ANCIENT_BREW],
+        "prayer": "none",
+        "boosts": ["ancient brew"],
         "expected_accuracy_roll": 29376,
         "expected_max_hit": 33,  # scythe total: 33 + 16 + 8 = 57
     },
@@ -471,15 +471,15 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.BURST_OF_STRENGTH,
-        "boosts": [Potion.NONE],
+        "prayer": "BURST_OF_STRENGTH",
+        "boosts": ["none"],
         "expected_accuracy_roll": 33966,
         "expected_max_hit": 38,  # scythe total: 38 + 19 + 9 = 66
     },
     {
         "name": "OOO_accurate_style",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "oathplate helm",
             "oathplate body",
@@ -498,8 +498,8 @@ SETUPS = [
     },
     {
         "name": "OOO_fire_cape",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "oathplate helm",
             "oathplate body",
@@ -517,8 +517,8 @@ SETUPS = [
     },
     {
         "name": "OOO_no_defender",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "oathplate helm",
             "oathplate body",
@@ -535,8 +535,8 @@ SETUPS = [
     },
     {
         "name": "OOO_salve",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "oathplate helm",
             "oathplate body",
@@ -554,8 +554,8 @@ SETUPS = [
     },
     {
         "name": "OOO_torture_bring_prims",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "oathplate helm",
             "oathplate body",
@@ -573,8 +573,8 @@ SETUPS = [
     },
     {
         "name": "OOO_fury_bandos",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "oathplate helm",
             "bandos chestplate",
@@ -593,8 +593,8 @@ SETUPS = [
     # ── TOO: torva helm + oath body/legs variants ──────────────────────
     {
         "name": "TOO_torture",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "torva full helm",
             "oathplate body",
@@ -612,8 +612,8 @@ SETUPS = [
     },
     {
         "name": "TOO_fury",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "torva full helm",
             "oathplate body",
@@ -631,8 +631,8 @@ SETUPS = [
     },
     {
         "name": "TOO_strength",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "torva full helm",
             "oathplate body",
@@ -650,8 +650,8 @@ SETUPS = [
     },
     {
         "name": "TOO_bring",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "torva full helm",
             "oathplate body",
@@ -669,8 +669,8 @@ SETUPS = [
     },
     {
         "name": "TOO_prims",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "torva full helm",
             "oathplate body",
@@ -688,7 +688,7 @@ SETUPS = [
     },
     {
         "name": "TOO_zamorak_brew",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "torva full helm",
             "oathplate body",
@@ -701,13 +701,13 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.ZAMORAK_BREW],
+        "boosts": ["zamorak brew"],
         "expected_accuracy_roll": 42032,
         "expected_max_hit": 49,  # scythe total: 49 + 24 + 12 = 85
     },
     {
         "name": "TOO_ancient_brew",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "torva full helm",
             "oathplate body",
@@ -720,7 +720,7 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.ANCIENT_BREW],
+        "boosts": ["ancient brew"],
         "expected_accuracy_roll": 33448,
         "expected_max_hit": 40,  # scythe total: 40 + 20 + 10 = 70
     },
@@ -738,8 +738,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.CHIVALRY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "chivalry",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 42328,
         "expected_max_hit": 50,  # scythe total: 50 + 25 + 12 = 87
     },
@@ -757,15 +757,15 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.ULTIMATE_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "ultimate strength",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 37296,
         "expected_max_hit": 49,  # scythe total: 49 + 24 + 12 = 85
     },
     {
         "name": "TOO_fire_cape",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "torva full helm",
             "oathplate body",
@@ -785,8 +785,8 @@ SETUPS = [
     # ── Only Scythe ───────────────────────────────────────────────────
     {
         "name": "only_scythe",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [],
         "weapon": "scythe",
         "expected_accuracy_roll": 28161,
@@ -795,8 +795,8 @@ SETUPS = [
     # ── Only Scythe + ultor ───────────────────────────────────────────
     {
         "name": "only_ultor",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "ultor ring",
         ],
@@ -807,8 +807,8 @@ SETUPS = [
     # ── New gear: single-item bare tests ────────────────────────────────
     {
         "name": "only_amulet_of_torture",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "amulet of torture",
         ],
@@ -818,8 +818,8 @@ SETUPS = [
     },
     {
         "name": "only_berserker_ring_i",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "berserker ring (i)",
         ],
@@ -829,8 +829,8 @@ SETUPS = [
     },
     {
         "name": "only_primordial_boots",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "primordial boots",
         ],
@@ -840,8 +840,8 @@ SETUPS = [
     },
     {
         "name": "only_amulet_of_fury",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "amulet of fury",
         ],
@@ -851,8 +851,8 @@ SETUPS = [
     },
     {
         "name": "only_amulet_of_strength",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "amulet of strength",
         ],
@@ -863,8 +863,8 @@ SETUPS = [
     # ── New gear: pair combinations ─────────────────────────────────────
     {
         "name": "only_torture_bring",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "amulet of torture",
             "berserker ring (i)",
@@ -875,8 +875,8 @@ SETUPS = [
     },
     {
         "name": "only_torture_prims",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "amulet of torture",
             "primordial boots",
@@ -887,8 +887,8 @@ SETUPS = [
     },
     {
         "name": "only_fury_bring",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "amulet of fury",
             "berserker ring (i)",
@@ -899,8 +899,8 @@ SETUPS = [
     },
     {
         "name": "only_fury_prims",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "amulet of fury",
             "primordial boots",
@@ -911,8 +911,8 @@ SETUPS = [
     },
     {
         "name": "only_strength_bring",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "amulet of strength",
             "berserker ring (i)",
@@ -924,8 +924,8 @@ SETUPS = [
     # ── New gear: mixed with old gear ────────────────────────────────────
     {
         "name": "only_torture_ferocious",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "amulet of torture",
             "ferocious gloves",
@@ -936,8 +936,8 @@ SETUPS = [
     },
     {
         "name": "only_fury_infernal",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "amulet of fury",
             "infernal cape",
@@ -948,8 +948,8 @@ SETUPS = [
     },
     {
         "name": "only_bring_ferocious",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "berserker ring (i)",
             "ferocious gloves",
@@ -960,8 +960,8 @@ SETUPS = [
     },
     {
         "name": "only_prims_rancour",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "primordial boots",
             "amulet of rancour",
@@ -972,8 +972,8 @@ SETUPS = [
     },
     {
         "name": "only_torture_infernal",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "amulet of torture",
             "infernal cape",
@@ -985,8 +985,8 @@ SETUPS = [
     # ── New gear: three-item combos ──────────────────────────────────────
     {
         "name": "only_torture_bring_prims",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "amulet of torture",
             "berserker ring (i)",
@@ -998,8 +998,8 @@ SETUPS = [
     },
     {
         "name": "only_fury_bring_prims",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "amulet of fury",
             "berserker ring (i)",
@@ -1017,27 +1017,27 @@ SETUPS = [
             "berserker ring (i)",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.NONE,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "none",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 25704,
         "expected_max_hit": 32,  # scythe total: 32 + 16 + 8 = 56
     },
     {
         "name": "only_fury_bring_no_scb",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "amulet of fury",
             "berserker ring (i)",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.NONE],
+        "boosts": ["none"],
         "expected_accuracy_roll": 25074,
         "expected_max_hit": 32,  # scythe total: 32 + 16 + 8 = 56
     },
     # ── Potion variants ────────────────────────────────────────────────────
     {
         "name": "TTT_super_combat",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "torva full helm",
             "torva platebody",
@@ -1050,13 +1050,13 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.SUPER_COMBAT],
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 39932,
         "expected_max_hit": 53,  # scythe total: 53 + 26 + 13 = 92
     },
     {
         "name": "TTT_super_atk_str",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "torva full helm",
             "torva platebody",
@@ -1069,13 +1069,13 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.SUPER_ATTACK, Potion.SUPER_STRENGTH],
+        "boosts": ["SUPER_ATTACK", "SUPER_STRENGTH"],
         "expected_accuracy_roll": 39932,
         "expected_max_hit": 53,  # scythe total: 53 + 26 + 13 = 92
     },
     {
         "name": "TTT_zamorak_brew",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "torva full helm",
             "torva platebody",
@@ -1088,13 +1088,13 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.ZAMORAK_BREW],
+        "boosts": ["zamorak brew"],
         "expected_accuracy_roll": 38056,
         "expected_max_hit": 50,  # scythe total: 50 + 25 + 12 = 87
     },
     {
         "name": "TTT_ancient_brew",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "torva full helm",
             "torva platebody",
@@ -1107,13 +1107,13 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.ANCIENT_BREW],
+        "boosts": ["ancient brew"],
         "expected_accuracy_roll": 30284,
         "expected_max_hit": 40,  # scythe total: 40 + 20 + 10 = 70
     },
     {
         "name": "TTT_attack_potion",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "torva full helm",
             "torva platebody",
@@ -1126,13 +1126,13 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.ATTACK],
+        "boosts": ["ATTACK"],
         "expected_accuracy_roll": 37788,
         "expected_max_hit": 45,  # scythe total: 45 + 22 + 11 = 78
     },
     {
         "name": "TTT_super_attack_only",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "torva full helm",
             "torva platebody",
@@ -1145,7 +1145,7 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.SUPER_ATTACK],
+        "boosts": ["SUPER_ATTACK"],
         "expected_accuracy_roll": 39932,
         "expected_max_hit": 45,  # scythe total: 45 + 22 + 11 = 78
     },
@@ -1164,8 +1164,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.CHIVALRY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "chivalry",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 38324,
         "expected_max_hit": 51,  # scythe total: 51 + 25 + 12 = 88
     },
@@ -1183,8 +1183,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.ULTIMATE_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "ultimate strength",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 33768,
         "expected_max_hit": 50,  # scythe total: 50 + 25 + 12 = 87
     },
@@ -1202,8 +1202,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.INCREDIBLE_REFLEXES,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "INCREDIBLE_REFLEXES",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 38324,
         "expected_max_hit": 44,  # scythe total: 44 + 22 + 11 = 77
     },
@@ -1221,8 +1221,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.BURST_OF_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "BURST_OF_STRENGTH",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 35108,
         "expected_max_hit": 45,  # scythe total: 45 + 22 + 11 = 78
     },
@@ -1240,8 +1240,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.SUPERNATURAL_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "SUPERNATURAL_STRENGTH",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 33768,
         "expected_max_hit": 47,  # scythe total: 47 + 23 + 11 = 81
     },
@@ -1259,8 +1259,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.CLARITY_OF_THOUGHT,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "CLARITY_OF_THOUGHT",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 35108,
         "expected_max_hit": 44,  # scythe total: 44 + 22 + 11 = 77
     },
@@ -1278,8 +1278,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.IMPROVED_REFLEXES,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "IMPROVED_REFLEXES",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 36716,
         "expected_max_hit": 44,  # scythe total: 44 + 22 + 11 = 77
     },
@@ -1298,8 +1298,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.CHIVALRY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "chivalry",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 38324,
         "expected_max_hit": 51,  # scythe total: 51 + 25 + 12 = 88
     },
@@ -1317,8 +1317,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.ULTIMATE_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "ultimate strength",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 33768,
         "expected_max_hit": 50,  # scythe total: 50 + 25 + 12 = 87
     },
@@ -1336,8 +1336,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.BURST_OF_STRENGTH,
-        "boosts": [Potion.NONE],
+        "prayer": "BURST_OF_STRENGTH",
+        "boosts": ["none"],
         "expected_accuracy_roll": 29748,
         "expected_max_hit": 39,  # scythe total: 39 + 19 + 9 = 67
     },
@@ -1355,8 +1355,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.INCREDIBLE_REFLEXES,
-        "boosts": [Potion.ZAMORAK_BREW],
+        "prayer": "INCREDIBLE_REFLEXES",
+        "boosts": ["zamorak brew"],
         "expected_accuracy_roll": 36448,
         "expected_max_hit": 42,  # scythe total: 42 + 21 + 10 = 73
     },
@@ -1374,8 +1374,8 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.NONE,
-        "boosts": [Potion.ANCIENT_BREW],
+        "prayer": "none",
+        "boosts": ["ancient brew"],
         "expected_accuracy_roll": 25728,
         "expected_max_hit": 34,  # scythe total: 34 + 17 + 8 = 59
     },
@@ -1393,64 +1393,64 @@ SETUPS = [
             "avernic defender",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.CHIVALRY,
-        "boosts": [Potion.ANCIENT_BREW],
+        "prayer": "chivalry",
+        "boosts": ["ancient brew"],
         "expected_accuracy_roll": 29212,
         "expected_max_hit": 39,  # scythe total: 39 + 19 + 9 = 67
     },
     # ── New gear + potion variants ─────────────────────────────────────────
     {
         "name": "only_torture_super_combat",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "amulet of torture",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.SUPER_COMBAT],
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 30396,
         "expected_max_hit": 36,  # scythe total: 36 + 18 + 9 = 63
     },
     {
         "name": "only_fury_ancient_brew",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "amulet of fury",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.ANCIENT_BREW],
+        "boosts": ["ancient brew"],
         "expected_accuracy_roll": 22487,
         "expected_max_hit": 27,  # scythe total: 27 + 13 + 6 = 46
     },
     {
         "name": "only_strength_zamorak_brew",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "amulet of strength",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.ZAMORAK_BREW],
+        "boosts": ["zamorak brew"],
         "expected_accuracy_roll": 26838,
         "expected_max_hit": 34,  # scythe total: 34 + 17 + 8 = 59
     },
     {
         "name": "only_bring_zamorak_brew",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "berserker ring (i)",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.ZAMORAK_BREW],
+        "boosts": ["zamorak brew"],
         "expected_accuracy_roll": 26838,
         "expected_max_hit": 34,  # scythe total: 34 + 17 + 8 = 59
     },
     {
         "name": "only_prims_super_combat",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "primordial boots",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.SUPER_COMBAT],
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 28459,
         "expected_max_hit": 35,  # scythe total: 35 + 17 + 8 = 60
     },
@@ -1461,8 +1461,8 @@ SETUPS = [
             "amulet of torture",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 30396,
         "expected_max_hit": 36,  # scythe total: 36 + 18 + 9 = 63
     },
@@ -1472,8 +1472,8 @@ SETUPS = [
             "amulet of fury",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.CHIVALRY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "chivalry",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 28457,
         "expected_max_hit": 34,  # scythe total: 34 + 17 + 8 = 59
     },
@@ -1483,8 +1483,8 @@ SETUPS = [
             "amulet of strength",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.ULTIMATE_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "ultimate strength",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 23814,
         "expected_max_hit": 34,  # scythe total: 34 + 17 + 8 = 59
     },
@@ -1494,8 +1494,8 @@ SETUPS = [
             "berserker ring (i)",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.INCREDIBLE_REFLEXES,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "INCREDIBLE_REFLEXES",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 27027,
         "expected_max_hit": 30,  # scythe total: 30 + 15 + 7 = 52
     },
@@ -1505,8 +1505,8 @@ SETUPS = [
             "primordial boots",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.BURST_OF_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "BURST_OF_STRENGTH",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 25021,
         "expected_max_hit": 30,  # scythe total: 30 + 15 + 7 = 52
     },
@@ -1518,20 +1518,20 @@ SETUPS = [
             "berserker ring (i)",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.CHIVALRY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "chivalry",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 29172,
         "expected_max_hit": 37,  # scythe total: 37 + 18 + 9 = 64
     },
     {
         "name": "only_fury_prims_super_combat",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "amulet of fury",
             "primordial boots",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.SUPER_COMBAT],
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 29949,
         "expected_max_hit": 37,  # scythe total: 37 + 18 + 9 = 64
     },
@@ -1542,8 +1542,8 @@ SETUPS = [
             "primordial boots",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 30694,
         "expected_max_hit": 38,  # scythe total: 38 + 19 + 9 = 66
     },
@@ -1554,20 +1554,20 @@ SETUPS = [
             "berserker ring (i)",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.NONE,
-        "boosts": [Potion.ZAMORAK_BREW],
+        "prayer": "none",
+        "boosts": ["zamorak brew"],
         "expected_accuracy_roll": 23880,
         "expected_max_hit": 30,  # scythe total: 30 + 15 + 7 = 52
     },
     {
         "name": "only_strength_bring_super_combat",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": [
             "amulet of strength",
             "berserker ring (i)",
         ],
         "weapon": "scythe",
-        "boosts": [Potion.SUPER_COMBAT],
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 28161,
         "expected_max_hit": 38,  # scythe total: 38 + 19 + 9 = 66
     },
@@ -1579,8 +1579,8 @@ SETUPS = [
             "ferocious gloves",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.CHIVALRY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "chivalry",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 31460,
         "expected_max_hit": 38,  # scythe total: 38 + 19 + 9 = 66
     },
@@ -1591,8 +1591,8 @@ SETUPS = [
             "infernal cape",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.ULTIMATE_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "ultimate strength",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 25578,
         "expected_max_hit": 35,  # scythe total: 35 + 17 + 8 = 60
     },
@@ -1603,8 +1603,8 @@ SETUPS = [
             "ferocious gloves",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 30545,
         "expected_max_hit": 39,  # scythe total: 39 + 19 + 9 = 67
     },
@@ -1615,8 +1615,8 @@ SETUPS = [
             "amulet of rancour",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.NONE,
-        "boosts": [Potion.ZAMORAK_BREW],
+        "prayer": "none",
+        "boosts": ["zamorak brew"],
         "expected_accuracy_roll": 25920,
         "expected_max_hit": 30,  # scythe total: 30 + 15 + 7 = 52
     },
@@ -1627,8 +1627,8 @@ SETUPS = [
             "infernal cape",
         ],
         "weapon": "scythe",
-        "prayer": Prayer.BURST_OF_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "BURST_OF_STRENGTH",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 27248,
         "expected_max_hit": 33,  # scythe total: 33 + 16 + 8 = 57
     },
@@ -1636,8 +1636,8 @@ SETUPS = [
     # ── Only Scythe + avernic treads ──────────────────────────────────
     {
         "name": "only_avernic_treads",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "avernic treads",
         ],
@@ -1648,8 +1648,8 @@ SETUPS = [
     # ── Only Scythe + ferocious gloves ────────────────────────────────
     {
         "name": "only_ferocious_gloves",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": [
             "ferocious gloves",
         ],
@@ -1660,8 +1660,8 @@ SETUPS = [
             # ── Void Melee setups ────────────────────────────────────────────
     {
         "name": "VVV_nothing_else",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves'],
         "weapon": "scythe",
         "expected_accuracy_roll": 30807,
@@ -1669,8 +1669,8 @@ SETUPS = [
     },
     {
         "name": "VVV_cape_only",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves', 'infernal cape'],
         "weapon": "scythe",
         "expected_accuracy_roll": 31459,
@@ -1678,8 +1678,8 @@ SETUPS = [
     },
     {
         "name": "VVV_neck_only",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves', 'amulet of rancour'],
         "weapon": "scythe",
         "expected_accuracy_roll": 34882,
@@ -1687,8 +1687,8 @@ SETUPS = [
     },
     {
         "name": "VVV_ring_only",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves', 'ultor ring'],
         "weapon": "scythe",
         "expected_accuracy_roll": 30807,
@@ -1696,8 +1696,8 @@ SETUPS = [
     },
     {
         "name": "VVV_boots_only",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves', 'avernic treads'],
         "weapon": "scythe",
         "expected_accuracy_roll": 31622,
@@ -1705,10 +1705,10 @@ SETUPS = [
     },
     {
         "name": "VVV_nothing_no_scb",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves'],
         "weapon": "scythe",
-        "boosts": [Potion.NONE],
+        "boosts": ["none"],
         "expected_accuracy_roll": 26082,
         "expected_max_hit": 31,  # scythe total: 31 + 15 + 7 = 53
     },
@@ -1716,8 +1716,8 @@ SETUPS = [
         "name": "VVV_nothing_no_piety",
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves'],
         "weapon": "scythe",
-        "prayer": Prayer.NONE,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "none",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 26082,
         "expected_max_hit": 31,  # scythe total: 31 + 15 + 7 = 53
     },
@@ -1725,15 +1725,15 @@ SETUPS = [
         "name": "VVV_nothing_no_scb_no_piety",
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves'],
         "weapon": "scythe",
-        "boosts": [Potion.NONE],
-        "prayer": Prayer.NONE,
+        "boosts": ["none"],
+        "prayer": "none",
         "expected_accuracy_roll": 22113,
         "expected_max_hit": 26,  # scythe total: 26 + 13 + 6 = 45
     },
     {
         "name": "VVV_setup",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves', 'amulet of rancour', 'ultor ring', 'avernic treads', 'infernal cape'],
         "weapon": "scythe",
         "expected_accuracy_roll": 36349,
@@ -1743,8 +1743,8 @@ SETUPS = [
         "name": "VVV_setup_chivalry",
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves', 'amulet of rancour', 'ultor ring', 'avernic treads', 'infernal cape'],
         "weapon": "scythe",
-        "prayer": Prayer.CHIVALRY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "chivalry",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 35011,
         "expected_max_hit": 46,  # scythe total: 46 + 23 + 11 = 80
     },
@@ -1752,8 +1752,8 @@ SETUPS = [
         "name": "VVV_setup_ult_str",
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves', 'amulet of rancour', 'ultor ring', 'avernic treads', 'infernal cape'],
         "weapon": "scythe",
-        "prayer": Prayer.ULTIMATE_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "ultimate strength",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 30774,
         "expected_max_hit": 44,  # scythe total: 44 + 22 + 11 = 77
     },
@@ -1761,8 +1761,8 @@ SETUPS = [
         "name": "VVV_setup_super_str",
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves', 'amulet of rancour', 'ultor ring', 'avernic treads', 'infernal cape'],
         "weapon": "scythe",
-        "prayer": Prayer.SUPERNATURAL_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "SUPERNATURAL_STRENGTH",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 30774,
         "expected_max_hit": 43,  # scythe total: 43 + 21 + 10 = 74
     },
@@ -1770,8 +1770,8 @@ SETUPS = [
         "name": "VVV_setup_burst_str",
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves', 'amulet of rancour', 'ultor ring', 'avernic treads', 'infernal cape'],
         "weapon": "scythe",
-        "prayer": Prayer.BURST_OF_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "BURST_OF_STRENGTH",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 32112,
         "expected_max_hit": 41,  # scythe total: 41 + 20 + 10 = 71
     },
@@ -1779,17 +1779,17 @@ SETUPS = [
         "name": "VVV_setup_no_piety",
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves', 'amulet of rancour', 'ultor ring', 'avernic treads', 'infernal cape'],
         "weapon": "scythe",
-        "prayer": Prayer.NONE,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "none",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 30774,
         "expected_max_hit": 39,  # scythe total: 39 + 19 + 9 = 67
     },
     {
         "name": "VVV_setup_no_scb",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves', 'amulet of rancour', 'ultor ring', 'avernic treads', 'infernal cape'],
         "weapon": "scythe",
-        "boosts": [Potion.NONE],
+        "boosts": ["none"],
         "expected_accuracy_roll": 30774,
         "expected_max_hit": 40,  # scythe total: 40 + 20 + 10 = 70
     },
@@ -1797,24 +1797,24 @@ SETUPS = [
         "name": "VVV_setup_no_scb_no_piety",
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves', 'amulet of rancour', 'ultor ring', 'avernic treads', 'infernal cape'],
         "weapon": "scythe",
-        "boosts": [Potion.NONE],
-        "prayer": Prayer.NONE,
+        "boosts": ["none"],
+        "prayer": "none",
         "expected_accuracy_roll": 26091,
         "expected_max_hit": 33,  # scythe total: 33 + 16 + 8 = 57
     },
     {
         "name": "VVV_setup_zammy",
-        "prayer": Prayer.PIETY,
+        "prayer": "piety",
         "gear_names": ['void melee helm', 'elite void top', 'elite void robe', 'void knight gloves', 'amulet of rancour', 'ultor ring', 'avernic treads', 'infernal cape'],
         "weapon": "scythe",
-        "boosts": [Potion.ZAMORAK_BREW],
+        "boosts": ["zamorak brew"],
         "expected_accuracy_roll": 34788,
         "expected_max_hit": 45,  # scythe total: 45 + 22 + 11 = 78
     },
     {
         "name": "VVV_torture",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'infernal cape', 'amulet of torture', 'elite void top', 'elite void robe', 'void knight gloves', 'avernic treads', 'ultor ring'],
         "weapon": "scythe",
         "expected_accuracy_roll": 34719,
@@ -1822,8 +1822,8 @@ SETUPS = [
     },
     {
         "name": "VVV_fury",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'infernal cape', 'amulet of fury', 'elite void top', 'elite void robe', 'void knight gloves', 'avernic treads', 'ultor ring'],
         "weapon": "scythe",
         "expected_accuracy_roll": 33904,
@@ -1831,8 +1831,8 @@ SETUPS = [
     },
     {
         "name": "VVV_strength_ammy",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'infernal cape', 'amulet of strength', 'elite void top', 'elite void robe', 'void knight gloves', 'avernic treads', 'ultor ring'],
         "weapon": "scythe",
         "expected_accuracy_roll": 32274,
@@ -1840,8 +1840,8 @@ SETUPS = [
     },
     {
         "name": "VVV_bring",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'infernal cape', 'amulet of rancour', 'elite void top', 'elite void robe', 'void knight gloves', 'avernic treads', 'berserker ring (i)'],
         "weapon": "scythe",
         "expected_accuracy_roll": 36349,
@@ -1849,8 +1849,8 @@ SETUPS = [
     },
     {
         "name": "VVV_prims",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'infernal cape', 'amulet of rancour', 'elite void top', 'elite void robe', 'void knight gloves', 'primordial boots', 'ultor ring'],
         "weapon": "scythe",
         "expected_accuracy_roll": 35860,
@@ -1858,8 +1858,8 @@ SETUPS = [
     },
     {
         "name": "VVV_fire_cape",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'fire cape', 'amulet of rancour', 'elite void top', 'elite void robe', 'void knight gloves', 'avernic treads', 'ultor ring'],
         "weapon": "scythe",
         "expected_accuracy_roll": 35860,
@@ -1867,8 +1867,8 @@ SETUPS = [
     },
     {
         "name": "VVV_ferocious",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'infernal cape', 'amulet of rancour', 'elite void top', 'elite void robe', 'ferocious gloves', 'avernic treads', 'ultor ring'],
         "weapon": "scythe",
         "expected_accuracy_roll": 35611,
@@ -1876,8 +1876,8 @@ SETUPS = [
     },
     {
         "name": "VVV_torture_fire",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'fire cape', 'amulet of torture', 'elite void top', 'elite void robe', 'void knight gloves', 'avernic treads', 'ultor ring'],
         "weapon": "scythe",
         "expected_accuracy_roll": 34230,
@@ -1885,8 +1885,8 @@ SETUPS = [
     },
     {
         "name": "VVV_torture_prims",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'infernal cape', 'amulet of torture', 'elite void top', 'elite void robe', 'void knight gloves', 'primordial boots', 'ultor ring'],
         "weapon": "scythe",
         "expected_accuracy_roll": 34230,
@@ -1894,8 +1894,8 @@ SETUPS = [
     },
     {
         "name": "VVV_torture_prims_fire",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'fire cape', 'amulet of torture', 'elite void top', 'elite void robe', 'void knight gloves', 'primordial boots', 'ultor ring'],
         "weapon": "scythe",
         "expected_accuracy_roll": 33741,
@@ -1903,8 +1903,8 @@ SETUPS = [
     },
     {
         "name": "VVV_fury_fire",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'fire cape', 'amulet of fury', 'elite void top', 'elite void robe', 'void knight gloves', 'avernic treads', 'ultor ring'],
         "weapon": "scythe",
         "expected_accuracy_roll": 33415,
@@ -1912,8 +1912,8 @@ SETUPS = [
     },
     {
         "name": "VVV_fury_prims",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'infernal cape', 'amulet of fury', 'elite void top', 'elite void robe', 'void knight gloves', 'primordial boots', 'ultor ring'],
         "weapon": "scythe",
         "expected_accuracy_roll": 33415,
@@ -1921,8 +1921,8 @@ SETUPS = [
     },
     {
         "name": "VVV_bring_fire",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'fire cape', 'amulet of rancour', 'elite void top', 'elite void robe', 'void knight gloves', 'avernic treads', 'berserker ring (i)'],
         "weapon": "scythe",
         "expected_accuracy_roll": 35860,
@@ -1930,8 +1930,8 @@ SETUPS = [
     },
     {
         "name": "VVV_bring_prims",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'infernal cape', 'amulet of rancour', 'elite void top', 'elite void robe', 'void knight gloves', 'primordial boots', 'berserker ring (i)'],
         "weapon": "scythe",
         "expected_accuracy_roll": 35860,
@@ -1939,8 +1939,8 @@ SETUPS = [
     },
     {
         "name": "VVV_torture_ferocious",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'infernal cape', 'amulet of torture', 'elite void top', 'elite void robe', 'ferocious gloves', 'avernic treads', 'ultor ring'],
         "weapon": "scythe",
         "expected_accuracy_roll": 34121,
@@ -1948,8 +1948,8 @@ SETUPS = [
     },
     {
         "name": "VVV_torture_ferocious_fire",
-        "prayer": Prayer.PIETY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "piety",
+        "boosts": ["super combat"],
         "gear_names": ['void melee helm', 'fire cape', 'amulet of torture', 'elite void top', 'elite void robe', 'ferocious gloves', 'avernic treads', 'ultor ring'],
         "weapon": "scythe",
         "expected_accuracy_roll": 33674,
@@ -1959,8 +1959,8 @@ SETUPS = [
         "name": "VVV_torture_chivalry",
         "gear_names": ['void melee helm', 'infernal cape', 'amulet of torture', 'elite void top', 'elite void robe', 'void knight gloves', 'avernic treads', 'ultor ring'],
         "weapon": "scythe",
-        "prayer": Prayer.CHIVALRY,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "chivalry",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 33441,
         "expected_max_hit": 45,  # scythe total: 45 + 22 + 11 = 78
     },
@@ -1968,8 +1968,8 @@ SETUPS = [
         "name": "VVV_torture_ult_str",
         "gear_names": ['void melee helm', 'infernal cape', 'amulet of torture', 'elite void top', 'elite void robe', 'void knight gloves', 'avernic treads', 'ultor ring'],
         "weapon": "scythe",
-        "prayer": Prayer.ULTIMATE_STRENGTH,
-        "boosts": [Potion.SUPER_COMBAT],
+        "prayer": "ultimate strength",
+        "boosts": ["super combat"],
         "expected_accuracy_roll": 29394,
         "expected_max_hit": 44,  # scythe total: 44 + 22 + 11 = 77
     },
@@ -2025,10 +2025,10 @@ def _build_player_from_setup(setup):
         player.weapon.attack_style = setup["attack_style_override"]
 
     if "prayer" in setup:
-        player.prayer = setup["prayer"]
+        player.prayer = PrayerRegistry.get(setup["prayer"])
 
     if "boosts" in setup:
-        player.boosts = setup["boosts"]
+        player.boosts = [PotionRegistry.get(b) for b in setup["boosts"]]
 
     return player
 

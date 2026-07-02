@@ -2,7 +2,11 @@
 
 import unittest
 import math
-from app.Domain.Enums import Potion, Prayer, GearSlot
+from app.Domain.Enums import GearSlot
+from app.Domain.Potion import Potion
+from app.Domain.Prayer import Prayer
+from app.Data.Registries.PotionRegistry import PotionRegistry
+from app.Data.Registries.PrayerRegistry import PrayerRegistry
 
 
 class TestPotionComputeBoost(unittest.TestCase):
@@ -28,41 +32,41 @@ class TestPotionComputeBoost(unittest.TestCase):
 
 class TestPotionLabels(unittest.TestCase):
     def test_super_combat_has_label(self):
-        self.assertEqual(Potion.SUPER_COMBAT.label, "Super combat")
+        self.assertEqual(PotionRegistry.get("super combat").label, "Super combat")
 
     def test_none_has_label(self):
-        self.assertEqual(Potion.NONE.label, "None")
+        self.assertEqual(PotionRegistry.get("none").label, "None")
 
     def test_zamorak_brew_has_negative_defence(self):
-        self.assertLess(Potion.ZAMORAK_BREW.defence_percentage, 0)
+        self.assertLess(PotionRegistry.get("zamorak brew").defence_percentage, 0)
 
 
 class TestPrayerProperties(unittest.TestCase):
     def test_piety_values(self):
-        p = Prayer.PIETY
+        p = PrayerRegistry.get("piety")
         self.assertEqual(p.attack_multiplier, 1.20)
         self.assertEqual(p.strength_multiplier, 1.23)
         self.assertEqual(p.defence_multiplier, 1.25)
         self.assertEqual(p.ranged_attack_multiplier, 0.0)
 
     def test_rigour_values(self):
-        r = Prayer.RIGOUR
+        r = PrayerRegistry.get("rigour")
         self.assertAlmostEqual(r.ranged_attack_multiplier, 1.20)
         self.assertAlmostEqual(r.ranged_strength_multiplier, 1.23)
         self.assertEqual(r.attack_multiplier, 0.0)
 
     def test_augury_values(self):
-        a = Prayer.AUGURY
+        a = PrayerRegistry.get("augury")
         self.assertAlmostEqual(a.magic_attack_multiplier, 1.25)
         self.assertAlmostEqual(a.magic_damage_bonus, 0.04)
 
     def test_none_prayer(self):
-        n = Prayer.NONE
+        n = PrayerRegistry.get("none")
         self.assertEqual(n.attack_multiplier, 0.0)
         self.assertEqual(n.strength_multiplier, 0.0)
 
     def test_backward_compat_aliases(self):
-        p = Prayer.PIETY
+        p = PrayerRegistry.get("piety")
         self.assertEqual(p.atk_mult, p.attack_multiplier)
         self.assertEqual(p.str_mult, p.strength_multiplier)
         self.assertEqual(p.def_mult, p.defence_multiplier)
@@ -93,7 +97,7 @@ class TestPotionBoostIntegrity(unittest.TestCase):
             "ranged_percentage", "ranged_flat",
             "magic_percentage", "magic_flat",
         ]
-        for potion in Potion:
+        for potion in PotionRegistry._items.values():
             for field in required:
                 with self.subTest(potion=potion, field=field):
                     self.assertTrue(hasattr(potion, field),
@@ -101,7 +105,7 @@ class TestPotionBoostIntegrity(unittest.TestCase):
 
     def test_no_potion_crashes_compute_boost(self):
         level = 99
-        for potion in Potion:
+        for potion in PotionRegistry._items.values():
             with self.subTest(potion=potion):
                 Potion.compute_boost(level, potion.attack_percentage, potion.attack_flat)
                 Potion.compute_boost(level, potion.strength_percentage, potion.strength_flat)
@@ -116,7 +120,7 @@ class TestPrayerIntegrity(unittest.TestCase):
             "ranged_strength_multiplier", "magic_attack_multiplier",
             "magic_damage_bonus",
         ]
-        for prayer in Prayer:
+        for prayer in PrayerRegistry._items.values():
             for field in required:
                 with self.subTest(prayer=prayer, field=field):
                     self.assertTrue(hasattr(prayer, field),

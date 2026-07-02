@@ -4,8 +4,8 @@ import unittest
 
 from app.Domain.Loadout import Loadout
 from app.Data.Registries.WeaponRegistry import WeaponRegistry
-from app.Domain.Enums import Prayer
-from app.Domain.Enums import Potion
+from app.Data.Registries.PrayerRegistry import PrayerRegistry
+from app.Data.Registries.PotionRegistry import PotionRegistry
 
 SETUPS = [
     # ── Naked + Blowpipe + Dragon Darts ─────────────────────────────────
@@ -13,7 +13,7 @@ SETUPS = [
         "name": "only_dragon_noboosts",
         "gear_names": ["dragon darts"],
         "weapon": "blowpipe",
-        "prayer": Prayer.NONE,
+        "prayer": "none",
         "expected_accuracy_roll": 10058,
         "expected_max_hit": 20,
     },
@@ -22,8 +22,8 @@ SETUPS = [
         "name": "only_dragon",
         "gear_names": ["dragon darts"],
         "weapon": "blowpipe",
-        "prayer": Prayer.RIGOUR,
-        "boosts": [Potion.RANGING],
+        "prayer": "rigour",
+        "boosts": ["ranging"],
         "expected_accuracy_roll": 13348,
         "expected_max_hit": 27,
     },
@@ -80,10 +80,10 @@ def _build_player_from_setup(setup):
         player.weapon.attack_style = setup["attack_style_override"]
 
     if "prayer" in setup:
-        player.prayer = setup["prayer"]
+        player.prayer = PrayerRegistry.get(setup["prayer"])
 
     if "boosts" in setup:
-        player.boosts = setup["boosts"]
+        player.boosts = [PotionRegistry.get(b) for b in setup["boosts"]]
 
     return player
 

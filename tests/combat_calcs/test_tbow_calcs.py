@@ -24,8 +24,8 @@ import unittest
 from app.Domain.Loadout import Loadout
 from app.Data.Registries.WeaponRegistry import WeaponRegistry
 from app.Data.Registries.MonsterRegistry import MonsterRegistry
-from app.Domain.Enums import Prayer
-from app.Domain.Enums import Potion
+from app.Data.Registries.PrayerRegistry import PrayerRegistry
+from app.Data.Registries.PotionRegistry import PotionRegistry
 
 SETUPS = [
     # ── Naked + Twisted Bow + Dragon Arrows vs Maiden ───────────────────
@@ -34,7 +34,7 @@ SETUPS = [
         "gear_names": ["dragon arrows"],
         "weapon": "twisted bow",
         "monster": "maiden",
-        "prayer": Prayer.NONE,
+        "prayer": "none",
         "expected_base_accuracy_roll": 14338,
         "expected_base_max_hit": 34,
         "expected_actual_accuracy_roll": 34411,
@@ -46,8 +46,8 @@ SETUPS = [
         "gear_names": ["dragon arrows"],
         "weapon": "twisted bow",
         "monster": "maiden",
-        "prayer": Prayer.RIGOUR,
-        "boosts": [Potion.RANGING],
+        "prayer": "rigour",
+        "boosts": ["ranging"],
         "expected_base_accuracy_roll": 19028,
         "expected_base_max_hit": 46,
         "expected_actual_accuracy_roll": 45667,
@@ -138,10 +138,10 @@ def _build_player_and_monster_from_setup(setup):
         player.weapon.attack_style = setup["attack_style_override"]
 
     if "prayer" in setup:
-        player.prayer = setup["prayer"]
+        player.prayer = PrayerRegistry.get(setup["prayer"])
 
     if "boosts" in setup:
-        player.boosts = setup["boosts"]
+        player.boosts = [PotionRegistry.get(b) for b in setup["boosts"]]
 
     monster_name = setup["monster"]
     monster = MonsterRegistry.get(monster_name, scale=5)

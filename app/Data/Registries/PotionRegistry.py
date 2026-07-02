@@ -37,3 +37,6 @@ class PotionRegistry(BaseRegistry):
     def list_all(cls) -> list[str]:
         """Return registered names as originally spelled."""
         return [instance.name for instance in cls._items.values()]
+
+
+import app.Data.Definitions.Potions  # noqa: F401, E402
