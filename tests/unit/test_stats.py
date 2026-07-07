@@ -1,7 +1,7 @@
 """Unit tests for app.Stats."""
 
 import unittest
-from app.Domain.Stats import Stats
+from combat_engine.Domain.Stats import Stats
 
 
 class TestStatsDefaults(unittest.TestCase):

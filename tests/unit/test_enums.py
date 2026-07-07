@@ -2,11 +2,11 @@
 
 import unittest
 import math
-from app.Domain.Enums import GearSlot
-from app.Domain.Potion import Potion
-from app.Domain.Prayer import Prayer
-from app.Data.Registries.PotionRegistry import PotionRegistry
-from app.Data.Registries.PrayerRegistry import PrayerRegistry
+from combat_engine.Domain.Enums import GearSlot
+from combat_engine.Domain.Potion import Potion
+from combat_engine.Domain.Prayer import Prayer
+from combat_engine.Data.Registries.PotionRegistry import PotionRegistry
+from combat_engine.Data.Registries.PrayerRegistry import PrayerRegistry
 
 
 class TestPotionComputeBoost(unittest.TestCase):

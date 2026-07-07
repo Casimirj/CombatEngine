@@ -15,10 +15,10 @@ Scythe splats: max_hit + floor(max_hit/2) + floor(max_hit/4) = total.
 
 import unittest
 
-from app.Domain.Loadout import Loadout
-from app.Data.Registries.WeaponRegistry import WeaponRegistry
-from app.Data.Registries.PrayerRegistry import PrayerRegistry
-from app.Data.Registries.PotionRegistry import PotionRegistry
+from combat_engine.Domain.Loadout import Loadout
+from combat_engine.Data.Registries.WeaponRegistry import WeaponRegistry
+from combat_engine.Data.Registries.PrayerRegistry import PrayerRegistry
+from combat_engine.Data.Registries.PotionRegistry import PotionRegistry
 
 SETUPS = [
     # ── Basic Setup ───────────────────────────────────────────────────

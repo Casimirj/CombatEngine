@@ -1,8 +1,8 @@
 """Unit tests for app.Monster."""
 
 import unittest
-from app.Domain.Monster import Monster
-from app.Domain.Stats import Stats
+from combat_engine.Domain.Monster import Monster
+from combat_engine.Domain.Stats import Stats
 
 
 class TestMonsterInit(unittest.TestCase):

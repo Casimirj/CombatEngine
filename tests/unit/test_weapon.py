@@ -2,8 +2,8 @@
 
 import unittest
 from unittest.mock import patch, MagicMock
-from app.Domain.Weapon import Weapon
-from app.Domain.Stats import Stats
+from combat_engine.Domain.Weapon import Weapon
+from combat_engine.Domain.Stats import Stats
 
 
 class TestWeaponInit(unittest.TestCase):

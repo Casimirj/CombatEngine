@@ -2,12 +2,12 @@
 
 import unittest
 from unittest.mock import patch
-from app.Domain.Player import Player
-from app.Domain.Weapon import Weapon
-from app.Domain.Stats import Stats
-from app.Domain.Monster import Monster
-from app.Data.Registries.PotionRegistry import PotionRegistry
-from app.Data.Registries.PrayerRegistry import PrayerRegistry
+from combat_engine.Domain.Player import Player
+from combat_engine.Domain.Weapon import Weapon
+from combat_engine.Domain.Stats import Stats
+from combat_engine.Domain.Monster import Monster
+from combat_engine.Data.Registries.PotionRegistry import PotionRegistry
+from combat_engine.Data.Registries.PrayerRegistry import PrayerRegistry
 
 
 _DEFAULT_STATS = {
@@ -137,7 +137,7 @@ class TestPlayerMeleeCalcs(unittest.TestCase):
         self.assertGreater(self.p.def_roll, 0)
 
     def test_salve_boosts_attack_roll(self):
-        from app.Data.Registries.GearRegistry import GearRegistry
+        from combat_engine.Data.Registries.GearRegistry import GearRegistry
         salve = GearRegistry.get("Salve (e)")
         p_salve = Player(stats=_DEFAULT_STATS, weapon=self.w,
                          boosts=[PotionRegistry.get("super combat")], prayer=PrayerRegistry.get("piety"))
@@ -149,7 +149,7 @@ class TestPlayerMeleeCalcs(unittest.TestCase):
         self.assertGreater(p_salve.attack_roll, self.p.attack_roll)
 
     def test_salve_boosts_max_hit(self):
-        from app.Data.Registries.GearRegistry import GearRegistry
+        from combat_engine.Data.Registries.GearRegistry import GearRegistry
         salve = GearRegistry.get("Salve (e)")
         p_salve = Player(stats=_DEFAULT_STATS, weapon=self.w,
                          boosts=[PotionRegistry.get("super combat")], prayer=PrayerRegistry.get("piety"))

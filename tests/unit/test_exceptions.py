@@ -1,7 +1,7 @@
 """Unit tests for CombatEngine exceptions."""
 
 import unittest
-from app.Domain.Exceptions.InvalidLoadoutException import InvalidLoadoutException
+from combat_engine.Domain.Exceptions.InvalidLoadoutException import InvalidLoadoutException
 
 
 class TestInvalidLoadoutException(unittest.TestCase):
