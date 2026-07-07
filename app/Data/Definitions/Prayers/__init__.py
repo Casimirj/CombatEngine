@@ -19,3 +19,4 @@ from .MysticLore import MYSTIC_LORE                       # noqa: F401
 from .MysticMight import MYSTIC_MIGHT                     # noqa: F401
 from .MysticVigour import MYSTIC_VIGOUR                   # noqa: F401
 from .Augury import AUGURY                                # noqa: F401
+from .Zeal import ZEAL                                  # noqa: F401
