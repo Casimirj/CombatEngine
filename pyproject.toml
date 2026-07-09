@@ -8,8 +8,7 @@ version = "0.1.0"
 description = "OSRS combat engine — damage calculations, accuracy, and monster simulation"
 requires-python = ">=3.12"
 dependencies = [
-    "beartype",
 ]
 
 [tool.setuptools.packages.find]
-include = ["combat_engine*"]
+include = ["CombatSim*"]

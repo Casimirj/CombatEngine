@@ -1,0 +1,1 @@
+"""CombatEngine core package."""
