@@ -44,9 +44,9 @@ TICK_ROTATION: List[Tuple[type, bool]] = [
 
 
 def _fresh_player() -> Player:
-    """Build a fresh OathTorvaSalve player for each thread."""
+    """Build a fresh OathTorvaSalve player with unlimited special attack."""
     player = PlayerFactory.build_player_from_simple_loadout(LOADOUT_NAME)
-    player.current_special_attack = 9999  # ignore spec costs
+    player.ignore_special_attack_cost = True
     return player
 
 

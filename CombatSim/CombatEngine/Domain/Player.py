@@ -38,15 +38,16 @@ class Player:
         if self.weapon is None:
             self.equip_weapon(Fists())
         self._validate_ammo()
-        if special_attack and self.current_special_attack < self.weapon.special_attack_cost:
+        if special_attack and self.current_special_attack < self.weapon.special_attack_cost and not self.ignore_special_attack_cost:
             print("We tried to use a special attack but did not have enough energy, so we did a normal attack")
             print(f"{self.weapon.name} requires {self.weapon.special_attack_cost} but we only had {self.current_special_attack}")
 
         self.calc_all_the_things(self.weapon.combat_style, self.weapon.attack_type, monster.is_weak_to_salve)
         monster.calc_def_roll(attack_type=self.weapon.attack_type, combat_style=self.weapon.combat_style)
 
-        if special_attack and self.current_special_attack >= self.weapon.special_attack_cost:
-            self.current_special_attack -= self.weapon.special_attack_cost
+        if special_attack and (self.ignore_special_attack_cost or self.current_special_attack >= self.weapon.special_attack_cost):
+            if not self.ignore_special_attack_cost:
+                self.current_special_attack -= self.weapon.special_attack_cost
             return self.weapon.do_special_attack(
                 max_hit=self.max_hit, 
                 player_attack_roll=self.attack_roll, 
@@ -380,6 +381,7 @@ class Player:
         wearing_salve:  bool    = False,
         wearing_void:   bool    = False,
         void_style:     Optional[str]     = None,
+        ignore_special_attack_cost: bool = False,
         ):
         if stats is None:
             raise ValueError("Stats cannot be null")
@@ -390,6 +392,7 @@ class Player:
         self.current_hp = self.stats.hp_level
         self.current_prayer = self.stats.prayer_level
         self.current_special_attack = 100
+        self.ignore_special_attack_cost = ignore_special_attack_cost
         self.current_run = 100
 
         self.wearing_salve = wearing_salve
