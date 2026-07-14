@@ -33,8 +33,8 @@ class CrystalHalberd(Weapon):
         if always_hit:
             return Rng.randint(1, int(max_hit * 1.1)) + Rng.randint(1, int(max_hit * 1.1))
 
-        hit_chance_1 = self._calc_hit_chance(player_attack_roll, npc_def_roll)
-        hit_chance_2 = self._calc_hit_chance(int(player_attack_roll * 0.75), npc_def_roll)
+        hit_chance_1 = self.calc_hit_chance(player_attack_roll, npc_def_roll)
+        hit_chance_2 = self.calc_hit_chance(int(player_attack_roll * 0.75), npc_def_roll)
 
         splat_1_hit = Rng.random() < hit_chance_1
         splat_2_hit = Rng.random() < hit_chance_2

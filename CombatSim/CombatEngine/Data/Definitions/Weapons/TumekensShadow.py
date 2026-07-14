@@ -36,7 +36,7 @@ class TumekensShadow(Weapon):
 
         adjusted_attack_roll = player_attack_roll * 4 if (monster and monster.is_toa_monster) else player_attack_roll * 3
 
-        if Rng.random() < self._calc_hit_chance(adjusted_attack_roll, npc_def_roll):
+        if Rng.random() < self.calc_hit_chance(adjusted_attack_roll, npc_def_roll):
             return Rng.randint(1, adjusted_max_hit)
         else:
             return 0

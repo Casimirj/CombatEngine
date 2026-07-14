@@ -31,7 +31,7 @@ class NightmareStaff(Weapon):
         if always_hit:
             return Rng.randint(1, max_hit)
 
-        if Rng.random() < self._calc_hit_chance(player_attack_roll, npc_def_roll):
+        if Rng.random() < self.calc_hit_chance(player_attack_roll, npc_def_roll):
             return Rng.randint(1, max_hit)
         return 0
 

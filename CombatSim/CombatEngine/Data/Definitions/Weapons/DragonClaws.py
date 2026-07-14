@@ -41,7 +41,7 @@ class DragonClaws(Weapon):
             fourth_hit = third_hit + 1
             return first_hit + second_hit + third_hit + fourth_hit
 
-        hit_chance = self._calc_hit_chance(player_attack_roll, npc_def_roll)
+        hit_chance = self.calc_hit_chance(player_attack_roll, npc_def_roll)
 
         splat_that_hit = 0
         for i in range(1, 4):

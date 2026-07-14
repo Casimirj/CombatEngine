@@ -60,7 +60,7 @@ def get_combat_calcs(payload: GetCombatCalcsInput) -> GetCombatCalcsOutput:
     player.calc_all_the_things(player.weapon.combat_style, player.weapon.attack_type, monster.is_weak_to_salve)
     monster.calc_def_roll(player.weapon.attack_type)
 
-    hit_chance = Weapon._calc_hit_chance(player.attack_roll, monster.def_roll)
+    hit_chance = Weapon.calc_hit_chance(player.attack_roll, monster.def_roll)
 
     return GetCombatCalcsOutput(
         player=_build_player_info(player),

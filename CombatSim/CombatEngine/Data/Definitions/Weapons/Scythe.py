@@ -38,7 +38,7 @@ class Scythe(Weapon):
             damage_total += Rng.randint(1, math.floor(max_hit/4))
             return damage_total
 
-        hit_chance = self._calc_hit_chance(player_attack_roll, npc_def_roll)
+        hit_chance = self.calc_hit_chance(player_attack_roll, npc_def_roll)
 
         splat_1_hit = Rng.random() < hit_chance
         splat_2_hit = Rng.random() < hit_chance

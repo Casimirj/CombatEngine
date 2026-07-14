@@ -57,7 +57,7 @@ class Weapon():
         if always_hit:
             return Rng.randint(1, max_hit)
 
-        if(Rng.random() < self._calc_hit_chance(player_attack_roll, npc_def_roll)):
+        if(Rng.random() < self.calc_hit_chance(player_attack_roll, npc_def_roll)):
             return Rng.randint(1, max_hit)
         else:
             return 0
@@ -78,7 +78,7 @@ class Weapon():
         
 
     @staticmethod
-    def _calc_hit_chance(player_attack_roll: int, npc_def_roll: int) -> float:
+    def calc_hit_chance(player_attack_roll: int, npc_def_roll: int) -> float:
         """Calculate hit chance based on attack roll vs defence roll.
         
         When attack > defence: hit_chance = 1 - (def + 2) / (2 * (atk + 1))

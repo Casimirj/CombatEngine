@@ -57,7 +57,7 @@ class TwistedBow(Weapon):
 
         adjusted_attack_roll = math.floor(player_attack_roll * acc_mult)
 
-        if Rng.random() < self._calc_hit_chance(adjusted_attack_roll, npc_def_roll):
+        if Rng.random() < self.calc_hit_chance(adjusted_attack_roll, npc_def_roll):
             return Rng.randint(1, adjusted_max_hit)
         else:
             return 0
