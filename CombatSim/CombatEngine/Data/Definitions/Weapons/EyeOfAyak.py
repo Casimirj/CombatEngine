@@ -38,12 +38,7 @@ class EyeOfAyak(Weapon):
         if always_hit:
             return Rng.randint(1, max_hit)
 
-        if player_attack_roll > npc_def_roll:
-            hit_chance = 1 - (npc_def_roll + 2) / (2 * (player_attack_roll + 1))
-        else:
-            hit_chance = player_attack_roll / (2 * (npc_def_roll + 1))
-
-        if Rng.random() < hit_chance:
+        if Rng.random() < self._calc_hit_chance(player_attack_roll, npc_def_roll):
             return Rng.randint(1, max_hit)
         return 0
 
@@ -57,13 +52,8 @@ class EyeOfAyak(Weapon):
         adjusted_attack_roll = player_attack_roll * 2
         adjusted_max_hit = int(max_hit * 1.3)
 
-        if adjusted_attack_roll > npc_def_roll:
-            hit_chance = 1 - (npc_def_roll + 2) / (2 * (adjusted_attack_roll + 1))
-        else:
-            hit_chance = adjusted_attack_roll / (2 * (npc_def_roll + 1))
-
         damage = 0
-        if Rng.random() < hit_chance:
+        if Rng.random() < self._calc_hit_chance(adjusted_attack_roll, npc_def_roll):
             damage = Rng.randint(1, adjusted_max_hit)
             if monster is not None and damage > 0:
                 monster.stats.magic_def = max(0, monster.stats.magic_def - damage)

@@ -3,6 +3,7 @@ from CombatSim.CombatApi.Damage.Models.get_combat_calcs.Response import PlayerIn
 from CombatSim.CombatEngine.Factories.PlayerFactory import build_player_from_loadout
 from CombatSim.CombatEngine.Data.Registries.MonsterRegistry import MonsterRegistry
 from CombatSim.CombatEngine.Data.Registries.WeaponRegistry import WeaponRegistry
+from CombatSim.CombatEngine.Domain.Weapon import Weapon
 
 
 def _build_player_info(player) -> PlayerInfo:
@@ -59,10 +60,7 @@ def get_combat_calcs(payload: GetCombatCalcsInput) -> GetCombatCalcsOutput:
     player.calc_all_the_things(player.weapon.combat_style, player.weapon.attack_type, monster.is_weak_to_salve)
     monster.calc_def_roll(player.weapon.attack_type)
 
-    if player.attack_roll > monster.def_roll:
-        hit_chance = 1 - (monster.def_roll + 2) / (2 * (player.attack_roll + 1))
-    else:
-        hit_chance = player.attack_roll / (2 * (monster.def_roll + 1))
+    hit_chance = Weapon._calc_hit_chance(player.attack_roll, monster.def_roll)
 
     return GetCombatCalcsOutput(
         player=_build_player_info(player),

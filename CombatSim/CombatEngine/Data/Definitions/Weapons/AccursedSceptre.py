@@ -41,13 +41,8 @@ class AccursedSceptre(Weapon):
         adjusted_attack_roll = int(player_attack_roll * 1.5)
         adjusted_max_hit = int(max_hit * 1.5)
 
-        if adjusted_attack_roll > npc_def_roll:
-            hit_chance = 1 - (npc_def_roll + 2) / (2 * (adjusted_attack_roll + 1))
-        else:
-            hit_chance = adjusted_attack_roll / (2 * (npc_def_roll + 1))
-
         damage = 0
-        if Rng.random() < hit_chance:
+        if Rng.random() < self._calc_hit_chance(adjusted_attack_roll, npc_def_roll):
             damage = Rng.randint(1, adjusted_max_hit)
 
         if damage > 0 and monster is not None:

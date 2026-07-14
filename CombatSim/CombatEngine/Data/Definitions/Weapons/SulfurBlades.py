@@ -35,10 +35,10 @@ class SulfurBlades(Weapon):
         if always_hit:
             return Rng.randint(1, max_hit) + Rng.randint(1, max_hit)
 
-        hit_def_roll = Rng.randint(1, npc_def_roll)
+        hit_chance = self._calc_hit_chance(player_attack_roll, npc_def_roll)
 
-        splat_1_hit = Rng.randint(1, player_attack_roll) >= hit_def_roll
-        splat_2_hit = Rng.randint(1, player_attack_roll) >= hit_def_roll
+        splat_1_hit = Rng.random() < hit_chance
+        splat_2_hit = Rng.random() < hit_chance
         
         damage_total = 0
 

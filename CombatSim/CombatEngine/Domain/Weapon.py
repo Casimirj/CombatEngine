@@ -53,25 +53,11 @@ class Weapon():
 
 
 
-    def calc_base_max_damage(self, eff_magic_level: int) -> int:
-        """Return the BaseMaxDamage for this weapon given the effective magic level.
-        
-        Override in weapon subclasses (e.g. powered staves) that have a level-dependent formula.
-        The default is the generic powered-staff formula: floor(eff / 3) + 1.
-        """
-        import math
-        return math.floor(eff_magic_level / 3) + 1
-
     def do_attack(self, max_hit, player_attack_roll, npc_def_roll, monster:Monster=None, always_hit: bool = False):
         if always_hit:
             return Rng.randint(1, max_hit)
 
-        if player_attack_roll > npc_def_roll:
-            hit_chance = 1 - (npc_def_roll + 2) / (2 * (player_attack_roll + 1))
-        else:
-            hit_chance = player_attack_roll / (2 * (npc_def_roll + 1))
-
-        if(Rng.random() < hit_chance):
+        if(Rng.random() < self._calc_hit_chance(player_attack_roll, npc_def_roll)):
             return Rng.randint(1, max_hit)
         else:
             return 0
@@ -89,3 +75,27 @@ class Weapon():
             )
         else:
             raise ReferenceError("You tried to use a special attack on a weapon which does not implement the special attack function")
+        
+
+    @staticmethod
+    def _calc_hit_chance(player_attack_roll: int, npc_def_roll: int) -> float:
+        """Calculate hit chance based on attack roll vs defence roll.
+        
+        When attack > defence: hit_chance = 1 - (def + 2) / (2 * (atk + 1))
+        Otherwise:            hit_chance = atk / (2 * (def + 1))
+        """
+        if player_attack_roll > npc_def_roll:
+            return 1 - (npc_def_roll + 2) / (2 * (player_attack_roll + 1))
+        else:
+            return player_attack_roll / (2 * (npc_def_roll + 1))
+
+
+    def calc_base_max_damage(self, eff_magic_level: int) -> int:
+        """Return the BaseMaxDamage for this weapon given the effective magic level.
+        For non-magic weapons, this function is typically ignored.
+
+        Override in weapon subclasses (e.g. powered staves) that have a level-dependent formula.
+        The default is the generic powered-staff formula: floor(eff / 3) + 1.
+        """
+        import math
+        return math.floor(eff_magic_level / 3) + 1

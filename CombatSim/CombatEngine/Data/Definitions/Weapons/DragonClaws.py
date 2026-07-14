@@ -29,9 +29,7 @@ class DragonClaws(Weapon):
             special_attack_style="Slash",
             special_attack_cost=50
         )
-    
 
-    #this is a fuckin doozy somehow worse than the bgs calc
     def do_special_attack(self, max_hit:int, player_attack_roll:int, npc_def_roll:int, monster:Monster, always_hit: bool = False) -> int:
         if always_hit:
             # all splats hit when always_hit
@@ -43,11 +41,11 @@ class DragonClaws(Weapon):
             fourth_hit = third_hit + 1
             return first_hit + second_hit + third_hit + fourth_hit
 
-        hit_def_roll = Rng.randint(1, npc_def_roll)
+        hit_chance = self._calc_hit_chance(player_attack_roll, npc_def_roll)
 
         splat_that_hit = 0
         for i in range(1, 4):
-            if(Rng.randint(1, player_attack_roll) >= hit_def_roll):
+            if Rng.random() < hit_chance:
                 splat_that_hit = i
                 break
 

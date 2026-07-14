@@ -29,7 +29,6 @@ class Scythe(Weapon):
             has_special_attack=False
         )
 
-
     def do_attack(self, max_hit, player_attack_roll, npc_def_roll, monster=None, always_hit: bool = False):
 
         if always_hit:
@@ -39,11 +38,11 @@ class Scythe(Weapon):
             damage_total += Rng.randint(1, math.floor(max_hit/4))
             return damage_total
 
-        hit_def_roll = Rng.randint(1, npc_def_roll)
+        hit_chance = self._calc_hit_chance(player_attack_roll, npc_def_roll)
 
-        splat_1_hit = Rng.randint(1, player_attack_roll) >= hit_def_roll
-        splat_2_hit = Rng.randint(1, player_attack_roll) >= hit_def_roll
-        splat_3_hit = Rng.randint(1, player_attack_roll) >= hit_def_roll
+        splat_1_hit = Rng.random() < hit_chance
+        splat_2_hit = Rng.random() < hit_chance
+        splat_3_hit = Rng.random() < hit_chance
 
         damage_total = 0
 

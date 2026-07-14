@@ -37,12 +37,7 @@ class ToxicBlowpipe(Weapon):
                 damage += 6
             return damage
 
-        if player_attack_roll > npc_def_roll:
-            hit_chance = 1 - (npc_def_roll + 2) / (2 * (player_attack_roll + 1))
-        else:
-            hit_chance = player_attack_roll / (2 * (npc_def_roll + 1))
-
-        if Rng.random() < hit_chance:
+        if Rng.random() < self._calc_hit_chance(player_attack_roll, npc_def_roll):
             damage = Rng.randint(1, max_hit)
             if Rng.random() < 0.25:
                 damage += 6
@@ -56,12 +51,7 @@ class ToxicBlowpipe(Weapon):
         adjusted_attack_roll = player_attack_roll * 2
         adjusted_max_hit = int(max_hit * 1.5)
 
-        if adjusted_attack_roll > npc_def_roll:
-            hit_chance = 1 - (npc_def_roll + 2) / (2 * (adjusted_attack_roll + 1))
-        else:
-            hit_chance = adjusted_attack_roll / (2 * (npc_def_roll + 1))
-
-        if Rng.random() < hit_chance:
+        if Rng.random() < self._calc_hit_chance(adjusted_attack_roll, npc_def_roll):
             return Rng.randint(1, adjusted_max_hit)
         else:
             return 0
