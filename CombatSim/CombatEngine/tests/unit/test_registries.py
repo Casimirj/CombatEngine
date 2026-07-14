@@ -157,50 +157,43 @@ class TestLoadoutRegistry(unittest.TestCase):
         self._saved = _save_registry_state(LoadoutRegistry)
         LoadoutRegistry._items = {}
         LoadoutRegistry._aliases = {}
-        LoadoutRegistry._built_players = {}
 
     def tearDown(self):
         _restore_registry_state(LoadoutRegistry, self._saved)
 
     def test_register_and_get(self):
-        from CombatSim.CombatEngine.Domain.Player import Player
-
         class TestLoadout(Loadout):
             name = "Test Loadout"
             aliases = ["tl"]
-            def build(self) -> Player:
+            def build(self):
+                from CombatSim.CombatEngine.Domain.Player import Player
                 return Player(stats={"hp_level": 99, "attack_level": 80})
 
         LoadoutRegistry.register(TestLoadout())
-        p = LoadoutRegistry.get("Test Loadout")
-        self.assertIsNotNone(p)
-        self.assertEqual(p.stats.hp_level, 99)
+        loadout = LoadoutRegistry.get("Test Loadout")
+        self.assertIsNotNone(loadout)
+        self.assertEqual(loadout.name, "Test Loadout")
 
-    def test_cached_player(self):
-        from CombatSim.CombatEngine.Domain.Player import Player
-
-        class CachedLoadout(Loadout):
-            name = "Cached"
+    def test_loadout_registry_is_pure_lookup(self):
+        """get() returns the registered Loadout (not a built Player)."""
+        class PureLookupLoadout(Loadout):
+            name = "PureLookup"
             aliases = []
-            def build(self) -> Player:
-                return Player(stats={"hp_level": 50})
 
-        LoadoutRegistry.register(CachedLoadout())
-        p1 = LoadoutRegistry.get("Cached")
-        p2 = LoadoutRegistry.get("Cached")
-        self.assertIs(p1, p2)
+        LoadoutRegistry.register(PureLookupLoadout())
+        result = LoadoutRegistry.get("PureLookup")
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, Loadout)
 
     def test_loadout_alias(self):
-        from CombatSim.CombatEngine.Domain.Player import Player
-
         class AliasedLoadout(Loadout):
             name = "Aliased"
             aliases = ["al"]
-            def build(self) -> Player:
-                return Player(stats={"hp_level": 10})
 
         LoadoutRegistry.register(AliasedLoadout())
-        self.assertIsNotNone(LoadoutRegistry.get("al"))
+        loadout = LoadoutRegistry.get("al")
+        self.assertIsNotNone(loadout)
+        self.assertEqual(loadout.name, "Aliased")
 
 
 # ---------------------------------------------------------------------------

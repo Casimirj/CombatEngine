@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 
-from CombatSim.CombatEngine.Domain.Player import Player
-
 from .BaseRegistry import BaseRegistry, normalize_key
 
 if TYPE_CHECKING:
@@ -16,10 +14,9 @@ class LoadoutRegistry(BaseRegistry):
     """Central registry for gear loadouts.
 
     Loadout modules register themselves at import time via ``register()``.
-    Callers look up a ``Player`` by name or alias via ``get()``.
+    Callers look up a ``Loadout`` by name or alias via ``get()``.
     """
 
-    _built_players: dict[str, Player] = {}
     _aliases: dict[str, str] = {}
     _items: dict[str, Loadout] = {}
 
@@ -31,15 +28,10 @@ class LoadoutRegistry(BaseRegistry):
             cls._add_alias(alias, key)
 
     @classmethod
-    def get(cls, name: str) -> Optional[Player]:
-        """Return a built Player for *name* (registered name or alias), or None."""
+    def get(cls, name: str) -> Optional[Loadout]:
+        """Return the Loadout for *name* (registered name or alias), or None."""
         key = cls._resolve_key(name)
-        instance = cls._items.get(key)
-        if instance is None:
-            return None
-        if key not in cls._built_players:
-            cls._built_players[key] = instance.build()
-        return cls._built_players[key]
+        return cls._items.get(key)
 
     @classmethod
     def list_all(cls) -> list[str]:

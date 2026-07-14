@@ -1,11 +1,7 @@
 """Melee damage and accuracy tests for Fists-based setups."""
 
 import unittest
-
-from CombatSim.CombatEngine.Domain.Loadout import Loadout
-from CombatSim.CombatEngine.Data.Registries.WeaponRegistry import WeaponRegistry
-from CombatSim.CombatEngine.Data.Registries.PrayerRegistry import PrayerRegistry
-from CombatSim.CombatEngine.Data.Registries.PotionRegistry import PotionRegistry
+from CombatSim.CombatEngine.Factories.PlayerFactory import PlayerFactory
 
 SETUPS = [
     {
@@ -1227,7 +1223,6 @@ SETUPS = [
     },
 ]
 
-
 def _make_test_classes():
     """Create one TestCase subclass per setup."""
 
@@ -1237,7 +1232,7 @@ def _make_test_classes():
 
         def build_accuracy_test(setup=setup):
             def test(self):
-                player = _build_player_from_setup(setup)
+                player = PlayerFactory.build_player_from_setup(setup)
                 player.calc_all_the_things(combat_style="Melee", attack_type="Crush")
                 self.assertEqual(
                     player.attack_roll, setup["expected_accuracy_roll"],
@@ -1249,7 +1244,7 @@ def _make_test_classes():
 
         def build_max_hit_test(setup=setup):
             def test(self):
-                player = _build_player_from_setup(setup)
+                player = PlayerFactory.build_player_from_setup(setup)
                 player.calc_all_the_things(combat_style="Melee", attack_type="Crush")
                 self.assertEqual(
                     player.max_hit, setup["expected_max_hit"],
@@ -1265,27 +1260,7 @@ def _make_test_classes():
         })
         globals()[class_name] = TestCls
 
-
-def _build_player_from_setup(setup):
-    player = Loadout(gear_names=setup["gear_names"]).build()
-
-    weapon = WeaponRegistry.get(setup["weapon"])
-    player.equip_weapon(weapon)
-
-    if "attack_style_override" in setup:
-        player.weapon.attack_style = setup["attack_style_override"]
-
-    if "prayer" in setup:
-        player.prayer = PrayerRegistry.get(setup["prayer"])
-
-    if "boosts" in setup:
-        player.boosts = [PotionRegistry.get(b) for b in setup["boosts"]]
-
-    return player
-
-
 _make_test_classes()
-
 
 if __name__ == "__main__":
     unittest.main()

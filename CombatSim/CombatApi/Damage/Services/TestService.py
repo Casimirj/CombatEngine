@@ -1,5 +1,5 @@
 from CombatSim.CombatApi.Damage.Models.test import TestInput, TestOutput
-from CombatSim.CombatEngine.Factories.PlayerFactory import build_player_from_loadout
+from CombatSim.CombatApi.Damage.Services._helpers import resolve_player
 from CombatSim.CombatEngine.Data.Registries.MonsterRegistry import MonsterRegistry
 from CombatSim.CombatEngine.Data.Registries.WeaponRegistry import WeaponRegistry
 
@@ -13,7 +13,7 @@ def run_test(payload: TestInput) -> TestOutput:
     if weapon is None:
         raise ValueError(f"Unknown weapon: {payload.weapon}")
 
-    player = build_player_from_loadout(payload.loadout, payload.gear_input, payload.player_levels)
+    player = resolve_player(payload.loadout, payload.gear_input, payload.player_levels)
     player.equip_weapon(weapon)
 
     hits = 0

@@ -3,12 +3,11 @@
 
 """Bloat Chance-to-Kill Simulation.
 
-Three OathTorvaRancour players attack a scale-3 Bloat with interleaved
+Three OathTorvaSalve players attack a scale-3 Bloat with interleaved
 round-robin ticks: all players fire the same weapon before the next tick.
 Iterations are parallelised across threads at the batch level.
 """
 
-import copy
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from typing import List, Tuple
@@ -17,7 +16,7 @@ from CombatSim.CombatEngine.Data.Definitions.Monsters.Bloat import Bloat
 from CombatSim.CombatEngine.Data.Definitions.Weapons.Scythe import Scythe
 from CombatSim.CombatEngine.Data.Definitions.Weapons.CrystalHalberd import CrystalHalberd
 from CombatSim.CombatEngine.Data.Definitions.Weapons.DragonClaws import DragonClaws
-from CombatSim.CombatEngine.Data.Registries.LoadoutRegistry import LoadoutRegistry
+from CombatSim.CombatEngine.Factories.PlayerFactory import PlayerFactory
 from CombatSim.CombatEngine.Domain.Player import Player
 
 # ── Config ──────────────────────────────────────────────────────────────────
@@ -45,11 +44,8 @@ TICK_ROTATION: List[Tuple[type, bool]] = [
 
 
 def _fresh_player() -> Player:
-    """Deep-copy the OathTorvaSalve loadout so threads run independently."""
-    template = LoadoutRegistry.get(LOADOUT_NAME)
-    if template is None:
-        raise RuntimeError(f"Unknown loadout: {LOADOUT_NAME}")
-    player = copy.deepcopy(template)
+    """Build a fresh OathTorvaSalve player for each thread."""
+    player = PlayerFactory.build_player_from_simple_loadout(LOADOUT_NAME)
     player.current_special_attack = 9999  # ignore spec costs
     return player
 

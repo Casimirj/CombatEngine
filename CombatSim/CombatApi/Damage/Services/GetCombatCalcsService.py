@@ -1,6 +1,6 @@
 from CombatSim.CombatApi.Damage.Models.get_combat_calcs import GetCombatCalcsInput, GetCombatCalcsOutput
 from CombatSim.CombatApi.Damage.Models.get_combat_calcs.Response import PlayerInfo, PlayerStats, PlayerGear, PlayerSetup
-from CombatSim.CombatEngine.Factories.PlayerFactory import build_player_from_loadout
+from CombatSim.CombatApi.Damage.Services._helpers import resolve_player
 from CombatSim.CombatEngine.Data.Registries.MonsterRegistry import MonsterRegistry
 from CombatSim.CombatEngine.Data.Registries.WeaponRegistry import WeaponRegistry
 from CombatSim.CombatEngine.Domain.Weapon import Weapon
@@ -54,7 +54,7 @@ def get_combat_calcs(payload: GetCombatCalcsInput) -> GetCombatCalcsOutput:
     if weapon is None:
         raise ValueError(f"Unknown weapon: {payload.weapon}")
 
-    player = build_player_from_loadout(payload.loadout, payload.gear_input, payload.player_levels)
+    player = resolve_player(payload.loadout, payload.gear_input, payload.player_levels)
     player.equip_weapon(weapon)
 
     player.calc_all_the_things(player.weapon.combat_style, player.weapon.attack_type, monster.is_weak_to_salve)

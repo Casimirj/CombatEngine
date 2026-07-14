@@ -21,11 +21,8 @@ Add new setups by appending a dict to SETUPS with:
 import math
 import unittest
 
-from CombatSim.CombatEngine.Domain.Loadout import Loadout
-from CombatSim.CombatEngine.Data.Registries.WeaponRegistry import WeaponRegistry
 from CombatSim.CombatEngine.Data.Registries.MonsterRegistry import MonsterRegistry
-from CombatSim.CombatEngine.Data.Registries.PrayerRegistry import PrayerRegistry
-from CombatSim.CombatEngine.Data.Registries.PotionRegistry import PotionRegistry
+from CombatSim.CombatEngine.Factories.PlayerFactory import PlayerFactory
 
 SETUPS = [
     # ── Naked + Twisted Bow + Dragon Arrows vs Maiden ───────────────────
@@ -56,6 +53,14 @@ SETUPS = [
 ]
 
 
+def _build_monster_from_setup(setup):
+    monster_name = setup["monster"]
+    monster = MonsterRegistry.get(monster_name, scale=5)
+    if monster is None:
+        raise ValueError(f"Monster {monster_name!r} not found in registry")
+    return monster
+
+
 def _make_test_classes():
     """Create one TestCase subclass per setup."""
 
@@ -65,7 +70,8 @@ def _make_test_classes():
 
         def build_accuracy_test(setup=setup):
             def test(self):
-                player, monster = _build_player_and_monster_from_setup(setup)
+                player = PlayerFactory.build_player_from_setup(setup)
+                monster = _build_monster_from_setup(setup)
                 player.calc_all_the_things(combat_style="Ranged", attack_type="Ranged")
                 self.assertEqual(
                     player.attack_roll, setup["expected_base_accuracy_roll"],
@@ -78,7 +84,8 @@ def _make_test_classes():
 
         def build_max_hit_test(setup=setup):
             def test(self):
-                player, monster = _build_player_and_monster_from_setup(setup)
+                player = PlayerFactory.build_player_from_setup(setup)
+                monster = _build_monster_from_setup(setup)
                 player.calc_all_the_things(combat_style="Ranged", attack_type="Ranged")
                 self.assertEqual(
                     player.max_hit, setup["expected_base_max_hit"],
@@ -91,7 +98,8 @@ def _make_test_classes():
 
         def build_tbow_accuracy_test(setup=setup):
             def test(self):
-                player, monster = _build_player_and_monster_from_setup(setup)
+                player = PlayerFactory.build_player_from_setup(setup)
+                monster = _build_monster_from_setup(setup)
                 player.calc_all_the_things(combat_style="Ranged", attack_type="Ranged")
                 acc_mult, _ = player.weapon._calc_tbow_multipliers(monster)
                 adjusted = math.floor(player.attack_roll * acc_mult)
@@ -106,7 +114,8 @@ def _make_test_classes():
 
         def build_tbow_max_hit_test(setup=setup):
             def test(self):
-                player, monster = _build_player_and_monster_from_setup(setup)
+                player = PlayerFactory.build_player_from_setup(setup)
+                monster = _build_monster_from_setup(setup)
                 player.calc_all_the_things(combat_style="Ranged", attack_type="Ranged")
                 _, dmg_mult = player.weapon._calc_tbow_multipliers(monster)
                 adjusted = math.floor(player.max_hit * dmg_mult)
@@ -126,29 +135,6 @@ def _make_test_classes():
             "test_actual_max_hit":        build_tbow_max_hit_test(setup),
         })
         globals()[class_name] = TestCls
-
-
-def _build_player_and_monster_from_setup(setup):
-    player = Loadout(gear_names=setup["gear_names"]).build()
-
-    weapon = WeaponRegistry.get(setup["weapon"])
-    player.equip_weapon(weapon)
-
-    if "attack_style_override" in setup:
-        player.weapon.attack_style = setup["attack_style_override"]
-
-    if "prayer" in setup:
-        player.prayer = PrayerRegistry.get(setup["prayer"])
-
-    if "boosts" in setup:
-        player.boosts = [PotionRegistry.get(b) for b in setup["boosts"]]
-
-    monster_name = setup["monster"]
-    monster = MonsterRegistry.get(monster_name, scale=5)
-    if monster is None:
-        raise ValueError(f"Monster {monster_name!r} not found in registry")
-
-    return player, monster
 
 
 _make_test_classes()
