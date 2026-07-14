@@ -32,9 +32,9 @@ SETUPS = [
         "weapon": "tumeken",
         "prayer": "none",
         "expected_base_accuracy_roll": 10692,
-        "expected_base_max_hit": 37,
+        "expected_base_max_hit": 34,
         "expected_shadow_accuracy_roll": 32076,
-        "expected_shadow_max_hit": 111,
+        "expected_shadow_max_hit": 102,
     },
     # ── Max Mage (ancestral + occult + magus + imbued cape + treads) ───
     {
@@ -52,9 +52,9 @@ SETUPS = [
         "weapon": "tumeken",
         "prayer": "augury",
         "expected_base_accuracy_roll": 31812,
-        "expected_base_max_hit": 59,
+        "expected_base_max_hit": 44,
         "expected_shadow_accuracy_roll": 95436,
-        "expected_shadow_max_hit": 177,
+        "expected_shadow_max_hit": 132,
     },
 ]
 
@@ -143,6 +143,9 @@ def _build_player_from_setup(setup):
 
     if "boosts" in setup:
         player.boosts = [PotionRegistry.get(b) for b in setup["boosts"]]
+
+    if "spell" in setup:
+        player.spell = SpellRegistry.get(setup["spell"])
 
     return player
 

@@ -15,8 +15,10 @@ from CombatSim.CombatEngine.Data.Registries.GearRegistry import GearRegistry
 from CombatSim.CombatEngine.Domain.Exceptions.InvalidLoadoutException import InvalidLoadoutException
 from CombatSim.CombatEngine.Domain.Exceptions.InvalidAmmunitionException import InvalidAmmunitionException
 
+from CombatSim.CombatEngine.Domain.Spell import Spell
 from CombatSim.CombatEngine.Domain.Potion import Potion
 from CombatSim.CombatEngine.Domain.Prayer import Prayer
+from CombatSim.CombatEngine.Data.Registries.SpellRegistry import SpellRegistry
 from CombatSim.CombatEngine.Data.Registries.PotionRegistry import PotionRegistry
 from CombatSim.CombatEngine.Data.Registries.PrayerRegistry import PrayerRegistry
 
@@ -275,6 +277,24 @@ class Player:
         eff_magic += 9
         return eff_magic
 
+    def calc_eff_magic_for_damage(self):
+        """Effective magic level for max-hit calculation.
+        
+        Excludes the +9 flat bonus and prayer magic_attack_multiplier
+        (both are accuracy-only). Includes potion boosts and attack-style bonus.
+        """
+        eff_magic = self.stats.magic_level
+
+        for potion in self.boosts:
+            eff_magic += Potion.compute_boost(self.stats.magic_level, potion.magic_percentage, potion.magic_flat)
+
+        if self.weapon.attack_style == "Accurate":
+            eff_magic += 3
+        if self.weapon.attack_style == "Long-Range":
+            eff_magic += 1
+
+        return eff_magic
+
     def calc_ranged_att_roll(self, monster_weak_to_salve: bool = False):
         attack_roll = self.effective_ranged_att_level * (self.stats.ranged_attack_bonus + 64)
         if(self.wearing_salve and monster_weak_to_salve):
@@ -301,12 +321,17 @@ class Player:
         return math.floor(attack_roll)
 
     def calc_magic_max_hit(self):
-        base = math.floor(self.effective_magic_level / 3) + 1
-        magic_damage_pct = self.stats.magic_strength_bonus / 100.0
-        base = math.floor(base * (1.0 + magic_damage_pct))
-        if self.prayer.magic_damage_bonus > 0:
-            base = math.floor(base * (1.0 + self.prayer.magic_damage_bonus))
-        if(self.wearing_void and self.void_style == "mage"):
+        if self.spell is not None:
+            base = self.spell.base_max
+        else:
+            eff_magic = self.calc_eff_magic_for_damage()
+            base = self.weapon.calc_base_max_damage(eff_magic)
+
+        gear_dmg_pct = self.stats.magic_strength_bonus / 100.0
+        prayer_dmg_pct = self.prayer.magic_damage_bonus
+        base = math.floor(base * (1.0 + gear_dmg_pct + prayer_dmg_pct))
+
+        if self.wearing_void and self.void_style == "mage":
             base = math.floor(base * 1.025)
         return base
 
@@ -351,6 +376,7 @@ class Player:
         loadout:        Optional[object] = None,
         boosts:         list    = [PotionRegistry.get("NONE")],
         prayer:         Prayer = PrayerRegistry.get("NONE"),
+        spell:          Optional[Spell] = None,
         wearing_salve:  bool    = False,
         wearing_void:   bool    = False,
         void_style:     Optional[str]     = None,
@@ -371,6 +397,7 @@ class Player:
         self.void_style = void_style
         self.boosts = boosts
         self.prayer = prayer
+        self.spell = spell
         self.weapon = weapon
 
         self.gear: dict = {}

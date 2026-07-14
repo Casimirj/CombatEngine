@@ -26,6 +26,7 @@ class NightmareStaff(Weapon):
             has_special_attack=False
         )
 
+
     def do_attack(self, max_hit, player_attack_roll, npc_def_roll, monster: Monster = None, always_hit: bool = False):
         if always_hit:
             return Rng.randint(1, max_hit)

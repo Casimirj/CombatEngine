@@ -52,6 +52,16 @@ class Weapon():
             self.attack_speed = max(1, self.attack_speed - 1)
 
 
+
+    def calc_base_max_damage(self, eff_magic_level: int) -> int:
+        """Return the BaseMaxDamage for this weapon given the effective magic level.
+        
+        Override in weapon subclasses (e.g. powered staves) that have a level-dependent formula.
+        The default is the generic powered-staff formula: floor(eff / 3) + 1.
+        """
+        import math
+        return math.floor(eff_magic_level / 3) + 1
+
     def do_attack(self, max_hit, player_attack_roll, npc_def_roll, monster:Monster=None, always_hit: bool = False):
         if always_hit:
             return Rng.randint(1, max_hit)

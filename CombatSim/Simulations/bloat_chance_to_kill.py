@@ -3,78 +3,68 @@
 
 """Bloat Chance-to-Kill Simulation.
 
-Three OathTorvaRancour players with Scythe of Vitur attack a scale-3 Bloat.
-Each player rotation: 10 scythe hits → 2 chally specs → 1 claw spec.
-Outputs kill percentage after N iterations.
+Three OathTorvaRancour players attack a scale-3 Bloat with interleaved
+round-robin ticks: all players fire the same weapon before the next tick.
+Iterations are parallelised across threads at the batch level.
 """
 
-import random
+import copy
 import time
-from typing import Tuple
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from typing import List, Tuple
 
 from CombatSim.CombatEngine.Data.Definitions.Monsters.Bloat import Bloat
 from CombatSim.CombatEngine.Data.Definitions.Weapons.Scythe import Scythe
 from CombatSim.CombatEngine.Data.Definitions.Weapons.CrystalHalberd import CrystalHalberd
 from CombatSim.CombatEngine.Data.Definitions.Weapons.DragonClaws import DragonClaws
 from CombatSim.CombatEngine.Data.Registries.LoadoutRegistry import LoadoutRegistry
-from CombatSim.CombatEngine.Data.Registries.WeaponRegistry import WeaponRegistry
 from CombatSim.CombatEngine.Domain.Player import Player
 
-# ── config ──────────────────────────────────────────────────────────────────
+# ── Config ──────────────────────────────────────────────────────────────────
 NUM_ITERATIONS = 100_000
-NUM_PLAYERS = 3
-SCYTHE_HITS = 10
-CHALLY_SPECS = 2
-CLAW_SPECS = 1
-LOADOUT_NAME = "OathTorvaRancour"
+NUM_THREADS    = 16
+NUM_PLAYERS    = 3
+LOADOUT_NAME   = "OathTorvaSalve"
+
+# Round-robin attack order: each player fires the same (weapon, spec?) tick
+# before everyone moves to the next tick.
+TICK_ROTATION: List[Tuple[type, bool]] = [
+    (CrystalHalberd, True),
+    (Scythe,          False),
+    (Scythe,          False),
+    (Scythe,          False),
+    (Scythe,          False),
+    (CrystalHalberd, True),
+    (DragonClaws,     True),
+    (Scythe,          False),
+    (Scythe,          False),
+    (Scythe,          False),
+    (Scythe,          False),
+    (Scythe,          False),
+]
 
 
-def _get_player() -> Player:
-    """Return a fresh OathTorvaRancour player, ready for weapon equipping."""
-    player = LoadoutRegistry.get(LOADOUT_NAME)
-    if player is None:
+def _fresh_player() -> Player:
+    """Deep-copy the OathTorvaSalve loadout so threads run independently."""
+    template = LoadoutRegistry.get(LOADOUT_NAME)
+    if template is None:
         raise RuntimeError(f"Unknown loadout: {LOADOUT_NAME}")
-    # Reset spec energy for a clean simulation start.
-    player.current_special_attack = 110
+    player = copy.deepcopy(template)
+    player.current_special_attack = 9999  # ignore spec costs
     return player
 
 
-def _run_one_iteration() -> Tuple[bool, int]:
-    """Run one simulated kill attempt.
-
-    Returns (killed: bool, total_damage: int).
-    """
+def _simulate_kill() -> Tuple[bool, int]:
+    """One kill attempt. Returns (killed, total_damage)."""
     monster = Bloat(scale=3)
     total_damage = 0
+    players = [_fresh_player() for _ in range(NUM_PLAYERS)]
 
-    for _ in range(NUM_PLAYERS):
-        player = _get_player()
-
-        # ── 10 scythe hits ──────────────────────────────────────────────
-        scythe = Scythe()
-        player.equip_weapon(scythe)
-        for _ in range(SCYTHE_HITS):
-            dmg = player.do_attack(monster, special_attack=False)
-            monster.reduce_hp(dmg)
-            total_damage += dmg
-            if monster.is_dead():
-                return True, total_damage
-
-        # ── 2 chally specs ─────────────────────────────────────────────
-        chally = CrystalHalberd()
-        player.equip_weapon(chally)
-        for _ in range(CHALLY_SPECS):
-            dmg = player.do_attack(monster, special_attack=True)
-            monster.reduce_hp(dmg)
-            total_damage += dmg
-            if monster.is_dead():
-                return True, total_damage
-
-        # ── 1 claw spec ────────────────────────────────────────────────
-        claws = DragonClaws()
-        player.equip_weapon(claws)
-        for _ in range(CLAW_SPECS):
-            dmg = player.do_attack(monster, special_attack=True)
+    for weapon_cls, use_spec in TICK_ROTATION:
+        for player in players:
+            weapon = weapon_cls()
+            player.equip_weapon(weapon)
+            dmg = player.do_attack(monster, special_attack=use_spec)
             monster.reduce_hp(dmg)
             total_damage += dmg
             if monster.is_dead():
@@ -83,32 +73,43 @@ def _run_one_iteration() -> Tuple[bool, int]:
     return monster.is_dead(), total_damage
 
 
-def main() -> None:
-    kills = 0
-    total_damage = 0
-
-    t0 = time.time()
-
-    for i in range(NUM_ITERATIONS):
-        killed, dmg = _run_one_iteration()
+def _run_batch(count: int) -> Tuple[int, int]:
+    """Simulate *count* kills. Returns (kills, total_damage)."""
+    kills = total_damage = 0
+    for _ in range(count):
+        killed, dmg = _simulate_kill()
         total_damage += dmg
         if killed:
             kills += 1
+    return kills, total_damage
 
-        if (i + 1) % 1000 == 0:
-            pct = kills / (i + 1) * 100
-            avg_dmg = total_damage / (i + 1)
-            print(f"  [{i + 1:>5}/{NUM_ITERATIONS}]  kills: {kills:>4}  "
-                  f"rate: {pct:6.3f}%  avg_dmg: {avg_dmg:.1f}")
 
+def main() -> None:
+    base, rem = divmod(NUM_ITERATIONS, NUM_THREADS)
+    batch_sizes = [base + 1] * rem + [base] * (NUM_THREADS - rem)
+
+    t0 = time.time()
+    kills = total_damage = 0
+
+    with ProcessPoolExecutor(max_workers=NUM_THREADS) as executor:
+        futures = [executor.submit(_run_batch, n) for n in batch_sizes]
+        for i, future in enumerate(as_completed(futures), 1):
+            k, d = future.result()
+            kills += k
+            total_damage += d
+            print(f"  [{i:>2}/{NUM_THREADS}] batch complete")
+
+    elapsed = time.time() - t0
     pct = kills / NUM_ITERATIONS * 100
     avg_dmg = total_damage / NUM_ITERATIONS
+
     print()
     print("=" * 60)
-    print(f"  Bloat scale-3  |  {NUM_PLAYERS} players  |  {NUM_ITERATIONS:,} iterations")
-    print(f"  Kills: {kills} / {NUM_ITERATIONS}  ({pct:.3f}%)")
-    print(f"  Avg total damage: {avg_dmg:.1f}")
-    print(f"  Elapsed: {time.time() - t0:.2f}s")
+    print(f"  Bloat scale-3  |  {NUM_PLAYERS} players  |  "
+          f"{NUM_ITERATIONS:,} iters  |  {NUM_THREADS} threads")
+    print(f"  Kills:    {kills} / {NUM_ITERATIONS}  ({pct:.3f}%)")
+    print(f"  Avg dmg:  {avg_dmg:.1f}")
+    print(f"  Elapsed:  {elapsed:.2f}s")
     print("=" * 60)
 
 

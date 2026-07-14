@@ -1,4 +1,4 @@
-"""Magic damage and accuracy tests for Eye-of-ayak-based setups.
+"""Magic damage and accuracy tests for Ice Barrage with Nightmare staff.
 
 Add new setups by appending a dict to SETUPS with:
     name                  — snake_case identifier for generated names
@@ -7,6 +7,7 @@ Add new setups by appending a dict to SETUPS with:
     attack_style_override — (optional) override weapon attack style
     prayer                — (optional) Prayer enum; default NONE
     boosts                — (optional) list of Potion enums
+    spell                 — (optional) Spell enum for autocast weapons
     expected_accuracy_roll — expected player.attack_roll
     expected_max_hit       — expected player.max_hit
 """
@@ -16,6 +17,7 @@ import unittest
 from CombatSim.CombatEngine.Domain.Loadout import Loadout
 from CombatSim.CombatEngine.Data.Registries.WeaponRegistry import WeaponRegistry
 from CombatSim.CombatEngine.Data.Registries.PrayerRegistry import PrayerRegistry
+from CombatSim.CombatEngine.Data.Registries.SpellRegistry import SpellRegistry
 from CombatSim.CombatEngine.Data.Registries.PotionRegistry import PotionRegistry
 
 SETUPS = [
@@ -23,24 +25,26 @@ SETUPS = [
     {
         "name": "naked_no_prayer_no_boosts",
         "gear_names": [],
-        "weapon": "ayak",
+        "weapon": "nightmare",
+        "spell": "ice barrage",
         "prayer": "none",
-        "expected_accuracy_roll": 10152,
-        "expected_max_hit": 27,
+        "expected_accuracy_roll": 8640,
+        "expected_max_hit": 34,
     },
     # ── Naked + Augury + Saturated Heart ─────────────────────────
     {
-        "name": "naked_ayak",
+        "name": "naked_barrage",
         "gear_names": [],
-        "weapon": "ayak",
+        "weapon": "nightmare",
+        "spell": "ice barrage",
         "prayer": "augury",
         "boosts": ["saturated heart"],
-        "expected_accuracy_roll": 14006,
-        "expected_max_hit": 32,
+        "expected_accuracy_roll": 11920,
+        "expected_max_hit": 35,
     },
     # ── Max Mage (ancestral + occult + magus + imbued cape + treads) ───
     {
-        "name": "max_mage_ayak",
+        "name": "max_mage_barrage",
         "gear_names": [
             "ancestral hat",
             "ancestral robe top",
@@ -52,11 +56,12 @@ SETUPS = [
             "confliction gauntlets",
             "fortified ward",
         ],
-        "weapon": "ayak",
+        "weapon": "nightmare",
+        "spell": "ice barrage",
         "prayer": "augury",
         "boosts": ["saturated heart"],
-        "expected_accuracy_roll": 38889,
-        "expected_max_hit": 42,
+        "expected_accuracy_roll": 36803,
+        "expected_max_hit": 45,
     },
 ]
 

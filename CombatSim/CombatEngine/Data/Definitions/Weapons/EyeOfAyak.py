@@ -20,13 +20,19 @@ class EyeOfAyak(Weapon):
             stats=stats,
             combat_style="Mage",
             attack_type="Magic",
-            attack_style="Autocast",
+            attack_style="Long-Range",
             attack_speed=3,
             attack_range=6,
             has_special_attack=True,
             special_attack_style="Magic",
             special_attack_cost=50
         )
+
+
+    def calc_base_max_damage(self, eff_magic_level: int) -> int:
+        """Eye of Ayak BaseMaxDamage = floor(MagicLevel / 3) - 6."""
+        import math
+        return math.floor(eff_magic_level / 3) - 6
 
     def do_attack(self, max_hit, player_attack_roll, npc_def_roll, monster: Monster = None, always_hit: bool = False):
         if always_hit:
