@@ -56,10 +56,12 @@ def calculate_hit(
                     "Scale": 3,
                     "Gear": {
                         "Pieces": ["Salve (e)"],
+                        "Prayer": "Piety",
+                        "Boosts": ["Super combat"]
                     },
                     "PlayerLevels": {
                         "attack_level": 99,
-                        "strength_level": 99,
+                        "strength_level": 99
                     },
                 },
             },
@@ -104,10 +106,12 @@ def combat_calcs(
                     "Scale": 3,
                     "Gear": {
                         "Pieces": ["Salve (e)"],
+                        "Prayer": "Piety",
+                        "Boosts": ["Super combat"]
                     },
                     "PlayerLevels": {
                         "attack_level": 99,
-                        "strength_level": 99,
+                        "strength_level": 99
                     },
                 },
             },

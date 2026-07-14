@@ -54,7 +54,7 @@ def get_combat_calcs(payload: GetCombatCalcsInput) -> GetCombatCalcsOutput:
     if weapon is None:
         raise ValueError(f"Unknown weapon: {payload.weapon}")
 
-    player = resolve_player(payload.loadout, payload.gear_input, payload.player_levels)
+    player = resolve_player(payload.loadout, payload.gear_input, payload.player_levels, payload.gear_input.prayer if payload.gear_input else None, payload.gear_input.boosts if payload.gear_input else None)
     player.equip_weapon(weapon)
 
     player.calc_all_the_things(player.weapon.combat_style, player.weapon.attack_type, monster.is_weak_to_salve)

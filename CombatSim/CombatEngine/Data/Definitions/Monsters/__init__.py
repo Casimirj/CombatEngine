@@ -8,3 +8,4 @@ from .P2Verzik import P2Verzik
 from .P3Verzik import P3Verzik
 from .Sotetseg import Sotetseg
 from .Xarpus import Xarpus
+from .NyloBoss import NyloBoss  # noqa: F401

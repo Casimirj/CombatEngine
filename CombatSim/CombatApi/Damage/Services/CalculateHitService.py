@@ -16,7 +16,7 @@ def calculate_hit_damage(payload: CalculateHitInput) -> tuple[int, int]:
     if weapon is None:
         raise ValueError(f"Unknown weapon: {payload.weapon}")
 
-    player = resolve_player(payload.loadout, payload.gear_input, payload.player_levels)
+    player = resolve_player(payload.loadout, payload.gear_input, payload.player_levels, payload.gear_input.prayer if payload.gear_input else None, payload.gear_input.boosts if payload.gear_input else None)
     player.equip_weapon(weapon)
     damage = player.do_attack(monster, always_hit=payload.always_hit)
 

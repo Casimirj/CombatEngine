@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 from CombatSim.CombatEngine.Data.Definitions.Loadouts import LoadoutRegistry
 from CombatSim.CombatEngine.Data.Registries.PotionRegistry import PotionRegistry
@@ -18,24 +18,50 @@ if TYPE_CHECKING:
 
 class PlayerFactory:
 
+    # ── overloads for build_player_from_loadout ────────────────────────
+
+    @overload
     @staticmethod
-    def build_player_from_simple_loadout(name: str) -> Player:
-        """Build a Player from a named (registered) loadout."""
-        loadout = LoadoutRegistry.get(name)
-        if loadout is None:
-            raise ValueError(f"Unknown loadout: {name}")
-        return loadout.build()
+    def build_player_from_loadout(*, name: str) -> Player: ...
+
+    @overload
+    @staticmethod
+    def build_player_from_loadout(*, pieces: list[str], player_levels: dict | None = None, prayer: str | None = None, boosts: list[str] | None = None) -> Player: ...
 
     @staticmethod
-    def build_player_from_custom_loadout(
-        pieces: list[str],
-        player_levels: dict | None = None,
-    ) -> Player:
-        """Build a Player from a custom list of gear pieces and optional levels."""
-        if not pieces:
-            raise ValueError("At least one gear piece is required for a custom loadout.")
+    def build_player_from_loadout(*, name: str | None = None, pieces: list[str] | None = None, player_levels: dict | None = None, prayer: str | None = None, boosts: list[str] | None = None) -> Player:
+        """Build a Player from a named loadout **or** custom gear pieces.
+
+        **Named loadout**::
+
+            PlayerFactory.build_player_from_loadout(name="OathTorvaSalve")
+
+        **Custom gear**::
+
+            PlayerFactory.build_player_from_loadout(
+                pieces=["Salve (e)"],
+                player_levels={"attack_level": 80},
+                prayer="piety",
+                boosts=["super combat"],
+            )
+        """
+        if name is not None:
+            loadout = LoadoutRegistry.get(name)
+            if loadout is None:
+                raise ValueError(f"Unknown loadout: {name}")
+            return loadout.build()
+
+        if pieces is None or not pieces:
+            raise ValueError("Either name or pieces must be provided.")
         levels = Stats(player_levels) if player_levels else None
-        return Loadout(gear_names=pieces, player_levels=levels).build()
+        player = Loadout(gear_names=pieces, player_levels=levels).build()
+        if prayer is not None:
+            player.prayer = PrayerRegistry.get(prayer)
+        if boosts is not None:
+            player.boosts = [PotionRegistry.get(b) for b in boosts]
+        return player
+
+    # ── build_player_from_setup ────────────────────────────────────────
 
     @staticmethod
     def build_player_from_setup(setup: dict) -> Player:

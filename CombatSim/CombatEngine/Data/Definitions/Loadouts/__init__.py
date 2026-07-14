@@ -9,6 +9,7 @@ from . import OathTorvaSalve         # noqa: F401
 from . import OathFireRancour        # noqa: F401
 from . import OathFireSalve          # noqa: F401
 from . import VoidRangedQuiverAnguish  # noqa: F401
+from . import VoidMage               # noqa: F401
 
 
 __all__ = [
@@ -19,4 +20,5 @@ __all__ = [
     "OathFireRancour",
     "OathFireSalve",
     "VoidRangedQuiverAnguish",
+    "VoidMage",
 ]

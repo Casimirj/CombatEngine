@@ -97,21 +97,21 @@ class Player:
 
     # --- Gear system ---
 
-    def equip_gear(self, gear: Gear):
-        """Equip a piece of gear into the appropriate slot and recompute stats."""
-
-        existing = self.gear.get(gear.slot)
-        if existing is not None and existing.name != gear.name:
-            raise InvalidLoadoutException(
-                f"Slot conflict: '{gear.name}' and '{existing.name}' "
-                f"both occupy the {gear.slot.name.lower()} slot."
-            )
-
-        self.gear[gear.slot] = gear
+    def equip_gear(self, *gear_items: Gear):
+        """Equip one or more pieces of gear and recompute stats once."""
+        for gear in gear_items:
+            existing = self.gear.get(gear.slot)
+            if existing is not None and existing.name != gear.name:
+                raise InvalidLoadoutException(
+                    f"Slot conflict: '{gear.name}' and '{existing.name}' "
+                    f"both occupy the {gear.slot.name.lower()} slot."
+                )
+            self.gear[gear.slot] = gear
 
         self._detect_void_set()
         self._detect_salve()
         self.compute_gear_stats()
+
 
     def unequip_gear(self, slot: GearSlot):
         """Unequip whatever gear occupies *slot* and recompute stats."""
@@ -122,6 +122,14 @@ class Player:
         self._detect_void_set()
         self._detect_salve()
         self.compute_gear_stats()
+    def clear_gear(self):
+        """Unequip all gear and recompute stats."""
+        self.gear.clear()
+        self.wearing_void = False
+        self.void_style = None
+        self.wearing_salve = False
+        self.compute_gear_stats()
+
 
     def compute_gear_stats(self):
         """Recompute self.stats from base_stats + all equipped gear + weapon."""
