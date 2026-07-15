@@ -9,17 +9,17 @@ from CombatSim.Simulations.nyloboss.schedules import (
     FIRST_MELEE,
     MELEE,
     RANGED,
+    RANGED_AFTER_MAGE,
     MAGE,
+    melee_setup,
+    ranged_setup,
+    ranged_after_mage_setup,
+    mage_setup,
 )
-from CombatSim.Simulations.nyloboss.simulation import (
-    _apply_setup,
-    _fresh_player,
-    MELEE_SETUP,
-    RANGED_SETUP,
-    MAGE_SETUP,
-)
+from CombatSim.Simulations.nyloboss.simulation import _apply_setup, _fresh_player
 from CombatSim.CombatEngine.Data.Definitions.Weapons.Bgs import Bgs
 from CombatSim.CombatEngine.Data.Definitions.Weapons.TwistedBow import TwistedBow
+from CombatSim.CombatEngine.Data.Definitions.Weapons.ToxicBlowpipe import ToxicBlowpipe
 from CombatSim.CombatEngine.Data.Definitions.Weapons.EyeOfAyak import EyeOfAyak
 
 
@@ -98,6 +98,16 @@ class TestAttackSchedules(unittest.TestCase):
         self.assertEqual(schedule, RANGED)
         self.assertEqual(schedule[0][0], TwistedBow)
 
+    def test_ranged_after_mage_schedule(self):
+        schedule = schedule_for_phase(
+            NyloBossPhase.RANGED, first_melee=False,
+            prev_phase=NyloBossPhase.MAGE,
+        )
+        self.assertEqual(schedule, RANGED_AFTER_MAGE)
+        self.assertEqual(schedule[0][0], ToxicBlowpipe)
+        self.assertEqual(schedule[3][0], TwistedBow)
+        self.assertEqual(len(schedule), 4)
+
     def test_mage_schedule(self):
         schedule = schedule_for_phase(NyloBossPhase.MAGE, first_melee=True)
         self.assertEqual(schedule, MAGE)
@@ -108,25 +118,29 @@ class TestAttackSchedules(unittest.TestCase):
 class TestSetupApply(unittest.TestCase):
     def test_melee_setup_applies(self):
         player = _fresh_player()
-        _apply_setup(player, MELEE_SETUP)
+        _apply_setup(player, melee_setup)
         self.assertTrue(player.ignore_special_attack_cost)
 
     def test_ranged_setup_applies(self):
         player = _fresh_player()
-        _apply_setup(player, RANGED_SETUP)
+        _apply_setup(player, ranged_setup)
+        self.assertTrue(player.ignore_special_attack_cost)
+
+    def test_ranged_after_mage_setup_applies(self):
+        player = _fresh_player()
+        _apply_setup(player, ranged_after_mage_setup)
         self.assertTrue(player.ignore_special_attack_cost)
 
     def test_mage_setup_applies(self):
         player = _fresh_player()
-        _apply_setup(player, MAGE_SETUP)
+        _apply_setup(player, mage_setup)
         self.assertTrue(player.ignore_special_attack_cost)
 
     def test_setup_switching(self):
-        """Apply melee then switch to ranged — should not raise."""
         player = _fresh_player()
-        _apply_setup(player, MELEE_SETUP)
-        _apply_setup(player, RANGED_SETUP)
-        _apply_setup(player, MAGE_SETUP)
+        _apply_setup(player, melee_setup)
+        _apply_setup(player, ranged_setup)
+        _apply_setup(player, mage_setup)
         self.assertTrue(player.ignore_special_attack_cost)
 
 

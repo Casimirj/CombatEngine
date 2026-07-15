@@ -1,12 +1,11 @@
 """NyloBoss Time-to-Kill Simulation.
 
 One player attacks a solo-scale NyloBoss that rotates through Melee,
-Ranged, and Mage phases every 8 ticks. The player switches gear at each
+Ranged, and Mage phases every 10 ticks. The player switches gear at each
 phase boundary and follows per-phase attack schedules.
 """
 
-from dataclasses import dataclass, field
-from typing import List, Tuple
+from typing import Tuple
 
 from CombatSim.CombatEngine.Data.Definitions.Monsters.NyloBoss import NyloBoss
 from CombatSim.CombatEngine.Domain.Player import Player
@@ -19,9 +18,13 @@ from CombatSim.Simulations.nyloboss.phases import NyloBossPhase, next_nylo_phase
 from CombatSim.Simulations.nyloboss.schedules import (
     NyloAttackSchedule,
     schedule_for_phase,
+    melee_setup,
+    ranged_setup,
+    ranged_after_mage_setup,
+    mage_setup,
 )
 
-PHASE_TICK_DURATION = 8
+PHASE_TICK_DURATION = 10
 BOSS_SCALE = 1
 
 _PLAYER_LEVELS = {
@@ -30,63 +33,7 @@ _PLAYER_LEVELS = {
 }
 
 
-@dataclass
-class Setup:
-    """Bundles gear pieces, prayer, and boosts for a single phase."""
-    pieces: List[str]
-    prayer: str
-    boosts: List[str] = field(default_factory=list)
-
-
-# ── Phase Setups ────────────────────────────────────────────────────────────
-
-MELEE_SETUP = Setup(
-    pieces=[
-        'Torva full helm',
-        'Infernal cape',
-        'Salve (e)',
-        'Torva platebody',
-        'Torva platelegs',
-        'Ferocious gloves',
-        'Primordial boots',
-        'Berserker ring (i)',
-        'Avernic defender',
-    ],
-    prayer="piety",
-    boosts=["super_combat"],
-)
-
-RANGED_SETUP = Setup(
-    pieces=[
-        'Void ranger helm',
-        "Dizana's quiver",
-        'Necklace of anguish',
-        'Elite void top',
-        'Elite void robe',
-        'Void knight gloves',
-        'Amethyst arrows',
-    ],
-    prayer="rigour",
-    boosts=["bastion"],
-)
-
-MAGE_SETUP = Setup(
-    pieces=[
-        'Void mage helm',
-        'Imbued saradomin cape',
-        'Occult necklace',
-        'Elite void top',
-        'Elite void robe',
-        'Void knight gloves',
-        'Ward of elidinis (f)',
-        'Magus ring',
-    ],
-    prayer="augury",
-    boosts=["imbued_heart"],
-)
-
-
-def _apply_setup(player: Player, setup: Setup):
+def _apply_setup(player: Player, setup):
     """Re-gear the player for a new phase setup."""
     player.clear_gear()
     gears = [GearRegistry.get(name) for name in setup.pieces]
@@ -102,14 +49,8 @@ def _fresh_player() -> Player:
     }
     player = Player(stats=level_dict)
     player.ignore_special_attack_cost = True
+    player._validate_ammo = lambda: None  # Skip ammo validation for phase-switching sims
     return player
-
-
-_SETUPS_BY_PHASE = {
-    NyloBossPhase.MELEE: MELEE_SETUP,
-    NyloBossPhase.RANGED: RANGED_SETUP,
-    NyloBossPhase.MAGE: MAGE_SETUP,
-}
 
 
 # ── Simulation Core ─────────────────────────────────────────────────────────
@@ -127,8 +68,9 @@ def simulate_kill(debug: bool = False) -> Tuple[bool, int]:
     first_melee = True
 
     phase = NyloBossPhase.MELEE
-    _apply_setup(player, MELEE_SETUP)
-    schedule: NyloAttackSchedule = schedule_for_phase(phase, first_melee)
+    prev_phase = None
+    _apply_setup(player, melee_setup)
+    schedule: NyloAttackSchedule = schedule_for_phase(phase, first_melee, prev_phase)
 
     schedule_idx = 0
     next_phase_tick = PHASE_TICK_DURATION
@@ -147,12 +89,13 @@ def simulate_kill(debug: bool = False) -> Tuple[bool, int]:
         if current_tick >= next_phase_tick:
             old_phase = phase
             phase = next_nylo_phase(phase)
+            prev_phase = old_phase
 
             if old_phase == NyloBossPhase.MELEE:
                 first_melee = False
 
-            _apply_setup(player, _SETUPS_BY_PHASE[phase])
-            schedule = schedule_for_phase(phase, first_melee)
+            _apply_setup(player, _setup_for_phase(phase, prev_phase))
+            schedule = schedule_for_phase(phase, first_melee, prev_phase)
             schedule_idx = 0
             next_phase_tick += PHASE_TICK_DURATION
 
@@ -169,8 +112,8 @@ def simulate_kill(debug: bool = False) -> Tuple[bool, int]:
             total_ticks += 1
             continue
 
-        # Transition tick with no cooldown — just skip this tick
-        if just_transitioned:
+        # Transition tick with no cooldown — block first attack of new phase
+        if just_transitioned and schedule_idx == 0:
             current_tick += 1
             total_ticks += 1
             continue
@@ -200,6 +143,16 @@ def simulate_kill(debug: bool = False) -> Tuple[bool, int]:
     return monster.is_dead(), total_ticks
 
 
+def _setup_for_phase(phase: NyloBossPhase, prev_phase: "NyloBossPhase | None" = None):
+    if phase == NyloBossPhase.RANGED and prev_phase == NyloBossPhase.MAGE:
+        return ranged_after_mage_setup
+    return {
+        NyloBossPhase.MELEE: melee_setup,
+        NyloBossPhase.RANGED: ranged_setup,
+        NyloBossPhase.MAGE: mage_setup,
+    }[phase]
+
+
 # ── Debug Helpers ───────────────────────────────────────────────────────────
 
 _PHASE_LABELS = {
@@ -208,32 +161,19 @@ _PHASE_LABELS = {
     NyloBossPhase.MAGE: "MAGE",
 }
 
-def _dbg_phase_change(
-    old: NyloBossPhase,
-    new: NyloBossPhase,
-    tick: int,
-    cooldown: int = 0,
-):
-    cooldown_str = f" (on cooldown: {cooldown} remaining)" if cooldown > 0 else ""
-    print(f"  tick {tick:>4}  --- {_PHASE_LABELS[old]} -> {_PHASE_LABELS[new]}{cooldown_str} ---")
 
-
-def _dbg_attack_hit(
-    tick: int,
-    weapon_name: str,
-    damage: int,
-    boss_hp: int,
-    is_spec: bool,
-):
+def _dbg_attack_hit(tick: int, weapon_name: str, damage: int, boss_hp: int, is_spec: bool):
     spec_str = " [SPEC]" if is_spec else ""
     print(f"  tick {tick:>4}  ({weapon_name}{spec_str})  damage={damage:>3}  boss_hp={boss_hp}")
 
 
-def _dbg_cooldown_tick(
-    tick: int,
-    weapon_name: str,
-):
+def _dbg_cooldown_tick(tick: int, weapon_name: str):
     print(f"  tick {tick:>4}")
+
+
+def _dbg_phase_change(old: NyloBossPhase, new: NyloBossPhase, tick: int, cooldown: int = 0):
+    cooldown_str = f" (on cooldown: {cooldown} remaining)" if cooldown > 0 else ""
+    print(f"  tick {tick:>4}  --- {_PHASE_LABELS[old]} -> {_PHASE_LABELS[new]}{cooldown_str} ---")
 
 
 def run_batch(count: int) -> Tuple[int, int]:
