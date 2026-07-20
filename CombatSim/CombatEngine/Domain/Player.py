@@ -175,9 +175,6 @@ class Player:
 
     #region Roll Calculation
     def calc_all_the_things(self, combat_style:str=None, attack_type:str=None, monster_weak_to_salve:Optional[bool]=False):
-        self.compute_gear_stats()
-        self._detect_void_set()
-        self._detect_salve()
 
         if combat_style is not None and combat_style.capitalize() == "Ranged":
             self.effective_ranged_att_level = self.calc_eff_ranged_attack_level()

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 
 
@@ -50,28 +51,7 @@ class Stats:
     def copy(self):
         """Return a new Stats object with identical values."""
         new = Stats()
-        new.hp_level = self.hp_level
-        new.attack_level = self.attack_level
-        new.strength_level = self.strength_level
-        new.def_level = self.def_level
-        new.magic_level = self.magic_level
-        new.ranged_level = self.ranged_level
-        new.prayer_level = self.prayer_level
-        new.stab_attack_bonus = self.stab_attack_bonus
-        new.slash_attack_bonus = self.slash_attack_bonus
-        new.crush_attack_bonus = self.crush_attack_bonus
-        new.magic_attack_bonus = self.magic_attack_bonus
-        new.ranged_attack_bonus = self.ranged_attack_bonus
-        new.melee_strength_bonus = self.melee_strength_bonus
-        new.ranged_strength_bonus = self.ranged_strength_bonus
-        new.magic_strength_bonus = self.magic_strength_bonus
-        new.slash_def = self.slash_def
-        new.stab_def = self.stab_def
-        new.crush_def = self.crush_def
-        new.magic_def = self.magic_def
-        new.ranged_def_light = self.ranged_def_light
-        new.ranged_def_med = self.ranged_def_med
-        new.ranged_def_heavy = self.ranged_def_heavy
+        new.__dict__.update(self.__dict__)
         return new
 
     def increase(self, extra_stats:Stats):

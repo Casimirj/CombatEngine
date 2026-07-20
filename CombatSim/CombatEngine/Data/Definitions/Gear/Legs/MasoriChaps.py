@@ -18,13 +18,13 @@ class MasoriChaps(Gear):
             "melee_strength_bonus":  0,
             "ranged_strength_bonus":  2,
             "magic_strength_bonus":  0,
-            "stab_def":  26,
-            "slash_def":  24,
-            "crush_def":  29,
-            "magic_def":  19,
-            "ranged_def_light":  22,
-            "ranged_def_med":  22,
-            "ranged_def_heavy":  22
+            "stab_def":  35,
+            "slash_def":  30,
+            "crush_def":  39,
+            "magic_def":  46,
+            "ranged_def_light":  37,
+            "ranged_def_med":  37,
+            "ranged_def_heavy":  37
         }
 
 

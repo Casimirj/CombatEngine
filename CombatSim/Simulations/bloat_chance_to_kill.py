@@ -42,6 +42,14 @@ TICK_ROTATION: List[Tuple[type, bool]] = [
     (Scythe,          False),
 ]
 
+# ── Weapon cache — avoid reconstructing weapon objects on every attack ──────
+_WEAPON_CACHE: dict = {}
+
+def _get_weapon(weapon_cls: type):
+    if weapon_cls not in _WEAPON_CACHE:
+        _WEAPON_CACHE[weapon_cls] = weapon_cls()
+    return _WEAPON_CACHE[weapon_cls]
+
 
 def _fresh_player() -> Player:
     """Build a fresh OathTorvaSalve player with unlimited special attack."""
@@ -58,7 +66,7 @@ def _simulate_kill() -> Tuple[bool, int]:
 
     for weapon_cls, use_spec in TICK_ROTATION:
         for player in players:
-            weapon = weapon_cls()
+            weapon = _get_weapon(weapon_cls)
             player.equip_weapon(weapon)
             dmg = player.do_attack(monster, special_attack=use_spec)
             monster.reduce_hp(dmg)

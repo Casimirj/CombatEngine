@@ -32,11 +32,27 @@ _PLAYER_LEVELS = {
     "def_level": 99, "magic_level": 99, "ranged_level": 99, "prayer_level": 99,
 }
 
+# ── Gear / Setup Cache ──────────────────────────────────────────────────────
+
+_GEAR_CACHE: dict = {}
+
+def _cached_gear(name: str):
+    if name not in _GEAR_CACHE:
+        _GEAR_CACHE[name] = GearRegistry.get(name)
+    return _GEAR_CACHE[name]
+
+_WEAPON_CACHE: dict = {}
+
+def _cached_weapon(weapon_cls: type):
+    if weapon_cls not in _WEAPON_CACHE:
+        _WEAPON_CACHE[weapon_cls] = weapon_cls()
+    return _WEAPON_CACHE[weapon_cls]
+
 
 def _apply_setup(player: Player, setup):
     """Re-gear the player for a new phase setup."""
     player.clear_gear()
-    gears = [GearRegistry.get(name) for name in setup.pieces]
+    gears = [_cached_gear(name) for name in setup.pieces]
     player.equip_gear(*gears)
     player.prayer = PrayerRegistry.get(setup.prayer)
     player.boosts = [PotionRegistry.get(b) for b in setup.boosts] if setup.boosts else []
@@ -123,7 +139,7 @@ def simulate_kill(debug: bool = False) -> Tuple[bool, int]:
             break
 
         weapon_cls, use_spec = schedule[schedule_idx]
-        weapon = weapon_cls()
+        weapon = _cached_weapon(weapon_cls)
         player.equip_weapon(weapon)
 
         schedule_idx += 1

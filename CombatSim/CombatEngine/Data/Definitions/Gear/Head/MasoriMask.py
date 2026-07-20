@@ -18,13 +18,13 @@ class MasoriMask(Gear):
             "melee_strength_bonus":  0,
             "ranged_strength_bonus":  2,
             "magic_strength_bonus":  0,
-            "stab_def":  3,
-            "slash_def":  4,
-            "crush_def":  3,
-            "magic_def":  6,
-            "ranged_def_light":  4,
-            "ranged_def_med":  4,
-            "ranged_def_heavy":  4
+            "stab_def":  8,
+            "slash_def":  10,
+            "crush_def":  12,
+            "magic_def":  12,
+            "ranged_def_light":  9,
+            "ranged_def_med":  9,
+            "ranged_def_heavy":  9
         }
 
 

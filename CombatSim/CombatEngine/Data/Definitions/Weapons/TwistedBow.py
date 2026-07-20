@@ -14,7 +14,7 @@ class TwistedBow(Weapon):
     def __init__(self):
         stats = Stats({
             "ranged_attack_bonus": 70,
-            "ranged_strength_bonus": 80
+            "ranged_strength_bonus": 20
         })
 
         super().__init__(
@@ -37,14 +37,13 @@ class TwistedBow(Weapon):
         magic = min(magic, 250)
 
         m = magic
-        acc_raw = 140.0 + (10.0 * 3.0 * m / 10.0 - 10.0) / 100.0 - ((3.0 * m / 10.0 - 100.0) ** 2) / 100.0
-        dmg_raw = 250.0 + (10.0 * 3.0 * m / 10.0 - 14.0) / 100.0 - ((3.0 * m / 10.0 - 140.0) ** 2) / 100.0
+        # RuneScript-style integer division (truncation toward zero)
+        acc_mod = 140 + (3 * m - 10) // 100 - (3 * m // 10 - 100) ** 2 // 100
+        dmg_mod = 250 + (3 * m - 14) // 100 - (3 * m // 10 - 140) ** 2 // 100
 
-        acc_modifier = max(0.0, min(140.0, acc_raw))
-        dmg_modifier = max(0.0, min(250.0, dmg_raw))
-
-        acc_mult = 1.0 + acc_modifier / 100.0
-        dmg_mult = 1.0 + dmg_modifier / 100.0
+        # Modifier IS the percentage multiplier (141% = 1.41x, 215% = 2.15x)
+        acc_mult = acc_mod / 100.0
+        dmg_mult = dmg_mod / 100.0
         return acc_mult, dmg_mult
 
     def do_attack(self, max_hit, player_attack_roll, npc_def_roll, monster: Monster = None, always_hit: bool = False):

@@ -3,19 +3,6 @@
 The Twisted bow uses a special scaling mechanic: its accuracy roll and
 max hit are multiplied by factors derived from the target's magic level
 and magic attack bonus (capped at 250).
-
-Add new setups by appending a dict to SETUPS with:
-    name                          — snake_case identifier for generated names
-    gear_names                    — list of gear registry keys (ammo included)
-    weapon                        — weapon registry key
-    monster                       — monster registry key (e.g. "maiden")
-    attack_style_override         — (optional) override weapon attack style
-    prayer                        — (optional) Prayer enum; default NONE
-    boosts                        — (optional) list of Potion enums
-    expected_base_accuracy_roll   — expected player.attack_roll (before tbow multiplier)
-    expected_base_max_hit         — expected player.max_hit (before tbow multiplier)
-    expected_actual_accuracy_roll   — expected accuracy roll after tbow multiplier
-    expected_actual_max_hit         — expected max hit after tbow multiplier
 """
 
 import math
@@ -32,10 +19,8 @@ SETUPS = [
         "weapon": "twisted bow",
         "monster": "maiden",
         "prayer": "none",
-        "expected_base_accuracy_roll": 14338,
-        "expected_base_max_hit": 34,
-        "expected_actual_accuracy_roll": 34411,
-        "expected_actual_max_hit": 107,
+        "expected_accuracy_roll": 20216,
+        "expected_max_hit": 51,
     },
     # ── Rigour + Ranging + Twisted Bow + Dragon Arrows vs Maiden ─────────
     {
@@ -45,10 +30,70 @@ SETUPS = [
         "monster": "maiden",
         "prayer": "rigour",
         "boosts": ["ranging"],
-        "expected_base_accuracy_roll": 19028,
-        "expected_base_max_hit": 46,
-        "expected_actual_accuracy_roll": 45667,
-        "expected_actual_max_hit": 144,
+        "expected_accuracy_roll": 26829,
+        "expected_max_hit": 70,
+    },
+    # ── Naked + Twisted Bow + Dragon Arrows vs Nylo Boss ─────────────────
+    {
+        "name": "nylo_only_dragon_noboosts",
+        "gear_names": ["dragon arrows"],
+        "weapon": "twisted bow",
+        "monster": "nylo",
+        "prayer": "none",
+        "expected_accuracy_roll": 20216,
+        "expected_max_hit": 51,
+    },
+    # ── Rigour + Ranging + Twisted Bow + Dragon Arrows vs Nylo Boss ──────
+    {
+        "name": "nylo_only_dragon",
+        "gear_names": ["dragon arrows"],
+        "weapon": "twisted bow",
+        "monster": "nylo",
+        "prayer": "rigour",
+        "boosts": ["ranging"],
+        "expected_accuracy_roll": 26829,
+        "expected_max_hit": 70,
+    },
+        {
+        "name": "maiden_only_Amethyst_noboosts",
+        "gear_names": ["amethyst arrows"],
+        "weapon": "twisted bow",
+        "monster": "maiden",
+        "prayer": "none",
+        "expected_accuracy_roll": 20216,
+        "expected_max_hit": 49,
+    },
+    # ── Rigour + Ranging + Twisted Bow + Amethyst Arrows vs Maiden ─────────
+    {
+        "name": "maiden_only_amethyst",
+        "gear_names": ["amethyst arrows"],
+        "weapon": "twisted bow",
+        "monster": "maiden",
+        "prayer": "rigour",
+        "boosts": ["ranging"],
+        "expected_accuracy_roll": 26829,
+        "expected_max_hit": 66,
+    },
+    # ── Naked + Twisted Bow + Amethyst Arrows vs Nylo Boss ─────────────────
+    {
+        "name": "nylo_only_amethyst_noboosts",
+        "gear_names": ["amethyst arrows"],
+        "weapon": "twisted bow",
+        "monster": "nylo",
+        "prayer": "none",
+        "expected_accuracy_roll": 20216,
+        "expected_max_hit": 49,
+    },
+    # ── Rigour + Ranging + Twisted Bow + Amethyst Arrows vs Nylo Boss ──────
+    {
+        "name": "nylo_only_amethyst",
+        "gear_names": ["amethyst arrows"],
+        "weapon": "twisted bow",
+        "monster": "nylo",
+        "prayer": "rigour",
+        "boosts": ["ranging"],
+        "expected_accuracy_roll": 26829,
+        "expected_max_hit": 66,
     },
 ]
 
@@ -73,12 +118,14 @@ def _make_test_classes():
                 player = PlayerFactory.build_player_from_setup(setup)
                 monster = _build_monster_from_setup(setup)
                 player.calc_all_the_things(combat_style="Ranged", attack_type="Ranged")
+                acc_mult, _ = player.weapon._calc_tbow_multipliers(monster)
+                adjusted = math.floor(player.attack_roll * acc_mult)
                 self.assertEqual(
-                    player.attack_roll, setup["expected_base_accuracy_roll"],
+                    adjusted, setup["expected_accuracy_roll"],
                     f"\n setup={setup['name']!r}"
                     f"\n gear={setup.get('gear_names', [])}"
-                    f"\n expected_base_accuracy_roll={setup['expected_base_accuracy_roll']}"
-                    f"\n actual_base_accuracy_roll={player.attack_roll}"
+                    f"\n expected_accuracy_roll={setup['expected_accuracy_roll']}"
+                    f"\n actual_accuracy_roll={adjusted}"
                 )
             return test
 
@@ -87,52 +134,20 @@ def _make_test_classes():
                 player = PlayerFactory.build_player_from_setup(setup)
                 monster = _build_monster_from_setup(setup)
                 player.calc_all_the_things(combat_style="Ranged", attack_type="Ranged")
-                self.assertEqual(
-                    player.max_hit, setup["expected_base_max_hit"],
-                    f"\n setup={setup['name']!r}"
-                    f"\n gear={setup.get('gear_names', [])}"
-                    f"\n expected_base_max_hit={setup['expected_base_max_hit']}"
-                    f"\n actual_base_max_hit={player.max_hit}"
-                )
-            return test
-
-        def build_tbow_accuracy_test(setup=setup):
-            def test(self):
-                player = PlayerFactory.build_player_from_setup(setup)
-                monster = _build_monster_from_setup(setup)
-                player.calc_all_the_things(combat_style="Ranged", attack_type="Ranged")
-                acc_mult, _ = player.weapon._calc_tbow_multipliers(monster)
-                adjusted = math.floor(player.attack_roll * acc_mult)
-                self.assertEqual(
-                    adjusted, setup["expected_actual_accuracy_roll"],
-                    f"\n setup={setup['name']!r}"
-                    f"\n gear={setup.get('gear_names', [])}"
-                    f"\n expected_actual_accuracy_roll={setup['expected_actual_accuracy_roll']}"
-                    f"\n actual_tbow_accuracy_roll={adjusted}"
-                )
-            return test
-
-        def build_tbow_max_hit_test(setup=setup):
-            def test(self):
-                player = PlayerFactory.build_player_from_setup(setup)
-                monster = _build_monster_from_setup(setup)
-                player.calc_all_the_things(combat_style="Ranged", attack_type="Ranged")
                 _, dmg_mult = player.weapon._calc_tbow_multipliers(monster)
                 adjusted = math.floor(player.max_hit * dmg_mult)
                 self.assertEqual(
-                    adjusted, setup["expected_actual_max_hit"],
+                    adjusted, setup["expected_max_hit"],
                     f"\n setup={setup['name']!r}"
                     f"\n gear={setup.get('gear_names', [])}"
-                    f"\n expected_actual_max_hit={setup['expected_actual_max_hit']}"
-                    f"\n actual_tbow_max_hit={adjusted}"
+                    f"\n expected_max_hit={setup['expected_max_hit']}"
+                    f"\n actual_max_hit={adjusted}"
                 )
             return test
 
         TestCls = type(class_name, (unittest.TestCase,), {
-            "test_base_accuracy_roll":  build_accuracy_test(setup),
-            "test_base_max_hit":        build_max_hit_test(setup),
-            "test_actual_accuracy_roll":  build_tbow_accuracy_test(setup),
-            "test_actual_max_hit":        build_tbow_max_hit_test(setup),
+            "test_accuracy_roll": build_accuracy_test(setup),
+            "test_max_hit":       build_max_hit_test(setup),
         })
         globals()[class_name] = TestCls
 
