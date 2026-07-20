@@ -24,8 +24,9 @@ class TorvaFullHelm(Gear):
             "magic_def": -2,
             "ranged_def_light":  57,
             "ranged_def_med":  57,
-            "ranged_def_heavy":  57
-        }
+            "prayer_bonus": 1,
+            "ranged_def_heavy":  57}
 
 
 GearRegistry.register(TorvaFullHelm())
+

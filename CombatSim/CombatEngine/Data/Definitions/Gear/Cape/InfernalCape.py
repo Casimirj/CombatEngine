@@ -24,8 +24,9 @@ class InfernalCape(Gear):
             "magic_def":  12,
             "ranged_def_light":  12,
             "ranged_def_med":  12,
-            "ranged_def_heavy":  12
-        }
+            "prayer_bonus": 2,
+            "ranged_def_heavy":  12}
 
 
 GearRegistry.register(InfernalCape())
+

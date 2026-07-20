@@ -24,8 +24,9 @@ class Salve(Gear):
             "magic_def":  0,
             "ranged_def_light":  0,
             "ranged_def_med":  0,
-            "ranged_def_heavy":  0,
-        }
+            "prayer_bonus": 3,
+            "ranged_def_heavy":  0,}
 
 
 GearRegistry.register(Salve())
+

@@ -37,6 +37,7 @@ class Stats:
 
         self.melee_strength_bonus = 0
         self.ranged_strength_bonus = 0
+        self.prayer_bonus = 0
         self.magic_strength_bonus = 0
 
         self.slash_def = 0
@@ -73,6 +74,7 @@ class Stats:
         self.melee_strength_bonus += extra_stats.melee_strength_bonus
         self.ranged_strength_bonus += extra_stats.ranged_strength_bonus
         self.magic_strength_bonus += extra_stats.magic_strength_bonus
+        self.prayer_bonus += extra_stats.prayer_bonus
 
         self.slash_def += extra_stats.slash_def
         self.stab_def += extra_stats.stab_def
@@ -101,6 +103,7 @@ class Stats:
         self.melee_strength_bonus -= extra_stats.melee_strength_bonus
         self.ranged_strength_bonus -= extra_stats.ranged_strength_bonus
         self.magic_strength_bonus -= extra_stats.magic_strength_bonus
+        self.prayer_bonus -= extra_stats.prayer_bonus
 
         self.slash_def -= extra_stats.slash_def
         self.stab_def -= extra_stats.stab_def
@@ -139,3 +142,4 @@ class Stats:
             self.ranged_def_light = input_stats.get("ranged_def_light") if input_stats.get("ranged_def_light") is not None else self.ranged_def_light
             self.ranged_def_med = input_stats.get("ranged_def_med") if input_stats.get("ranged_def_med") is not None else self.ranged_def_med
             self.ranged_def_heavy = input_stats.get("ranged_def_heavy") if input_stats.get("ranged_def_heavy") is not None else self.ranged_def_heavy
+            self.prayer_bonus = input_stats.get("prayer_bonus") if input_stats.get("prayer_bonus") is not None else self.prayer_bonus

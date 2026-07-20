@@ -24,8 +24,9 @@ class WardOfElidinisF(Gear):
             "magic_def":  2,
             "ranged_def_light": 52,
             "ranged_def_med":   52,
-            "ranged_def_heavy": 52,
-        }
+            "prayer_bonus": 4,
+            "ranged_def_heavy": 52,}
 
 
 GearRegistry.register(WardOfElidinisF())
+

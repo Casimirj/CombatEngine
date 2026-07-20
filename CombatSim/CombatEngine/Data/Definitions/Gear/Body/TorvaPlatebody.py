@@ -24,8 +24,9 @@ class TorvaPlatebody(Gear):
             "magic_def": -11,
             "ranged_def_light":  142,
             "ranged_def_med":  142,
-            "ranged_def_heavy":  142
-        }
+            "prayer_bonus": 1,
+            "ranged_def_heavy":  142}
 
 
 GearRegistry.register(TorvaPlatebody())
+

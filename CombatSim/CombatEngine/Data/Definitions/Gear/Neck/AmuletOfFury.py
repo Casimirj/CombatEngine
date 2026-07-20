@@ -24,8 +24,9 @@ class AmuletOfFury(Gear):
             "magic_def":  15,
             "ranged_def_light":  15,
             "ranged_def_med":  15,
-            "ranged_def_heavy":  15
-        }
+            "prayer_bonus": 5,
+            "ranged_def_heavy":  15}
 
 
 GearRegistry.register(AmuletOfFury())
+

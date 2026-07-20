@@ -24,8 +24,9 @@ class ZaryteVambraces(Gear):
             "magic_def":  5,
             "ranged_def_light":  8,
             "ranged_def_med":  8,
-            "ranged_def_heavy":  8
-        }
+            "prayer_bonus": 1,
+            "ranged_def_heavy":  8}
 
 
 GearRegistry.register(ZaryteVambraces())
+

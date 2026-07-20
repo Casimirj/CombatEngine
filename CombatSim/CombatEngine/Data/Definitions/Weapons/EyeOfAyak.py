@@ -12,7 +12,8 @@ class EyeOfAyak(Weapon):
     def __init__(self):
         stats = Stats({
             "magic_attack_bonus": 30,
-            "magic_strength_bonus": 0
+            "magic_strength_bonus": 0,
+            "prayer_bonus": 2
         })
 
         super().__init__(

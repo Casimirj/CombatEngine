@@ -24,8 +24,9 @@ class BandosTassets(Gear):
             "magic_def": -4,
             "ranged_def_light":  93,
             "ranged_def_med":  93,
-            "ranged_def_heavy":  93
-        }
+            "prayer_bonus": 1,
+            "ranged_def_heavy":  93}
 
 
 GearRegistry.register(BandosTassets())
+

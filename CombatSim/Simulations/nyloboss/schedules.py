@@ -50,9 +50,11 @@ class Setup:
 
 from CombatSim.CombatEngine.Data.Definitions.Weapons.Scythe import Scythe
 from CombatSim.CombatEngine.Data.Definitions.Weapons.Bgs import Bgs
+from CombatSim.CombatEngine.Data.Definitions.Weapons.DragonClaws import DragonClaws
 from CombatSim.CombatEngine.Data.Definitions.Weapons.TwistedBow import TwistedBow
 from CombatSim.CombatEngine.Data.Definitions.Weapons.EyeOfAyak import EyeOfAyak
 from CombatSim.CombatEngine.Data.Definitions.Weapons.ToxicBlowpipe import ToxicBlowpipe
+from CombatSim.CombatEngine.Data.Definitions.Weapons.ZaryteCrossbow import ZaryteCrossbow
 
 
 # ── Phase Setups ────────────────────────────────────────────────────────────
@@ -130,6 +132,11 @@ MELEE = NyloAttackSchedule("Melee", [
     (Scythe, False),
 ])
 
+FIRST_RANGED = NyloAttackSchedule("First Ranged (ZCB)", [
+    (ZaryteCrossbow, True),
+    (TwistedBow, False),
+])
+
 RANGED = NyloAttackSchedule("Ranged", [
     (TwistedBow, False),
     (TwistedBow, False),
@@ -148,16 +155,53 @@ MAGE = NyloAttackSchedule("Mage", [
     (EyeOfAyak, False),
 ])
 
+# ── Claws-first variants ────────────────────────────────────────────────────
+
+FIRST_MELEE_CLAWS = NyloAttackSchedule("First Melee (Claws)", [
+    (DragonClaws, True),
+    (Scythe, False),
+    (Scythe, False),
+])
+
+MELEE_CLAWS = NyloAttackSchedule("Melee (Claws)", [
+    (Scythe, False),
+    (Scythe, False),
+])
+
+
+# ── Schedule-Dispatch Functions ─────────────────────────────────────────────
 
 def schedule_for_phase(
     phase: NyloBossPhase,
     first_melee: bool,
     prev_phase: "NyloBossPhase | None" = None,
+    first_ranged: bool = True,
 ) -> NyloAttackSchedule:
-    """Return the appropriate attack schedule for the given phase."""
+    """Return the BGS-first attack schedule for the given phase."""
     if phase == NyloBossPhase.MELEE:
         return FIRST_MELEE if first_melee else MELEE
     elif phase == NyloBossPhase.RANGED:
+        if first_ranged:
+            return FIRST_RANGED
+        if prev_phase == NyloBossPhase.MAGE:
+            return RANGED_AFTER_MAGE
+        return RANGED
+    else:
+        return MAGE
+
+
+def schedule_for_phase_claws(
+    phase: NyloBossPhase,
+    first_melee: bool,
+    prev_phase: "NyloBossPhase | None" = None,
+    first_ranged: bool = True,
+) -> NyloAttackSchedule:
+    """Return the Claws-first attack schedule for the given phase."""
+    if phase == NyloBossPhase.MELEE:
+        return FIRST_MELEE_CLAWS if first_melee else MELEE_CLAWS
+    elif phase == NyloBossPhase.RANGED:
+        if first_ranged:
+            return FIRST_RANGED
         if prev_phase == NyloBossPhase.MAGE:
             return RANGED_AFTER_MAGE
         return RANGED

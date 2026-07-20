@@ -24,8 +24,9 @@ class EliteVoidRobe(Gear):
             "magic_def":  30,
             "ranged_def_light":  30,
             "ranged_def_med":  30,
-            "ranged_def_heavy":  30
-        }
+            "prayer_bonus": 3,
+            "ranged_def_heavy":  30}
 
 
 GearRegistry.register(EliteVoidRobe())
+

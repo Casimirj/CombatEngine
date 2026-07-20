@@ -24,8 +24,9 @@ class FireCape(Gear):
             "magic_def":  11,
             "ranged_def_light":  11,
             "ranged_def_med":  11,
-            "ranged_def_heavy":  11
-        }
+            "prayer_bonus": 2,
+            "ranged_def_heavy":  11}
 
 
 GearRegistry.register(FireCape())
+

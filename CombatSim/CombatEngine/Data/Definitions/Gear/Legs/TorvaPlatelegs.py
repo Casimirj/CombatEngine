@@ -24,8 +24,9 @@ class TorvaPlatelegs(Gear):
             "magic_def": -9,
             "ranged_def_light":  102,
             "ranged_def_med":  102,
-            "ranged_def_heavy":  102
-        }
+            "prayer_bonus": 1,
+            "ranged_def_heavy":  102}
 
 
 GearRegistry.register(TorvaPlatelegs())
+

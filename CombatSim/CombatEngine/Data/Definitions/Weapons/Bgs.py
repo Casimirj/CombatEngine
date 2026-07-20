@@ -14,7 +14,8 @@ class Bgs(Weapon):
         stats = Stats({
             "slash_attack_bonus": 132,
             "crush_attack_bonus": 80,
-            "melee_strength_bonus": 132
+            "melee_strength_bonus": 132,
+            "prayer_bonus": 8
         })   
         super().__init__(
             name="Bandos Godsword",

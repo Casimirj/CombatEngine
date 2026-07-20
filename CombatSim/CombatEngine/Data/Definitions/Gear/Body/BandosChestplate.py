@@ -24,8 +24,9 @@ class BandosChestplate(Gear):
             "magic_def": -6,
             "ranged_def_light":  133,
             "ranged_def_med":  133,
-            "ranged_def_heavy":  133
-        }
+            "prayer_bonus": 1,
+            "ranged_def_heavy":  133}
 
 
 GearRegistry.register(BandosChestplate())
+

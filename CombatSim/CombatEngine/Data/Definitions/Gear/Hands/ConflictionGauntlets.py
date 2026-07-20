@@ -24,8 +24,9 @@ class ConflictionGauntlets(Gear):
             "magic_def":  5,
             "ranged_def_light":  5,
             "ranged_def_med":  5,
-            "ranged_def_heavy":  5
-        }
+            "prayer_bonus": 2,
+            "ranged_def_heavy":  5}
 
 
 GearRegistry.register(ConflictionGauntlets())
+

@@ -24,8 +24,9 @@ class EliteVoidTop(Gear):
             "magic_def":  45,
             "ranged_def_light":  45,
             "ranged_def_med":  45,
-            "ranged_def_heavy":  45
-        }
+            "prayer_bonus": 3,
+            "ranged_def_heavy":  45}
 
 
 GearRegistry.register(EliteVoidTop())
+

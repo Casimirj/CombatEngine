@@ -14,7 +14,8 @@ class TumekensShadow(Weapon):
 
         stats = Stats({
             "magic_attack_bonus": 35,
-            "magic_strength_bonus": 0
+            "magic_strength_bonus": 0,
+            "prayer_bonus": 1
         })
 
         super().__init__(

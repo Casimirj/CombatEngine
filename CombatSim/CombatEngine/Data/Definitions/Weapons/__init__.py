@@ -16,3 +16,4 @@ from . import SulfurBlades      # noqa: F401
 from . import ToxicBlowpipe     # noqa: F401
 from . import TumekensShadow    # noqa: F401
 from . import TwistedBow        # noqa: F401
+from . import ZaryteCrossbow    # noqa: F401
