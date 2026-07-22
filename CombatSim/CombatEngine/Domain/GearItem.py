@@ -14,6 +14,7 @@ class Gear(ABC):
     name: str
     slot: GearSlot
     aliases: list[str] = []
+    min_hit: int = 1
     player_kwargs: dict = {}
 
     @abstractmethod

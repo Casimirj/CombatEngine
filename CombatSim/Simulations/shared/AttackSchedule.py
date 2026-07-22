@@ -44,8 +44,6 @@ class AttackSchedule:
     def __post_init__(self):
         if not self.name:
             raise ValueError("AttackSchedule name cannot be empty")
-        if not self.rotation:
-            raise ValueError("AttackSchedule rotation cannot be empty")
 
     def __len__(self) -> int:
         return len(self.rotation)

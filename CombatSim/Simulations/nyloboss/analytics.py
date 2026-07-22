@@ -17,10 +17,10 @@ import numpy as np
 
 from CombatSim.Simulations.nyloboss.simulation import (
     DEFAULT_BOSS_SCALE,
-    DEFAULT_PLAYER_CONFIGS,
     PlayerConfig,
     run_batch_with_data,
 )
+from CombatSim.Simulations.nyloboss.configs import DEFAULT_PLAYER_CONFIGS
 
 
 # ── Stats container ─────────────────────────────────────────────────────────

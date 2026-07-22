@@ -63,21 +63,14 @@ class ZaryteCrossbow(Weapon):
         return 0
 
     def do_special_attack(self, max_hit: int, player_attack_roll: int, npc_def_roll: int, monster: Monster = None, always_hit: bool = False) -> int:
-        """Immolate: doubled accuracy, minimum 30% of max hit, guaranteed ruby bolt (e) proc."""
+        """Immolate: doubled accuracy, guaranteed ruby bolt (e) proc. Damage is the bolt proc only (110 cap)."""
         adjusted_attack_roll = player_attack_roll * 2
-        min_hit = math.floor(max_hit * 0.30)
 
         if always_hit:
-            damage = max(Rng.randint(1, max_hit), min_hit)
-            if monster is not None:
-                damage += self._calc_ruby_bolt_proc(monster, always_proc=True)
-            return damage
+            return self._calc_ruby_bolt_proc(monster, always_proc=True) if monster is not None else 0
 
         if Rng.random() < self.calc_hit_chance(adjusted_attack_roll, npc_def_roll):
-            damage = max(Rng.randint(1, max_hit), min_hit)
-            if monster is not None:
-                damage += self._calc_ruby_bolt_proc(monster, always_proc=True)
-            return damage
+            return self._calc_ruby_bolt_proc(monster, always_proc=True) if monster is not None else 0
         return 0
 
 

@@ -18,8 +18,8 @@ from CombatSim.Simulations.nyloboss.simulation import (
     simulate_kill,
     run_batch,
     DEFAULT_BOSS_SCALE,
-    DEFAULT_PLAYER_CONFIGS,
 )
+from CombatSim.Simulations.nyloboss.configs import DEFAULT_PLAYER_CONFIGS
 from CombatSim.Simulations.nyloboss.analytics import run_analytics
 
 

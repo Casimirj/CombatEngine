@@ -48,7 +48,7 @@ class Player:
         if special_attack and (self.ignore_special_attack_cost or self.current_special_attack >= self.weapon.special_attack_cost):
             if not self.ignore_special_attack_cost:
                 self.current_special_attack -= self.weapon.special_attack_cost
-            return self.weapon.do_special_attack(
+            damage = self.weapon.do_special_attack(
                 max_hit=self.max_hit, 
                 player_attack_roll=self.attack_roll, 
                 npc_def_roll=monster.def_roll,
@@ -56,13 +56,26 @@ class Player:
                 always_hit=always_hit,
             )
         else:
-            return self.weapon.do_attack(
+            damage = self.weapon.do_attack(
                 max_hit=self.max_hit, 
                 player_attack_roll=self.attack_roll, 
                 npc_def_roll=monster.def_roll,
                 monster=monster,
                 always_hit=always_hit,
             )
+        return self._apply_min_hit(damage)
+
+    def _apply_min_hit(self, damage: int) -> int:
+        """Clamp damage to the ammo's min_hit if it's a successful hit (>0)."""
+        if damage <= 0:
+            return damage
+        ammo = self.gear.get(GearSlot.AMMO)
+        if ammo is not None:
+            min_hit = ammo.min_hit
+            if damage < min_hit:
+                return min_hit
+        return damage
+
 
     def equip_weapon(self, weapon:Weapon):
         if self.weapon is not None:

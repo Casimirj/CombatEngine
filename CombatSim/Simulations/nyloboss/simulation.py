@@ -6,20 +6,23 @@ independent — they switch gear at phase boundaries and follow their own
 attack schedule with their own cooldown timer.
 
 Per-player schedule differences are supported via ``PlayerConfig`` without
-touching the simulation loop.  Module-level ``P1`` / ``P2`` / ``P3`` config
-instances are wired to the same default schedules for now; swap their
-``attack_schedule`` to give a player a custom rotation.
+touching the simulation loop.  Pass any ``List[PlayerConfig]`` to
+``simulate_kill``; see ``configs.py`` for default setups.
 """
 
 from dataclasses import dataclass, field
 from typing import Callable, List, Tuple
 
 from CombatSim.CombatEngine.Data.Definitions.Monsters.NyloBoss import NyloBoss
+from CombatSim.CombatEngine.Data.Definitions.Weapons.Bgs import Bgs
+from CombatSim.CombatEngine.Data.Definitions.Weapons.DragonClaws import DragonClaws
 from CombatSim.CombatEngine.Domain.Player import Player
 from CombatSim.CombatEngine.Domain.Stats import Stats
 
 from CombatSim.Simulations.nyloboss.phases import NyloBossPhase, next_nylo_phase
-from CombatSim.Simulations.nyloboss.NyloBossAttackSchedule import NyloBossAttackSchedule, NyloRole
+from CombatSim.Simulations.nyloboss.NyloBossAttackSchedule import NyloBossAttackSchedule
+from CombatSim.Simulations.shared.AttackSchedule import Attack
+from CombatSim.Simulations.nyloboss.NyloRole import NyloRole
 from CombatSim.Simulations.nyloboss.NyloRoomState import NyloRoomState
 
 PHASE_TICK_DURATION = 10
@@ -57,32 +60,13 @@ def _fresh_player() -> Player:
 class PlayerConfig:
     """Per-player schedule and setup configuration.
 
-    When ``setup_fn`` is ``None`` the schedule's own gear logic is used.
-    ``attack_schedule`` is a ``NyloBossAttackSchedule`` instance that
-    drives per-player attack rotation and gear switching.
+    ``setup_fn`` overrides gear logic; ``None`` uses the schedule's own.
+    ``attack_schedule`` drives per-player attack rotation and gear switching.
     """
-    name: str = "Player"
+    name: str
+    attack_schedule: NyloBossAttackSchedule
     setup_fn: Callable | None = None
-    attack_schedule: NyloBossAttackSchedule = field(
-        default_factory=lambda: NyloBossAttackSchedule(role=NyloRole.BGS),
-    )
 
-
-# ── Default 3-player configs (BGS for P1; claws-first for P2 & P3) ─────────
-
-P1 = PlayerConfig(
-    name="P1",
-    attack_schedule=NyloBossAttackSchedule(role=NyloRole.BGS),
-)
-P2 = PlayerConfig(
-    name="P2",
-    attack_schedule=NyloBossAttackSchedule(role=NyloRole.CLAWS),
-)
-P3 = PlayerConfig(
-    name="P3",
-    attack_schedule=NyloBossAttackSchedule(role=NyloRole.CLAWS),
-)
-DEFAULT_PLAYER_CONFIGS: List[PlayerConfig] = [P1, P2, P3]
 
 
 class _PlayerRuntime:
@@ -127,7 +111,10 @@ def simulate_kill(
     debug: bool = False,
 ) -> Tuple[bool, int]:
     """Run a single kill simulation. Returns (killed, total_ticks)."""
-    configs = player_configs or DEFAULT_PLAYER_CONFIGS
+    if player_configs is None:
+        from CombatSim.Simulations.nyloboss.configs import DEFAULT_PLAYER_CONFIGS
+        player_configs = DEFAULT_PLAYER_CONFIGS
+    configs = player_configs
     monster = NyloBoss(boss_scale)
 
     # Build runtimes
@@ -137,11 +124,9 @@ def simulate_kill(
         rt = _PlayerRuntime(player, cfg)
         runtimes.append(rt)
 
-    # Start in a random phase already in progress
-    from random import choice as _choice
-    phase = _choice(list(NyloBossPhase))
+    # Always start in MELEE; subsequent phases are random (never repeat)
     room_state = NyloRoomState(
-        phase=phase,
+        phase=NyloBossPhase.MELEE,
         first_melee=True,
         first_ranged=True,
         prev_phase=None,
@@ -173,7 +158,7 @@ def simulate_kill(
             next_phase_tick += PHASE_TICK_DURATION
             just_transitioned = True
             if debug:
-                _dbg_phase_change(old_phase, room_state.phase, current_tick)
+                _dbg_phase_change(old_phase, room_state.phase, current_tick, monster.current_hp)
 
         # ── Collect all hits this tick ────────────────────────────────
         hits: List[_HitRecord] = []
@@ -194,6 +179,13 @@ def simulate_kill(
 
             # Attack
             attack = rt.attack_schedule[rt.schedule_idx]
+            # BACKUP_BGS: swap 2nd attack from Bgs to Claws if defense is already low
+            if (rt.attack_schedule.role == NyloRole.BACKUP_BGS
+                    and rt.schedule_idx == 1
+                    and room_state.boss_defense < 30
+                    and attack.use_special_attack
+                    and attack.weapon == Bgs):
+                attack = Attack(DragonClaws, use_special_attack=True)
             use_spec = attack.use_special_attack
             if attack.setup is not None:
                 rt.attack_schedule._equip_setup(rt.player, attack.setup)
@@ -204,6 +196,7 @@ def simulate_kill(
 
             dmg = rt.player.do_attack(monster, special_attack=use_spec)
             monster.reduce_hp(dmg)
+            room_state.boss_defense = monster.stats.def_level
 
             hits.append(_HitRecord(
                 player_name=rt.config.name,
@@ -220,7 +213,7 @@ def simulate_kill(
 
         # ── Print debug line (always one line per tick) ───────────
         if debug:
-            _dbg_tick_summary(current_tick, hits, monster.current_hp)
+            _dbg_tick_summary(current_tick, hits)
 
         if monster.is_dead():
             if debug:
@@ -246,24 +239,24 @@ _PHASE_LABELS = {
 def _dbg_tick_summary(
     tick: int,
     hits: List[_HitRecord],
-    boss_hp: int,
 ) -> None:
-    """Print one line for a tick: all player hits, then boss HP after."""
+    """Print one line for every tick, showing hits when any occurred."""
     if hits:
         parts = []
         for h in hits:
             spec_str = " [SPEC]" if h.is_spec else ""
             parts.append(f"[{h.player_name}] ({h.weapon_name}{spec_str}) dmg={h.damage}")
         joined = "  ".join(parts)
-        print(f"  tick {tick:>4}  {joined}  |  boss_hp={boss_hp}")
+        print(f"  tick {tick:>4}  {joined}")
     else:
-        print(f"  tick {tick:>4}  |  boss_hp={boss_hp}")
+        print(f"  tick {tick:>4}")
 
 
 def _dbg_phase_change(
     old: NyloBossPhase, new: NyloBossPhase, tick: int,
+    boss_hp: int,
 ) -> None:
-    print(f"  tick {tick:>4}  --- {_PHASE_LABELS[old]} -> {_PHASE_LABELS[new]} ---")
+    print(f"  tick {tick:>4}  --- {_PHASE_LABELS[old]} -> {_PHASE_LABELS[new]}  |  boss_hp={boss_hp} ---")
 
 
 def run_batch(
@@ -279,6 +272,7 @@ def run_batch(
         if killed:
             kills += 1
     return kills, total_ticks
+
 
 def run_batch_with_data(
     count: int,

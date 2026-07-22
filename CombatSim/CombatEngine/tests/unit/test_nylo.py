@@ -4,8 +4,8 @@ import unittest
 
 from CombatSim.Simulations.nyloboss.phases import NyloBossPhase, next_nylo_phase
 from CombatSim.Simulations.nyloboss.NyloRoomState import NyloRoomState
+from CombatSim.Simulations.nyloboss.NyloRole import NyloRole
 from CombatSim.Simulations.nyloboss.NyloBossAttackSchedule import (
-    NyloRole,
     NyloBossAttackSchedule,
     MELEE_SETUP,
     RANGED_TBOW_SETUP,
@@ -16,10 +16,10 @@ from CombatSim.Simulations.nyloboss.simulation import (
     _fresh_player,
     simulate_kill,
     PlayerConfig,
-    P1, P2, P3,
     _PlayerRuntime,
     _init_player_phase,
 )
+from CombatSim.Simulations.nyloboss.configs import P1, P2, P3
 from CombatSim.CombatEngine.Data.Definitions.Weapons.Bgs import Bgs
 from CombatSim.CombatEngine.Data.Definitions.Weapons.DragonClaws import DragonClaws
 from CombatSim.CombatEngine.Data.Definitions.Weapons.Scythe import Scythe
@@ -66,11 +66,9 @@ class TestPhaseTransitions(unittest.TestCase):
 
 
 class TestAttackSchedule(unittest.TestCase):
-    def test_requires_name_and_rotation(self):
+    def test_requires_name(self):
         with self.assertRaises(ValueError):
             AttackSchedule("", [Attack(Bgs, use_special_attack=True)])
-        with self.assertRaises(ValueError):
-            AttackSchedule("Test", [])
 
     def test_len_and_getitem(self):
         sched = AttackSchedule("Test", [
@@ -173,37 +171,41 @@ class TestNyloBossAttackSchedule(unittest.TestCase):
     def test_backup_first_melee_is_bgs_not_claws(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
         room_state = _room_state(NyloBossPhase.MELEE, first_melee=True)
-        room_state.boss_defense = 50
         schedule.update_rotation(room_state)
-        self.assertEqual(schedule[0].weapon, Bgs)
-        self.assertTrue(schedule[0].use_special_attack)
-        self.assertEqual(schedule[1].weapon, Scythe)
+        self.assertEqual(schedule[0].weapon, Scythe)
+        self.assertEqual(schedule[1].weapon, Bgs)
+        self.assertTrue(schedule[1].use_special_attack)
 
     def test_backup_repeat_melee_no_bgs_when_def_low(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
         self.assertEqual(schedule[0].weapon, Scythe)
+        self.assertEqual(schedule[1].weapon, Scythe)
 
     def test_backup_repeat_melee_bgs_when_def_high(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
         self.assertEqual(schedule[0].weapon, Scythe)
+        self.assertFalse(schedule[0].use_special_attack)
 
     def test_backup_bgs_only_fires_once(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
+        # First melee: always [Scythe, Bgs(spec)] in rotation
         room_state = _room_state(NyloBossPhase.MELEE, first_melee=True)
-        room_state.boss_defense = 50
         schedule.update_rotation(room_state)
-        self.assertEqual(schedule[0].weapon, Bgs)
-        # On repeat melee phases (first_melee=False), never fires BGS again
+        self.assertEqual(schedule[1].weapon, Bgs)
+        self.assertTrue(schedule[1].use_special_attack)
+        # Repeat melee: always [Scythe, Scythe] — no spec
         room_state.first_melee = False
         schedule.update_rotation(room_state)
         self.assertEqual(schedule[0].weapon, Scythe)
+        self.assertEqual(schedule[1].weapon, Scythe)
 
     def test_backup_no_bgs_when_no_monster(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
         self.assertEqual(schedule[0].weapon, Scythe)
+        self.assertEqual(schedule[1].weapon, Scythe)
 
 
 class TestPlayerConfig(unittest.TestCase):
@@ -215,8 +217,8 @@ class TestPlayerConfig(unittest.TestCase):
     def test_p1_uses_bgs_role(self):
         self.assertEqual(P1.attack_schedule.role, NyloRole.BGS)
 
-    def test_p2_uses_claws_role(self):
-        self.assertEqual(P2.attack_schedule.role, NyloRole.CLAWS)
+    def test_p2_uses_backup_bgs_role(self):
+        self.assertEqual(P2.attack_schedule.role, NyloRole.BACKUP_BGS)
 
     def test_p3_uses_claws_role(self):
         self.assertEqual(P3.attack_schedule.role, NyloRole.CLAWS)
@@ -225,7 +227,7 @@ class TestPlayerConfig(unittest.TestCase):
 class TestPlayerRuntime(unittest.TestCase):
     def test_init_player_phase_defaults(self):
         player = _fresh_player()
-        cfg = PlayerConfig(name="Test")
+        cfg = PlayerConfig(name="Test", attack_schedule=NyloBossAttackSchedule(role=NyloRole.BGS))
         rt = _PlayerRuntime(player, cfg)
         _init_player_phase(rt, _room_state(NyloBossPhase.MELEE, first_melee=True))
         self.assertEqual(rt.attack_schedule[0].weapon, Bgs)
@@ -250,7 +252,7 @@ class TestPlayerRuntime(unittest.TestCase):
             return MELEE_SETUP
 
         player = _fresh_player()
-        cfg = PlayerConfig(name="Custom", setup_fn=custom_setup)
+        cfg = PlayerConfig(name="Custom", setup_fn=custom_setup, attack_schedule=NyloBossAttackSchedule(role=NyloRole.BGS))
         rt = _PlayerRuntime(player, cfg)
         _init_player_phase(rt, _room_state(
             NyloBossPhase.RANGED, first_melee=False,
@@ -274,12 +276,12 @@ class TestMultiPlayerSimulation(unittest.TestCase):
 
     def test_solo_player_scale_1(self):
         killed, ticks = simulate_kill(
-            boss_scale=1, player_configs=[PlayerConfig(name="Solo")], debug=False,
+            boss_scale=1, player_configs=[PlayerConfig(name="Solo", attack_schedule=NyloBossAttackSchedule(role=NyloRole.BGS))], debug=False,
         )
         self.assertTrue(killed, "Solo player should kill NyloBoss at scale 1")
 
     def test_two_player_scale_2(self):
-        players = [PlayerConfig(name=f"Player{i+1}") for i in range(2)]
+        players = [PlayerConfig(name=f"Player{i+1}", attack_schedule=NyloBossAttackSchedule(role=NyloRole.BGS)) for i in range(2)]
         killed, ticks = simulate_kill(
             boss_scale=2, player_configs=players, debug=False,
         )

@@ -7,22 +7,23 @@ class NyloBoss(Monster):
     """Nylocas Vasilias — Theatre of Blood boss.
 
     Stats sourced from OSRS Wiki. HP scales by team size:
-      1-3 players: 75%  (1875)
-      4 players:   87.5% (2187)
-      5 players:   100%  (2500)
+      1-3 players: 1875 HP
+      4 players:   2187 HP
+      5 players:   2500 HP
     """
 
     aliases = ["nyloboss", "nylo boss", "nylo", "nylocas vasilias"]
 
     def __init__(self, scale=1):
-        # Scale → team size: 1=solo (1-3), 2=4-man, 3=5-man
-        scale_hp_mult = {
-            1: 0.75,
-            2: 0.875,
-            3: 1.0,
+        # Static HP by scale — no multipliers
+        scale_hp = {
+            1: 1875,
+            2: 1875,
+            3: 1875,
+            4: 2187,
+            5: 2500,
         }
-        base_hp = 2500
-        hp = int(base_hp * scale_hp_mult.get(scale, 0.75))
+        hp = scale_hp.get(scale, 1875)
 
         input_stats = {
             'hp_level': hp,
