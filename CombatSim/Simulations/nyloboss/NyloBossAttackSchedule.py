@@ -44,7 +44,7 @@ RANGED_TBOW_SETUP = Setup(
         'Void knight gloves',
         'Avernic treads',
         'Venator ring',
-        'Dragon arrows',
+        'seeking dragon arrows',
     ],
     prayer="rigour",
     boosts=["bastion"],
