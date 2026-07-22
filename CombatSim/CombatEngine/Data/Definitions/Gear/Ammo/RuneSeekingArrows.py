@@ -4,19 +4,19 @@ from CombatSim.CombatEngine.Domain.Enums.GearSlot import GearSlot
 from CombatSim.CombatEngine.Data.Registries.GearRegistry import GearRegistry
 
 
-class SeekingAmethystArrows(Gear):
-    name = "Seeking amethyst arrows"
+class RuneSeekingArrows(Gear):
+    name = "Seeking rune arrows"
     slot = GearSlot.AMMO
-    aliases = ["seeking amethyst arrows", "seeking amethyst arrow",
-               "s amethyst", "seeking ame", "seeking ame arrows"]
+    aliases = ["seeking rune arrows", "seeking rune arrow",
+               "s rune", "seeking rune"]
     ammo_category = AmmoType.ARROWS
     min_hit = 3
 
     def build(self) -> dict:
         return {
             "ranged_attack_bonus": 20,
-            "ranged_strength_bonus": 55,
+            "ranged_strength_bonus": 49,
         }
 
 
-GearRegistry.register(SeekingAmethystArrows())
+GearRegistry.register(RuneSeekingArrows())
