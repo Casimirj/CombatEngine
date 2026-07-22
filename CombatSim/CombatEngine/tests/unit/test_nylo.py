@@ -7,9 +7,7 @@ from CombatSim.Simulations.nyloboss.NyloRoomState import NyloRoomState
 from CombatSim.Simulations.nyloboss.NyloRole import NyloRole
 from CombatSim.Simulations.nyloboss.NyloBossAttackSchedule import (
     NyloBossAttackSchedule,
-    MELEE_SETUP,
-    RANGED_TBOW_SETUP,
-    MAGE_SETUP,
+    SETUPS,
 )
 from CombatSim.Simulations.shared.AttackSchedule import Attack, AttackSchedule
 from CombatSim.Simulations.nyloboss.simulation import (
@@ -102,14 +100,14 @@ class TestAttackSetup(unittest.TestCase):
         self.assertFalse(atk.repeat)
 
     def test_attack_with_setup(self):
-        atk = Attack(Scythe, setup=MELEE_SETUP, use_special_attack=True)
-        self.assertEqual(atk.setup, MELEE_SETUP)
+        atk = Attack(Scythe, setup=SETUPS["melee"], use_special_attack=True)
+        self.assertEqual(atk.setup, SETUPS["melee"])
         self.assertTrue(atk.use_special_attack)
 
     def test_equip_setup_applies_gear_and_prayer_and_boosts(self):
         player = _fresh_player()
         schedule = AttackSchedule("Test", [Attack(Scythe)])
-        schedule._equip_setup(player, MELEE_SETUP)
+        schedule._equip_setup(player, SETUPS["melee"])
         self.assertTrue(player.ignore_special_attack_cost)
 
 
@@ -121,13 +119,13 @@ class TestNyloBossAttackSchedule(unittest.TestCase):
         schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=True))
         self.assertEqual(schedule[0].weapon, Bgs)
         self.assertTrue(schedule[0].use_special_attack)
-        self.assertEqual(schedule[0].setup, MELEE_SETUP)
+        self.assertEqual(schedule[0].setup, SETUPS["melee"])
 
     def test_regular_melee_no_spec(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
         self.assertEqual(schedule[0].weapon, Scythe)
-        self.assertEqual(schedule[0].setup, MELEE_SETUP)
+        self.assertEqual(schedule[0].setup, SETUPS["melee"])
         self.assertIsNone(schedule[1].setup)
 
     def test_ranged_schedule(self):
@@ -139,7 +137,7 @@ class TestNyloBossAttackSchedule(unittest.TestCase):
         schedule = NyloBossAttackSchedule(role=NyloRole.BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.MAGE))
         self.assertEqual(schedule[0].weapon, EyeOfAyak)
-        self.assertEqual(schedule[0].setup, MAGE_SETUP)
+        self.assertEqual(schedule[0].setup, SETUPS["mage"])
 
     # ── Claws role ─────────────────────────────────────────────────────────
 
@@ -249,7 +247,7 @@ class TestPlayerRuntime(unittest.TestCase):
 
         def custom_setup(phase, prev_phase):
             calls.append((phase, prev_phase))
-            return MELEE_SETUP
+            return SETUPS["melee"]
 
         player = _fresh_player()
         cfg = PlayerConfig(name="Custom", setup_fn=custom_setup, attack_schedule=NyloBossAttackSchedule(role=NyloRole.BGS))

@@ -19,113 +19,108 @@ from CombatSim.CombatEngine.Data.Definitions.Weapons.ZaryteCrossbow import Zaryt
 
 # ── Phase Setups ────────────────────────────────────────────────────────────
 
-MELEE_SETUP = Setup(
-    pieces=[
-        'Torva full helm',
-        'Infernal cape',
-        'Amulet of rancour',
-        'Oathplate body',
-        'Oathplate legs',
-        'Ferocious gloves',
-        'Avernic treads',
-        'Ultor ring',
-    ],
-    prayer="piety",
-    boosts=["super_combat"],
-)
+SETUPS = {
+    "melee": Setup(
+        pieces=[
+            'Torva full helm',
+            'Infernal cape',
+            'Amulet of rancour',
+            'Oathplate body',
+            'Oathplate legs',
+            'Ferocious gloves',
+            'Avernic treads',
+            'Ultor ring',
+        ],
+        prayer="piety",
+        boosts=["super_combat"],
+    ),
+    "ranged_tbow": Setup(
+        pieces=[
+            'Void ranger helm',
+            "Dizana's quiver",
+            'Necklace of rupture',
+            'Elite void top',
+            'Elite void robe',
+            'Void knight gloves',
+            'Avernic treads',
+            'Venator ring',
+            'seeking dragon arrows',
+        ],
+        prayer="rigour",
+        boosts=["bastion"],
+    ),
+    "ranged_blowpipe": Setup(
+        pieces=[
+            'Void ranger helm',
+            "Dizana's quiver",
+            'Necklace of rupture',
+            'Elite void top',
+            'Elite void robe',
+            'Void knight gloves',
+            'Avernic treads',
+            'Venator ring',
+            'Dragon darts',
+        ],
+        prayer="rigour",
+        boosts=["bastion"],
+    ),
+    "mage": Setup(
+        pieces=[
+            'Ancestral hat',
+            'Imbued saradomin cape',
+            'Occult necklace',
+            'Ancestral robe top',
+            'Ancestral robe bottom',
+            'Confliction gauntlets',
+            'Avernic treads',
+            'Magus ring',
+        ],
+        prayer="augury",
+        boosts=["imbued_heart"],
+    ),
+}
 
-RANGED_TBOW_SETUP = Setup(
-    pieces=[
-        'Void ranger helm',
-        "Dizana's quiver",
-        'Necklace of rupture',
-        'Elite void top',
-        'Elite void robe',
-        'Void knight gloves',
-        'Avernic treads',
-        'Venator ring',
-        'seeking dragon arrows',
-    ],
-    prayer="rigour",
-    boosts=["bastion"],
-)
-
-RANGED_BLOWPIPE_SETUP = Setup(
-    pieces=[
-        'Void ranger helm',
-        "Dizana's quiver",
-        'Necklace of rupture',
-        'Elite void top',
-        'Elite void robe',
-        'Void knight gloves',
-        'Avernic treads',
-        'Venator ring',
-        'Dragon darts',
-    ],
-    prayer="rigour",
-    boosts=["bastion"],
-)
-
-MAGE_SETUP = Setup(
-    pieces=[
-        'Ancestral hat',
-        'Imbued saradomin cape',
-        'Occult necklace',
-        'Ancestral robe top',
-        'Ancestral robe bottom',
-        'Confliction gauntlets',
-        'Avernic treads',
-        'Magus ring',
-    ],
-    prayer="augury",
-    boosts=["imbued_heart"],
-)
 
 
 # ── Rotation definitions ────────────────────────────────────────────────────
 
-_BGS_FIRST_MELEE = [
-    Attack(Bgs, setup=MELEE_SETUP, use_special_attack=True),
-    Attack(Scythe),
-]
-
-_CLAWS_FIRST_MELEE = [
-    Attack(DragonClaws, setup=MELEE_SETUP, use_special_attack=True),
-    Attack(Scythe),
-]
-
-_BACKUP_BGS_MELEE = [
-    Attack(Scythe, setup=MELEE_SETUP),
-    Attack(Bgs, use_special_attack=True),
-]
-
-_REPEAT_MELEE = [
-    Attack(Scythe, setup=MELEE_SETUP),
-    Attack(Scythe),
-]
-
-_FIRST_RANGED = [
-    Attack(ZaryteCrossbow, setup=RANGED_TBOW_SETUP, use_special_attack=True),
-    Attack(TwistedBow),
-]
-
-_REGULAR_RANGED = [
-    Attack(TwistedBow, setup=RANGED_TBOW_SETUP),
-    Attack(TwistedBow),
-]
-
-_RANGED_AFTER_MAGE = [
-    Attack(ToxicBlowpipe, setup=RANGED_BLOWPIPE_SETUP),
-    Attack(ToxicBlowpipe),
-    Attack(ToxicBlowpipe),
-    Attack(TwistedBow, setup=RANGED_TBOW_SETUP),
-]
-
-_MAGE = [
-    Attack(EyeOfAyak, setup=MAGE_SETUP),
-    Attack(EyeOfAyak),
-    Attack(EyeOfAyak),
-]
+ROTATIONS = {
+    "bgs_first_melee": [
+        Attack(Bgs, setup=SETUPS["melee"], use_special_attack=True),
+        Attack(Scythe),
+    ],
+    "claws_first_melee": [
+        Attack(DragonClaws, setup=SETUPS["melee"], use_special_attack=True),
+        Attack(Scythe),
+    ],
+    "backup_bgs_melee": [
+        Attack(Scythe, setup=SETUPS["melee"]),
+        Attack(Bgs, use_special_attack=True),
+    ],
+    "repeat_melee": [
+        Attack(Scythe, setup=SETUPS["melee"]),
+        Attack(Scythe),
+    ],
+    "first_ranged": [
+        Attack(ZaryteCrossbow, setup=SETUPS["ranged_tbow"], use_special_attack=True),
+        Attack(TwistedBow),
+    ],
+    "regular_ranged": [
+        Attack(TwistedBow, setup=SETUPS["ranged_tbow"]),
+        Attack(TwistedBow),
+    ],
+    "ranged_after_mage": [
+        Attack(ToxicBlowpipe, setup=SETUPS["ranged_blowpipe"]),
+        Attack(ToxicBlowpipe),
+        Attack(ToxicBlowpipe),
+        Attack(TwistedBow, setup=SETUPS["ranged_tbow"]),
+    ],
+    "mage": [
+        Attack(EyeOfAyak, setup=SETUPS["mage"]),
+        Attack(EyeOfAyak),
+        Attack(EyeOfAyak),
+    ],
+}
 
 
 @dataclass(kw_only=True)
@@ -143,21 +138,21 @@ class NyloBossAttackSchedule(AttackSchedule):
         if phase == NyloBossPhase.MELEE:
             if room_state.first_melee:
                 if self.role == NyloRole.BGS:
-                    self.rotation = list(_BGS_FIRST_MELEE)
+                    self.rotation = list(ROTATIONS["bgs_first_melee"])
                 elif self.role == NyloRole.CLAWS:
-                    self.rotation = list(_CLAWS_FIRST_MELEE)
+                    self.rotation = list(ROTATIONS["claws_first_melee"])
                 elif self.role == NyloRole.BACKUP_BGS:
-                    self.rotation = list(_BACKUP_BGS_MELEE)
+                    self.rotation = list(ROTATIONS["backup_bgs_melee"])
                 else:
-                    self.rotation = list(_REPEAT_MELEE)
+                    self.rotation = list(ROTATIONS["repeat_melee"])
             else:
-                self.rotation = list(_REPEAT_MELEE)
+                self.rotation = list(ROTATIONS["repeat_melee"])
         elif phase == NyloBossPhase.RANGED:
             if room_state.first_ranged:
-                self.rotation = list(_FIRST_RANGED)
+                self.rotation = list(ROTATIONS["first_ranged"])
             elif room_state.prev_phase == NyloBossPhase.MAGE:
-                self.rotation = list(_RANGED_AFTER_MAGE)
+                self.rotation = list(ROTATIONS["ranged_after_mage"])
             else:
-                self.rotation = list(_REGULAR_RANGED)
+                self.rotation = list(ROTATIONS["regular_ranged"])
         else:
-            self.rotation = list(_MAGE)
+            self.rotation = list(ROTATIONS["mage"])
