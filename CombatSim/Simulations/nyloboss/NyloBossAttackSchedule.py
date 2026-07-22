@@ -3,7 +3,7 @@ from typing import List, Type
 
 from CombatSim.CombatEngine.Domain.Weapon import Weapon
 
-from CombatSim.Simulations.shared.AttackSchedule import Attack, AttackSchedule, Setup
+from CombatSim.Simulations.shared.AttackSchedule import Attack, AttackSchedule, Setup, DynamicAttack
 from CombatSim.Simulations.nyloboss.phases import NyloBossPhase
 from CombatSim.Simulations.nyloboss.NyloRoomState import NyloRoomState
 from CombatSim.Simulations.nyloboss.NyloRole import NyloRole
@@ -99,11 +99,7 @@ ROTATIONS = {
     ],
     "backup_bgs_melee": [
         Attack(Scythe, setup=SETUPS["melee"]),
-        Attack(Bgs, use_special_attack=True),
-    ],
-    "backup_claws_melee": [
-        Attack(Scythe, setup=SETUPS["melee"]),
-        Attack(DragonClaws, use_special_attack=True),
+        DynamicAttack(),
     ],
     "repeat_melee": [
         Attack(Scythe, setup=SETUPS["melee"]),
@@ -155,10 +151,7 @@ class NyloBossAttackSchedule(AttackSchedule):
                     self.rotation = list(ROTATIONS["repeat_melee"])
             else:
                 if self.role == NyloRole.BACKUP_BGS:
-                    if room_state.boss_defense > _BACKUP_BGS_DEFENSE_THRESHOLD:
-                        self.rotation = list(ROTATIONS["backup_bgs_melee"])
-                    else:
-                        self.rotation = list(ROTATIONS["backup_claws_melee"])
+                    self.rotation = list(ROTATIONS["backup_bgs_melee"])
                 else:
                     self.rotation = list(ROTATIONS["repeat_melee"])
         elif phase == NyloBossPhase.RANGED:
@@ -170,3 +163,24 @@ class NyloBossAttackSchedule(AttackSchedule):
                 self.rotation = list(ROTATIONS["regular_ranged"])
         else:
             self.rotation = list(ROTATIONS["mage"])
+
+    def get_next_attack(self, idx: int, room_state: NyloRoomState) -> Attack:
+        """Return the attack for *idx*, resolving DynamicAttack slots at runtime.
+
+        When a rotation entry is a DynamicAttack, the schedule picks the
+        concrete weapon based on live room state.  Currently this only
+        applies to BACKUP_BGS: the 2nd hit is BGS (spec) if boss defense
+        is above the threshold, or DragonClaws (spec) otherwise.
+        """
+        attack = self.rotation[idx]
+
+        if not isinstance(attack, DynamicAttack):
+            return attack
+
+        if self.role == NyloRole.BACKUP_BGS and idx == 1:
+            if room_state.boss_defense > _BACKUP_BGS_DEFENSE_THRESHOLD:
+                return Attack(Bgs, setup=SETUPS["melee"], use_special_attack=True)
+            else:
+                return Attack(DragonClaws, setup=SETUPS["melee"], use_special_attack=True)
+
+        return attack

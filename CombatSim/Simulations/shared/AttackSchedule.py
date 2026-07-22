@@ -1,3 +1,4 @@
+import warnings
 from dataclasses import dataclass, field
 from typing import List, Optional, Type
 
@@ -28,6 +29,15 @@ class Attack:
     setup: Optional[Setup] = None
     use_special_attack: bool = False
     repeat: bool = False
+
+
+@dataclass
+class DynamicAttack:
+    """Sentinel indicating this attack slot is resolved at runtime.
+
+    Subclasses of ``AttackSchedule`` replace this with a concrete
+    ``Attack`` inside ``get_next_attack`` based on live room state.
+    """
 
 
 @dataclass
@@ -66,6 +76,22 @@ class AttackSchedule:
         the sim loop passes whatever state object the boss defines.
         """
         raise NotImplementedError
+
+    def get_next_attack(self, idx: int, room_state) -> Attack:
+        """Return the attack at *idx* for the current tick.
+
+        Subclasses override this to inject dynamic decisions (e.g.
+        swapping a weapon based on boss defense at attack-time).
+        The default just returns ``self.rotation[idx]``.
+        """
+        attack = self.rotation[idx]
+        if isinstance(attack, DynamicAttack):
+            warnings.warn(
+                f"{type(self).__name__}.get_next_attack() not overridden — "
+                f"DynamicAttack at idx {idx} will be returned as-is, "
+                f"which will likely cause a runtime error."
+            )
+        return attack
 
     # ── Gear switching ────────────────────────────────────────────────────
 

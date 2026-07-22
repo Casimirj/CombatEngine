@@ -158,7 +158,7 @@ def simulate_kill(
             next_phase_tick += PHASE_TICK_DURATION
             just_transitioned = True
             if debug:
-                _dbg_phase_change(old_phase, room_state.phase, current_tick, monster.current_hp)
+                _dbg_phase_change(old_phase, room_state.phase, current_tick, monster.current_hp, room_state.boss_defense)
 
         # ── Collect all hits this tick ────────────────────────────────
         hits: List[_HitRecord] = []
@@ -178,7 +178,9 @@ def simulate_kill(
                 continue
 
             # Attack
-            attack = rt.attack_schedule[rt.schedule_idx]
+            attack = rt.attack_schedule.get_next_attack(
+                rt.schedule_idx, room_state,
+            )
             use_spec = attack.use_special_attack
             if attack.setup is not None:
                 rt.attack_schedule._equip_setup(rt.player, attack.setup)
@@ -206,7 +208,7 @@ def simulate_kill(
 
         # ── Print debug line (always one line per tick) ───────────
         if debug:
-            _dbg_tick_summary(current_tick, hits)
+            _dbg_tick_summary(current_tick, hits, monster.current_hp, room_state.boss_defense)
 
         if monster.is_dead():
             if debug:
@@ -232,24 +234,29 @@ _PHASE_LABELS = {
 def _dbg_tick_summary(
     tick: int,
     hits: List[_HitRecord],
+    boss_hp: int = 0,
+    boss_defense: int = 0,
 ) -> None:
-    """Print one line for every tick, showing hits when any occurred."""
+    """Print one line for every tick, showing hits and boss state."""
+    def state():
+        return f"  hp={boss_hp}  def={boss_defense}"
     if hits:
         parts = []
         for h in hits:
             spec_str = " [SPEC]" if h.is_spec else ""
             parts.append(f"[{h.player_name}] ({h.weapon_name}{spec_str}) dmg={h.damage}")
         joined = "  ".join(parts)
-        print(f"  tick {tick:>4}  {joined}")
+        print(f"  tick {tick:>4}  {joined}{state()}")
     else:
-        print(f"  tick {tick:>4}")
+        print(f"  tick {tick:>4}{state()}")
 
 
 def _dbg_phase_change(
     old: NyloBossPhase, new: NyloBossPhase, tick: int,
     boss_hp: int,
+    boss_defense: int = 0,
 ) -> None:
-    print(f"  tick {tick:>4}  --- {_PHASE_LABELS[old]} -> {_PHASE_LABELS[new]}  |  boss_hp={boss_hp} ---")
+    print(f"  tick {tick:>4}  --- {_PHASE_LABELS[old]} -> {_PHASE_LABELS[new]}  |  boss_hp={boss_hp}  def={boss_defense} ---")
 
 
 def run_batch(
