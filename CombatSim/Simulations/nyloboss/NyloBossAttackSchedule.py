@@ -81,6 +81,10 @@ SETUPS = {
 }
 
 
+# ── Defense threshold for backup BGS to Claws switch ────────────────────────
+
+_BACKUP_BGS_DEFENSE_THRESHOLD = 20
+
 
 # ── Rotation definitions ────────────────────────────────────────────────────
 
@@ -96,6 +100,10 @@ ROTATIONS = {
     "backup_bgs_melee": [
         Attack(Scythe, setup=SETUPS["melee"]),
         Attack(Bgs, use_special_attack=True),
+    ],
+    "backup_claws_melee": [
+        Attack(Scythe, setup=SETUPS["melee"]),
+        Attack(DragonClaws, use_special_attack=True),
     ],
     "repeat_melee": [
         Attack(Scythe, setup=SETUPS["melee"]),
@@ -146,7 +154,13 @@ class NyloBossAttackSchedule(AttackSchedule):
                 else:
                     self.rotation = list(ROTATIONS["repeat_melee"])
             else:
-                self.rotation = list(ROTATIONS["repeat_melee"])
+                if self.role == NyloRole.BACKUP_BGS:
+                    if room_state.boss_defense > _BACKUP_BGS_DEFENSE_THRESHOLD:
+                        self.rotation = list(ROTATIONS["backup_bgs_melee"])
+                    else:
+                        self.rotation = list(ROTATIONS["backup_claws_melee"])
+                else:
+                    self.rotation = list(ROTATIONS["repeat_melee"])
         elif phase == NyloBossPhase.RANGED:
             if room_state.first_ranged:
                 self.rotation = list(ROTATIONS["first_ranged"])

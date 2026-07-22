@@ -179,13 +179,6 @@ def simulate_kill(
 
             # Attack
             attack = rt.attack_schedule[rt.schedule_idx]
-            # BACKUP_BGS: swap 2nd attack from Bgs to Claws if defense is already low
-            if (rt.attack_schedule.role == NyloRole.BACKUP_BGS
-                    and rt.schedule_idx == 1
-                    and room_state.boss_defense < 30
-                    and attack.use_special_attack
-                    and attack.weapon == Bgs):
-                attack = Attack(DragonClaws, use_special_attack=True)
             use_spec = attack.use_special_attack
             if attack.setup is not None:
                 rt.attack_schedule._equip_setup(rt.player, attack.setup)

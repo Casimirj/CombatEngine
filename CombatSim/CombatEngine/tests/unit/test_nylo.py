@@ -27,12 +27,13 @@ from CombatSim.CombatEngine.Data.Definitions.Weapons.EyeOfAyak import EyeOfAyak
 from CombatSim.CombatEngine.Data.Definitions.Weapons.ZaryteCrossbow import ZaryteCrossbow
 
 
-def _room_state(phase, first_melee=True, first_ranged=True, prev_phase=None):
+def _room_state(phase, first_melee=True, first_ranged=True, prev_phase=None, boss_defense=0):
     return NyloRoomState(
         phase=phase,
         first_melee=first_melee,
         first_ranged=first_ranged,
         prev_phase=prev_phase,
+        boss_defense=boss_defense,
     )
 
 
@@ -166,44 +167,41 @@ class TestNyloBossAttackSchedule(unittest.TestCase):
 
     # ── Backup BGS role ────────────────────────────────────────────────────
 
-    def test_backup_first_melee_is_bgs_not_claws(self):
+    def test_backup_first_melee_always_bgs(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
-        room_state = _room_state(NyloBossPhase.MELEE, first_melee=True)
+        room_state = _room_state(NyloBossPhase.MELEE, first_melee=True, boss_defense=50)
         schedule.update_rotation(room_state)
         self.assertEqual(schedule[0].weapon, Scythe)
         self.assertEqual(schedule[1].weapon, Bgs)
         self.assertTrue(schedule[1].use_special_attack)
-
-    def test_backup_repeat_melee_no_bgs_when_def_low(self):
-        schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
-        schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
-        self.assertEqual(schedule[0].weapon, Scythe)
-        self.assertEqual(schedule[1].weapon, Scythe)
 
     def test_backup_repeat_melee_bgs_when_def_high(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
-        schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
+        schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False, boss_defense=50))
         self.assertEqual(schedule[0].weapon, Scythe)
-        self.assertFalse(schedule[0].use_special_attack)
-
-    def test_backup_bgs_only_fires_once(self):
-        schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
-        # First melee: always [Scythe, Bgs(spec)] in rotation
-        room_state = _room_state(NyloBossPhase.MELEE, first_melee=True)
-        schedule.update_rotation(room_state)
         self.assertEqual(schedule[1].weapon, Bgs)
         self.assertTrue(schedule[1].use_special_attack)
-        # Repeat melee: always [Scythe, Scythe] — no spec
-        room_state.first_melee = False
-        schedule.update_rotation(room_state)
-        self.assertEqual(schedule[0].weapon, Scythe)
-        self.assertEqual(schedule[1].weapon, Scythe)
 
-    def test_backup_no_bgs_when_no_monster(self):
+    def test_backup_repeat_melee_claws_when_def_low(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
-        schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
+        schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False, boss_defense=10))
         self.assertEqual(schedule[0].weapon, Scythe)
-        self.assertEqual(schedule[1].weapon, Scythe)
+        self.assertEqual(schedule[1].weapon, DragonClaws)
+        self.assertTrue(schedule[1].use_special_attack)
+
+    def test_backup_repeat_melee_claws_at_threshold(self):
+        schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
+        schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False, boss_defense=20))
+        self.assertEqual(schedule[0].weapon, Scythe)
+        self.assertEqual(schedule[1].weapon, DragonClaws)
+        self.assertTrue(schedule[1].use_special_attack)
+
+    def test_backup_repeat_melee_bgs_just_above_threshold(self):
+        schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
+        schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False, boss_defense=21))
+        self.assertEqual(schedule[0].weapon, Scythe)
+        self.assertEqual(schedule[1].weapon, Bgs)
+        self.assertTrue(schedule[1].use_special_attack)
 
 
 class TestPlayerConfig(unittest.TestCase):
