@@ -8,7 +8,7 @@ attack schedule with their own cooldown timer.
 Per-player schedule differences are supported via ``PlayerConfig`` without
 touching the simulation loop.  Module-level ``P1`` / ``P2`` / ``P3`` config
 instances are wired to the same default schedules for now; swap their
-``schedule_fn`` to give a player a custom rotation.
+``attack_schedule`` to give a player a custom rotation.
 """
 
 from dataclasses import dataclass, field
@@ -16,39 +16,21 @@ from typing import Callable, List, Tuple
 
 from CombatSim.CombatEngine.Data.Definitions.Monsters.NyloBoss import NyloBoss
 from CombatSim.CombatEngine.Domain.Player import Player
-from CombatSim.CombatEngine.Data.Registries.GearRegistry import GearRegistry
-from CombatSim.CombatEngine.Data.Registries.PrayerRegistry import PrayerRegistry
-from CombatSim.CombatEngine.Data.Registries.PotionRegistry import PotionRegistry
 from CombatSim.CombatEngine.Domain.Stats import Stats
 
 from CombatSim.Simulations.nyloboss.phases import NyloBossPhase, next_nylo_phase
-from CombatSim.Simulations.nyloboss.schedules import (
-    NyloAttackSchedule,
-    schedule_for_phase,
-    schedule_for_phase_claws,
-    melee_setup,
-    ranged_setup,
-    ranged_after_mage_setup,
-    mage_setup,
-)
+from CombatSim.Simulations.nyloboss.NyloBossAttackSchedule import NyloBossAttackSchedule, NyloRole
+from CombatSim.Simulations.nyloboss.NyloRoomState import NyloRoomState
 
 PHASE_TICK_DURATION = 10
 DEFAULT_BOSS_SCALE = 3
-DEFAULT_NUM_PLAYERS = 3
 
 _PLAYER_LEVELS = {
     "hp_level": 99, "attack_level": 99, "strength_level": 99,
     "def_level": 99, "magic_level": 99, "ranged_level": 99, "prayer_level": 99,
 }
 
-# ── Gear / Setup Cache ──────────────────────────────────────────────────────
-
-_GEAR_CACHE: dict = {}
-
-def _cached_gear(name: str):
-    if name not in _GEAR_CACHE:
-        _GEAR_CACHE[name] = GearRegistry.get(name)
-    return _GEAR_CACHE[name]
+# ── Weapon Cache ────────────────────────────────────────────────────────────
 
 _WEAPON_CACHE: dict = {}
 
@@ -56,15 +38,6 @@ def _cached_weapon(weapon_cls: type):
     if weapon_cls not in _WEAPON_CACHE:
         _WEAPON_CACHE[weapon_cls] = weapon_cls()
     return _WEAPON_CACHE[weapon_cls]
-
-
-def _apply_setup(player: Player, setup):
-    """Re-gear the player for a new phase setup."""
-    player.clear_gear()
-    gears = [_cached_gear(name) for name in setup.pieces]
-    player.equip_gear(*gears)
-    player.prayer = PrayerRegistry.get(setup.prayer)
-    player.boosts = [PotionRegistry.get(b) for b in setup.boosts] if setup.boosts else []
 
 
 def _fresh_player() -> Player:
@@ -84,20 +57,31 @@ def _fresh_player() -> Player:
 class PlayerConfig:
     """Per-player schedule and setup configuration.
 
-    When ``setup_fn`` or ``schedule_fn`` is ``None`` the global defaults are
-    used.  Custom callables allow per-player schedule differences in the
-    future without changing the simulation loop.
+    When ``setup_fn`` is ``None`` the schedule's own gear logic is used.
+    ``attack_schedule`` is a ``NyloBossAttackSchedule`` instance that
+    drives per-player attack rotation and gear switching.
     """
     name: str = "Player"
     setup_fn: Callable | None = None
-    schedule_fn: Callable | None = None
+    attack_schedule: NyloBossAttackSchedule = field(
+        default_factory=lambda: NyloBossAttackSchedule(role=NyloRole.BGS),
+    )
 
 
 # ── Default 3-player configs (BGS for P1; claws-first for P2 & P3) ─────────
 
-P1 = PlayerConfig(name="P1")
-P2 = PlayerConfig(name="P2", schedule_fn=schedule_for_phase_claws)
-P3 = PlayerConfig(name="P3", schedule_fn=schedule_for_phase_claws)
+P1 = PlayerConfig(
+    name="P1",
+    attack_schedule=NyloBossAttackSchedule(role=NyloRole.BGS),
+)
+P2 = PlayerConfig(
+    name="P2",
+    attack_schedule=NyloBossAttackSchedule(role=NyloRole.CLAWS),
+)
+P3 = PlayerConfig(
+    name="P3",
+    attack_schedule=NyloBossAttackSchedule(role=NyloRole.CLAWS),
+)
 DEFAULT_PLAYER_CONFIGS: List[PlayerConfig] = [P1, P2, P3]
 
 
@@ -105,41 +89,29 @@ class _PlayerRuntime:
     """Mutable per-player state during a single simulation run."""
 
     __slots__ = (
-        "player", "config", "schedule", "schedule_idx",
+        "player", "config", "attack_schedule", "schedule_idx",
         "weapon_on_cooldown", "current_weapon_name",
     )
 
     def __init__(self, player: Player, config: PlayerConfig) -> None:
         self.player = player
         self.config = config
-        self.schedule: NyloAttackSchedule | None = None
+        self.attack_schedule: NyloBossAttackSchedule = config.attack_schedule
         self.schedule_idx: int = 0
         self.weapon_on_cooldown: int = 0
         self.current_weapon_name: str = ""
 
 
-def _init_player_phase(
-    rt: _PlayerRuntime,
-    phase: NyloBossPhase,
-    first_melee: bool,
-    prev_phase: "NyloBossPhase | None",
-    first_ranged: bool = True,
-) -> None:
-    """(Re-)initialise a player's gear and schedule for a new boss phase."""
-    cfg = rt.config
-    if cfg.setup_fn is not None:
-        _apply_setup(rt.player, cfg.setup_fn(phase, prev_phase))
-    else:
-        _apply_setup(rt.player, _setup_for_phase(phase, prev_phase))
-
-    if cfg.schedule_fn is not None:
-        rt.schedule = cfg.schedule_fn(phase, first_melee, prev_phase, first_ranged)
-    else:
-        rt.schedule = schedule_for_phase(phase, first_melee, prev_phase, first_ranged)
+def _init_player_phase(rt: _PlayerRuntime, room_state: NyloRoomState) -> None:
+    """(Re-)initialise a player's schedule for a new boss phase."""
+    if rt.config.setup_fn is not None:
+        setup = rt.config.setup_fn(room_state.phase, room_state.prev_phase)
+        rt.attack_schedule._equip_setup(rt.player, setup)
+    rt.attack_schedule.update_rotation(room_state)
     rt.schedule_idx = 0
 
 
-# ── Debug hit record ────────────────────────────────────────────────────────
+# ── Data-carrying helper types ──────────────────────────────────────────────
 
 @dataclass
 class _HitRecord:
@@ -149,60 +121,59 @@ class _HitRecord:
     is_spec: bool
 
 
-# ── Simulation Core ─────────────────────────────────────────────────────────
-
 def simulate_kill(
     boss_scale: int = DEFAULT_BOSS_SCALE,
     player_configs: List[PlayerConfig] | None = None,
     debug: bool = False,
 ) -> Tuple[bool, int]:
-    """One kill attempt with N independent players.
+    """Run a single kill simulation. Returns (killed, total_ticks)."""
+    configs = player_configs or DEFAULT_PLAYER_CONFIGS
+    monster = NyloBoss(boss_scale)
 
-    Args:
-        boss_scale:  NyloBoss HP scale (1=solo 75%, 2=4-man 87.5%, 3=5-man 100%).
-        player_configs:  Per-player configs.  Defaults to ``DEFAULT_PLAYER_CONFIGS``.
-        debug:  Print per-tick events — one line per tick that has hits.
+    # Build runtimes
+    runtimes: List[_PlayerRuntime] = []
+    for cfg in configs:
+        player = _fresh_player()
+        rt = _PlayerRuntime(player, cfg)
+        runtimes.append(rt)
 
-    Returns:
-        (killed, total_ticks)
-    """
-    if player_configs is None:
-        player_configs = DEFAULT_PLAYER_CONFIGS
-
-    monster = NyloBoss(scale=boss_scale)
-    runtimes = [_PlayerRuntime(_fresh_player(), cfg) for cfg in player_configs]
-
-    phase = NyloBossPhase.MELEE
-    prev_phase: NyloBossPhase | None = None
-    first_melee = True
-    first_ranged = True
+    # Start in a random phase already in progress
+    from random import choice as _choice
+    phase = _choice(list(NyloBossPhase))
+    room_state = NyloRoomState(
+        phase=phase,
+        first_melee=True,
+        first_ranged=True,
+        prev_phase=None,
+        boss_defense=monster.stats.def_level,
+    )
+    next_phase_tick = PHASE_TICK_DURATION
 
     for rt in runtimes:
-        _init_player_phase(rt, phase, first_melee, prev_phase, first_ranged)
+        _init_player_phase(rt, room_state)
 
+    # ── Main tick loop ──────────────────────────────────────────────
     current_tick = 0
-    next_phase_tick = PHASE_TICK_DURATION
     total_ticks = 0
 
-    while True:
-        # ── Phase transition (global for all players) ──────────────────
+    while not monster.is_dead():
         just_transitioned = False
         if current_tick >= next_phase_tick:
-            old_phase = phase
-            phase = next_nylo_phase(phase)
-            prev_phase = old_phase
+            old_phase = room_state.phase
+            room_state.prev_phase = old_phase
+            room_state.phase = next_nylo_phase(old_phase)
             if old_phase == NyloBossPhase.MELEE:
-                first_melee = False
+                room_state.first_melee = False
             if old_phase == NyloBossPhase.RANGED:
-                first_ranged = False
+                room_state.first_ranged = False
 
             for rt in runtimes:
-                _init_player_phase(rt, phase, first_melee, prev_phase, first_ranged)
+                _init_player_phase(rt, room_state)
 
             next_phase_tick += PHASE_TICK_DURATION
             just_transitioned = True
             if debug:
-                _dbg_phase_change(old_phase, phase, current_tick)
+                _dbg_phase_change(old_phase, room_state.phase, current_tick)
 
         # ── Collect all hits this tick ────────────────────────────────
         hits: List[_HitRecord] = []
@@ -218,11 +189,15 @@ def simulate_kill(
                 continue
 
             # Schedule exhausted for this player
-            if rt.schedule_idx >= len(rt.schedule):
+            if rt.schedule_idx >= len(rt.attack_schedule):
                 continue
 
             # Attack
-            weapon_cls, use_spec = rt.schedule[rt.schedule_idx]
+            attack = rt.attack_schedule[rt.schedule_idx]
+            use_spec = attack.use_special_attack
+            if attack.setup is not None:
+                rt.attack_schedule._equip_setup(rt.player, attack.setup)
+            weapon_cls = attack.weapon
             weapon = _cached_weapon(weapon_cls)
             rt.player.equip_weapon(weapon)
             rt.schedule_idx += 1
@@ -257,16 +232,6 @@ def simulate_kill(
         total_ticks += 1
 
     return monster.is_dead(), total_ticks
-
-
-def _setup_for_phase(phase: NyloBossPhase, prev_phase: "NyloBossPhase | None" = None):
-    if phase == NyloBossPhase.RANGED and prev_phase == NyloBossPhase.MAGE:
-        return ranged_after_mage_setup
-    return {
-        NyloBossPhase.MELEE: melee_setup,
-        NyloBossPhase.RANGED: ranged_setup,
-        NyloBossPhase.MAGE: mage_setup,
-    }[phase]
 
 
 # ── Debug Helpers ───────────────────────────────────────────────────────────

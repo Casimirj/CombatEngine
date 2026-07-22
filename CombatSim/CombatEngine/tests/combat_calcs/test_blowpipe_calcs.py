@@ -7,7 +7,9 @@ SETUPS = [
     # ── Naked + Blowpipe + Dragon Darts ─────────────────────────────────
     {
         "name": "only_dragon_noboosts",
-        "gear_names": ["dragon darts"],
+        "gear_names": [
+            "dragon darts",
+        ],
         "weapon": "blowpipe",
         "prayer": "none",
         "expected_accuracy_roll": 10058,
@@ -16,17 +18,25 @@ SETUPS = [
     # ── Rigour + Ranging + Blowpipe + Dragon Darts ──────────────────────
     {
         "name": "only_dragon",
-        "gear_names": ["dragon darts"],
+        "gear_names": [
+            "dragon darts",
+        ],
         "weapon": "blowpipe",
         "prayer": "rigour",
-        "boosts": ["ranging"],
+        "boosts": [
+            "ranging",
+        ],
         "expected_accuracy_roll": 13348,
         "expected_max_hit": 27,
     },
     # ── Rupture + Quiver + Blowpipe + Dragon Darts (no boosts) ──────────
     {
         "name": "rupture_quiver_noboosts",
-        "gear_names": ["dragon darts", "necklace of rupture", "quiver"],
+        "gear_names": [
+            "dragon darts",
+            "necklace of rupture",
+            "quiver",
+        ],
         "weapon": "blowpipe",
         "prayer": "none",
         "expected_accuracy_roll": 14124,
@@ -35,17 +45,30 @@ SETUPS = [
     # ── Rupture + Quiver + Rigour + Ranging + Blowpipe ──────────────────
     {
         "name": "rupture_quiver",
-        "gear_names": ["dragon darts", "necklace of rupture", "quiver"],
+        "gear_names": [
+            "dragon darts",
+            "necklace of rupture",
+            "quiver",
+        ],
         "weapon": "blowpipe",
         "prayer": "rigour",
-        "boosts": ["ranging"],
+        "boosts": [
+            "ranging",
+        ],
         "expected_accuracy_roll": 18744,
         "expected_max_hit": 29,
     },
     # ── Full Masori + Anguish + Quiver + Blowpipe (no boosts) ───────────
     {
         "name": "full_masori_noboosts",
-        "gear_names": ["dragon darts", "masori mask", "masori body", "masori chaps", "necklace of anguish", "quiver"],
+        "gear_names": [
+            "dragon darts",
+            "masori mask",
+            "masori body",
+            "masori chaps",
+            "necklace of anguish",
+            "quiver",
+        ],
         "weapon": "blowpipe",
         "prayer": "none",
         "expected_accuracy_roll": 22363,
@@ -54,12 +77,59 @@ SETUPS = [
     # ── Full Masori + Anguish + Quiver + Rigour + Ranging ───────────────
     {
         "name": "full_masori",
-        "gear_names": ["dragon darts", "masori mask", "masori body", "masori chaps", "necklace of anguish", "quiver"],
+        "gear_names": [
+            "dragon darts",
+            "masori mask",
+            "masori body",
+            "masori chaps",
+            "necklace of anguish",
+            "quiver",
+        ],
         "weapon": "blowpipe",
         "prayer": "rigour",
-        "boosts": ["ranging"],
+        "boosts": [
+            "ranging",
+        ],
         "expected_accuracy_roll": 29678,
         "expected_max_hit": 31,
+    },
+    # ── MaxVoid (Full Elite Void Ranged + Rupture + Treads + Quiver) ────────
+    {
+        "name": "maxvoid_dragon_noboosts",
+        "gear_names": [
+            "dragon darts",
+            "elite void top",
+            "elite void robe",
+            "void ranger helm",
+            "void knight gloves",
+            "necklace of rupture",
+            "avernic treads",
+            "quiver",
+        ],
+        "weapon": "blowpipe",
+        "prayer": "none",
+        "expected_accuracy_roll": 18918,
+        "expected_max_hit": 24,
+    },
+    {
+        "name": "maxvoid_dragon",
+        "gear_names": [
+            "dragon darts",
+            "elite void top",
+            "elite void robe",
+            "void ranger helm",
+            "void knight gloves",
+            "necklace of rupture",
+            "avernic treads",
+            "quiver",
+        ],
+        "weapon": "blowpipe",
+        "prayer": "rigour",
+        "boosts": [
+            "ranging",
+        ],
+        "expected_accuracy_roll": 25225,
+        "expected_max_hit": 33,
     },
 ]
 

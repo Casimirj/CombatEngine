@@ -15,7 +15,9 @@ SETUPS = [
     # ── Naked + Twisted Bow + Dragon Arrows vs Maiden ───────────────────
     {
         "name": "maiden_only_dragon_noboosts",
-        "gear_names": ["dragon arrows"],
+        "gear_names": [
+            "dragon arrows",
+        ],
         "weapon": "twisted bow",
         "monster": "maiden",
         "prayer": "none",
@@ -25,18 +27,24 @@ SETUPS = [
     # ── Rigour + Ranging + Twisted Bow + Dragon Arrows vs Maiden ─────────
     {
         "name": "maiden_only_dragon",
-        "gear_names": ["dragon arrows"],
+        "gear_names": [
+            "dragon arrows",
+        ],
         "weapon": "twisted bow",
         "monster": "maiden",
         "prayer": "rigour",
-        "boosts": ["ranging"],
+        "boosts": [
+            "ranging",
+        ],
         "expected_accuracy_roll": 26829,
         "expected_max_hit": 70,
     },
     # ── Naked + Twisted Bow + Dragon Arrows vs Nylo Boss ─────────────────
     {
         "name": "nylo_only_dragon_noboosts",
-        "gear_names": ["dragon arrows"],
+        "gear_names": [
+            "dragon arrows",
+        ],
         "weapon": "twisted bow",
         "monster": "nylo",
         "prayer": "none",
@@ -46,17 +54,24 @@ SETUPS = [
     # ── Rigour + Ranging + Twisted Bow + Dragon Arrows vs Nylo Boss ──────
     {
         "name": "nylo_only_dragon",
-        "gear_names": ["dragon arrows"],
+        "gear_names": [
+            "dragon arrows",
+        ],
         "weapon": "twisted bow",
         "monster": "nylo",
         "prayer": "rigour",
-        "boosts": ["ranging"],
+        "boosts": [
+            "ranging",
+        ],
         "expected_accuracy_roll": 26829,
         "expected_max_hit": 70,
     },
-        {
-        "name": "maiden_only_Amethyst_noboosts",
-        "gear_names": ["amethyst arrows"],
+    # ── Naked + Twisted Bow + Amethyst Arrows vs Maiden ─────────────────
+    {
+        "name": "maiden_only_amethyst_noboosts",
+        "gear_names": [
+            "amethyst arrows",
+        ],
         "weapon": "twisted bow",
         "monster": "maiden",
         "prayer": "none",
@@ -66,18 +81,24 @@ SETUPS = [
     # ── Rigour + Ranging + Twisted Bow + Amethyst Arrows vs Maiden ─────────
     {
         "name": "maiden_only_amethyst",
-        "gear_names": ["amethyst arrows"],
+        "gear_names": [
+            "amethyst arrows",
+        ],
         "weapon": "twisted bow",
         "monster": "maiden",
         "prayer": "rigour",
-        "boosts": ["ranging"],
+        "boosts": [
+            "ranging",
+        ],
         "expected_accuracy_roll": 26829,
         "expected_max_hit": 66,
     },
     # ── Naked + Twisted Bow + Amethyst Arrows vs Nylo Boss ─────────────────
     {
         "name": "nylo_only_amethyst_noboosts",
-        "gear_names": ["amethyst arrows"],
+        "gear_names": [
+            "amethyst arrows",
+        ],
         "weapon": "twisted bow",
         "monster": "nylo",
         "prayer": "none",
@@ -87,13 +108,178 @@ SETUPS = [
     # ── Rigour + Ranging + Twisted Bow + Amethyst Arrows vs Nylo Boss ──────
     {
         "name": "nylo_only_amethyst",
-        "gear_names": ["amethyst arrows"],
+        "gear_names": [
+            "amethyst arrows",
+        ],
         "weapon": "twisted bow",
         "monster": "nylo",
         "prayer": "rigour",
-        "boosts": ["ranging"],
+        "boosts": [
+            "ranging",
+        ],
         "expected_accuracy_roll": 26829,
         "expected_max_hit": 66,
+    },
+    # ── MaxVoid (Full Elite Void Ranged + Rupture + Treads + Quiver) ────────
+    # ── Maiden – Dragon arrows ─────────────────────────────────────────────
+    {
+        "name": "maiden_maxvoid_dragon_noboosts",
+        "gear_names": [
+            "dragon arrows",
+            "elite void top",
+            "elite void robe",
+            "void ranger helm",
+            "void knight gloves",
+            "necklace of rupture",
+            "avernic treads",
+            "quiver",
+        ],
+        "weapon": "twisted bow",
+        "monster": "maiden",
+        "prayer": "none",
+        "expected_accuracy_roll": 33933,
+        "expected_max_hit": 62,
+    },
+    {
+        "name": "maiden_maxvoid_dragon",
+        "gear_names": [
+            "dragon arrows",
+            "elite void top",
+            "elite void robe",
+            "void ranger helm",
+            "void knight gloves",
+            "necklace of rupture",
+            "avernic treads",
+            "quiver",
+        ],
+        "weapon": "twisted bow",
+        "monster": "maiden",
+        "prayer": "rigour",
+        "boosts": [
+            "ranging",
+        ],
+        "expected_accuracy_roll": 45245,
+        "expected_max_hit": 86,
+    },
+    # ── Nylo Boss – Dragon arrows ──────────────────────────────────────────
+    {
+        "name": "nylo_maxvoid_dragon_noboosts",
+        "gear_names": [
+            "dragon arrows",
+            "elite void top",
+            "elite void robe",
+            "void ranger helm",
+            "void knight gloves",
+            "necklace of rupture",
+            "avernic treads",
+            "quiver",
+        ],
+        "weapon": "twisted bow",
+        "monster": "nylo",
+        "prayer": "none",
+        "expected_accuracy_roll": 33933,
+        "expected_max_hit": 62,
+    },
+    {
+        "name": "nylo_maxvoid_dragon",
+        "gear_names": [
+            "dragon arrows",
+            "elite void top",
+            "elite void robe",
+            "void ranger helm",
+            "void knight gloves",
+            "necklace of rupture",
+            "avernic treads",
+            "quiver",
+        ],
+        "weapon": "twisted bow",
+        "monster": "nylo",
+        "prayer": "rigour",
+        "boosts": [
+            "ranging",
+        ],
+        "expected_accuracy_roll": 45245,
+        "expected_max_hit": 86,
+    },
+    # ── Maiden – Amethyst arrows ───────────────────────────────────────────
+    {
+        "name": "maiden_maxvoid_amethyst_noboosts",
+        "gear_names": [
+            "amethyst arrows",
+            "elite void top",
+            "elite void robe",
+            "void ranger helm",
+            "void knight gloves",
+            "necklace of rupture",
+            "avernic treads",
+            "quiver",
+        ],
+        "weapon": "twisted bow",
+        "monster": "maiden",
+        "prayer": "none",
+        "expected_accuracy_roll": 33933,
+        "expected_max_hit": 62,
+    },
+    {
+        "name": "maiden_maxvoid_amethyst",
+        "gear_names": [
+            "amethyst arrows",
+            "elite void top",
+            "elite void robe",
+            "void ranger helm",
+            "void knight gloves",
+            "necklace of rupture",
+            "avernic treads",
+            "quiver",
+        ],
+        "weapon": "twisted bow",
+        "monster": "maiden",
+        "prayer": "rigour",
+        "boosts": [
+            "ranging",
+        ],
+        "expected_accuracy_roll": 45245,
+        "expected_max_hit": 83,
+    },
+    # ── Nylo Boss – Amethyst arrows ────────────────────────────────────────
+    {
+        "name": "nylo_maxvoid_amethyst_noboosts",
+        "gear_names": [
+            "amethyst arrows",
+            "elite void top",
+            "elite void robe",
+            "void ranger helm",
+            "void knight gloves",
+            "necklace of rupture",
+            "avernic treads",
+            "quiver",
+        ],
+        "weapon": "twisted bow",
+        "monster": "nylo",
+        "prayer": "none",
+        "expected_accuracy_roll": 33933,
+        "expected_max_hit": 62,
+    },
+    {
+        "name": "nylo_maxvoid_amethyst",
+        "gear_names": [
+            "amethyst arrows",
+            "elite void top",
+            "elite void robe",
+            "void ranger helm",
+            "void knight gloves",
+            "necklace of rupture",
+            "avernic treads",
+            "quiver",
+        ],
+        "weapon": "twisted bow",
+        "monster": "nylo",
+        "prayer": "rigour",
+        "boosts": [
+            "ranging",
+        ],
+        "expected_accuracy_roll": 45245,
+        "expected_max_hit": 83,
     },
 ]
 
