@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import os
 import time
 from collections import Counter
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -21,6 +22,8 @@ from CombatSim.Simulations.nyloboss.simulation import (
     run_batch_with_data,
 )
 from CombatSim.Simulations.nyloboss.configs import DEFAULT_PLAYER_CONFIGS
+from CombatSim.Simulations.nyloboss.NyloBossShadowAttackSchedule import NyloBossShadowAttackSchedule
+from CombatSim.Simulations.nyloboss.NyloRole import NyloRole
 
 
 # ── Stats container ─────────────────────────────────────────────────────────
