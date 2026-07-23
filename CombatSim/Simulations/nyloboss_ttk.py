@@ -7,6 +7,7 @@ Usage:
   Debug mode:  PYTHONPATH=. python CombatSim/Simulations/nyloboss_ttk.py
   Batch mode:  PYTHONPATH=. python CombatSim/Simulations/nyloboss_ttk.py -n 5000 -t 8
   Analytics:   PYTHONPATH=. python CombatSim/Simulations/nyloboss_ttk.py -a -n 10000 -t 8 -o results/
+  Compare:     PYTHONPATH=. python CombatSim/Simulations/nyloboss_ttk.py --compare -n 5000 -t 8 -o results/
 """
 
 import argparse
@@ -20,7 +21,7 @@ from CombatSim.Simulations.nyloboss.simulation import (
     DEFAULT_BOSS_SCALE,
 )
 from CombatSim.Simulations.nyloboss.configs import DEFAULT_PLAYER_CONFIGS
-from CombatSim.Simulations.nyloboss.analytics import run_analytics
+from CombatSim.Simulations.nyloboss.analytics import run_analytics, run_comparison
 
 
 def main() -> None:
@@ -31,13 +32,24 @@ def main() -> None:
                         help="Parallel workers (default: 1)")
     parser.add_argument("-a", "--analytics", action="store_true",
                         help="Run in analytics mode (stats + graphs)")
+    parser.add_argument("-c", "--compare", action="store_true",
+                        help="Run both Ayak and Shadow schedules and produce a comparison box plot")
     parser.add_argument("-o", "--output", type=str, default=".",
-                        help="Output directory for graphs (analytics mode, default: .)")
+                        help="Output directory for graphs (default: .)")
     parser.add_argument("-b", "--bins", type=int, default=40,
                         help="Histogram bins for analytics mode (default: 40)")
     parser.add_argument("--debug", action="store_true",
                         help="Show per-tick debug output (single-iteration mode)")
     args = parser.parse_args()
+
+    # ── Comparison mode ──────────────────────────────────────────────
+    if args.compare:
+        run_comparison(
+            iterations=args.iterations,
+            num_threads=args.threads,
+            output_dir=args.output,
+        )
+        return
 
     # ── Analytics mode ────────────────────────────────────────────────
     if args.analytics:

@@ -33,20 +33,12 @@ class Attack:
 
 @dataclass
 class DynamicAttack:
-    """Sentinel indicating this attack slot is resolved at runtime.
-
-    Subclasses of ``AttackSchedule`` replace this with a concrete
-    ``Attack`` inside ``get_next_attack`` based on live room state.
-    """
+    """Sentinel indicating this attack slot is resolved at runtime."""
 
 
 @dataclass
 class AttackSchedule:
-    """A named sequence of Attack objects for a boss phase.
-
-    Subclasses override ``update_rotation`` to rebuild the rotation when
-    the boss phase or room state changes.
-    """
+    """A named sequence of Attack objects for a boss phase."""
 
     name: str
     rotation: List[Attack] = field(default_factory=list)
@@ -70,20 +62,9 @@ class AttackSchedule:
         return self.name == other.name and self.rotation == other.rotation
 
     def update_rotation(self, room_state) -> None:
-        """Rebuild the rotation for a new boss phase.
-
-        Override in subclasses.  The *room_state* type is boss-specific;
-        the sim loop passes whatever state object the boss defines.
-        """
         raise NotImplementedError
 
     def get_next_attack(self, idx: int, room_state) -> Attack:
-        """Return the attack at *idx* for the current tick.
-
-        Subclasses override this to inject dynamic decisions (e.g.
-        swapping a weapon based on boss defense at attack-time).
-        The default just returns ``self.rotation[idx]``.
-        """
         attack = self.rotation[idx]
         if isinstance(attack, DynamicAttack):
             warnings.warn(

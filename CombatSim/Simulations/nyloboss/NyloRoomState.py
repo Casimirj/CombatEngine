@@ -1,13 +1,8 @@
-from dataclasses import dataclass
+"""Backward-compatibility re-export of NyloRoom.
 
-from CombatSim.Simulations.nyloboss.phases import NyloBossPhase
+NyloRoomState was previously a standalone dataclass.  It has been replaced by
+the ``NyloRoom`` subclass of ``Room``.  This module exists so existing imports
+don't break; new code should import ``NyloRoom`` directly.
+"""
 
-
-@dataclass
-class NyloRoomState:
-    """Snapshot of the boss room state at a phase transition."""
-    phase: NyloBossPhase
-    first_melee: bool
-    first_ranged: bool
-    prev_phase: "NyloBossPhase | None"
-    boss_defense: int = 0
+from CombatSim.Simulations.nyloboss.NyloRoom import NyloRoom as NyloRoomState  # noqa: F401

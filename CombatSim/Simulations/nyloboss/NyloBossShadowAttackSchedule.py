@@ -1,7 +1,13 @@
-from dataclasses import dataclass, field
-from typing import List, Type
+"""NyloBoss attack schedule variant that uses Tumeken's Shadow on mage phase.
 
-from CombatSim.CombatEngine.Domain.Weapon import Weapon
+Compared to the standard Ayak schedule:
+  - Mage phase:  2× Tumeken's Shadow instead of 3× Eye of Ayak
+  - Ranged (after mage): falls straight to regular TBow → TBow (no blowpipe switch)
+  - All other phases (melee, first ranged ZCB→TBow, regular ranged) are identical.
+"""
+
+from dataclasses import dataclass, field
+from typing import List
 
 from CombatSim.Simulations.shared.AttackSchedule import Attack, AttackSchedule, Setup, DynamicAttack
 from CombatSim.Simulations.nyloboss.phases import NyloBossPhase
@@ -12,9 +18,8 @@ from CombatSim.CombatEngine.Data.Definitions.Weapons.Scythe import Scythe
 from CombatSim.CombatEngine.Data.Definitions.Weapons.Bgs import Bgs
 from CombatSim.CombatEngine.Data.Definitions.Weapons.DragonClaws import DragonClaws
 from CombatSim.CombatEngine.Data.Definitions.Weapons.TwistedBow import TwistedBow
-from CombatSim.CombatEngine.Data.Definitions.Weapons.EyeOfAyak import EyeOfAyak
-from CombatSim.CombatEngine.Data.Definitions.Weapons.ToxicBlowpipe import ToxicBlowpipe
 from CombatSim.CombatEngine.Data.Definitions.Weapons.ZaryteCrossbow import ZaryteCrossbow
+from CombatSim.CombatEngine.Data.Definitions.Weapons.TumekensShadow import TumekensShadow
 
 
 # ── Phase Setups ────────────────────────────────────────────────────────────
@@ -49,21 +54,7 @@ SETUPS = {
         prayer="rigour",
         boosts=["bastion"],
     ),
-    "ranged_blowpipe": Setup(
-        pieces=[
-            'Void ranger helm',
-            "Dizana's quiver",
-            'Necklace of rupture',
-            'Elite void top',
-            'Elite void robe',
-            'Void knight gloves',
-            'Avernic treads',
-            'Dragon darts',
-        ],
-        prayer="rigour",
-        boosts=["bastion"],
-    ),
-    "mage": Setup(
+    "mage_shadow": Setup(
         pieces=[
             'Ancestral hat',
             'Imbued saradomin cape',
@@ -81,6 +72,7 @@ SETUPS = {
 
 
 # ── Defense threshold for backup BGS to Claws switch ────────────────────────
+
 
 _BACKUP_BGS_DEFENSE_THRESHOLD = 20
 
@@ -112,30 +104,28 @@ ROTATIONS = {
         Attack(TwistedBow, setup=SETUPS["ranged_tbow"]),
         Attack(TwistedBow),
     ],
-    "ranged_after_mage": [
-        Attack(ToxicBlowpipe, setup=SETUPS["ranged_blowpipe"]),
-        Attack(ToxicBlowpipe),
-        Attack(ToxicBlowpipe),
-        Attack(TwistedBow, setup=SETUPS["ranged_tbow"]),
-    ],
     "mage": [
-        Attack(EyeOfAyak, setup=SETUPS["mage"]),
-        Attack(EyeOfAyak),
-        Attack(EyeOfAyak),
+        Attack(TumekensShadow, setup=SETUPS["mage_shadow"]),
+        Attack(TumekensShadow),
     ],
 }
 
 
 @dataclass(kw_only=True)
-class NyloBossAttackSchedule(AttackSchedule):
-    """Per-player attack schedule that dynamically updates based on the boss phase."""
+class NyloBossShadowAttackSchedule(AttackSchedule):
+    """NyloBoss attack schedule variant that uses Shadow on mage.
+
+    Compared to the standard Ayak schedule:
+      - Mage phase:  2× Tumeken's Shadow instead of 3× Eye of Ayak
+      - No special ranged-after-mage phase — goes straight to regular TBow→TBow
+      - All other phases (melee, first ranged, regular ranged) are identical.
+    """
 
     role: NyloRole
-    name: str = "NyloBoss"
+    name: str = "NyloBossShadow"
     rotation: List[Attack] = field(default_factory=list)
 
     def update_rotation(self, room: NyloRoom) -> None:
-        """Rebuild the rotation for the current boss phase and room state."""
         phase = room.phase
 
         if phase == NyloBossPhase.MELEE:
@@ -156,21 +146,12 @@ class NyloBossAttackSchedule(AttackSchedule):
         elif phase == NyloBossPhase.RANGED:
             if room.first_ranged:
                 self.rotation = list(ROTATIONS["first_ranged"])
-            elif room.prev_phase == NyloBossPhase.MAGE:
-                self.rotation = list(ROTATIONS["ranged_after_mage"])
             else:
                 self.rotation = list(ROTATIONS["regular_ranged"])
         else:
             self.rotation = list(ROTATIONS["mage"])
 
     def get_next_attack(self, idx: int, room: NyloRoom) -> Attack:
-        """Return the attack for *idx*, resolving DynamicAttack slots at runtime.
-
-        When a rotation entry is a DynamicAttack, the schedule picks the
-        concrete weapon based on live room state.  Currently this only
-        applies to BACKUP_BGS: the 2nd hit is BGS (spec) if boss defense
-        is above the threshold, or DragonClaws (spec) otherwise.
-        """
         attack = self.rotation[idx]
 
         if not isinstance(attack, DynamicAttack):

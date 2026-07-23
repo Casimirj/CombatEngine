@@ -3,7 +3,7 @@
 import unittest
 
 from ..phases import NyloBossPhase, next_nylo_phase
-from ..NyloRoomState import NyloRoomState
+from ..NyloRoom import NyloRoom
 from ..NyloRole import NyloRole
 from ..NyloBossAttackSchedule import (
     NyloBossAttackSchedule,
@@ -28,7 +28,7 @@ from CombatSim.CombatEngine.Data.Definitions.Weapons.ZaryteCrossbow import Zaryt
 
 
 def _room_state(phase, first_melee=True, first_ranged=True, prev_phase=None, boss_defense=0):
-    return NyloRoomState(
+    return NyloRoom(
         phase=phase,
         first_melee=first_melee,
         first_ranged=first_ranged,
@@ -122,95 +122,116 @@ class TestNyloBossAttackSchedule(unittest.TestCase):
         self.assertTrue(schedule[0].use_special_attack)
         self.assertEqual(schedule[0].setup, SETUPS["melee"])
 
-    def test_regular_melee_no_spec(self):
+    def test_repeat_melee_no_spec(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
         self.assertEqual(schedule[0].weapon, Scythe)
-        self.assertEqual(schedule[0].setup, SETUPS["melee"])
-        self.assertIsNone(schedule[1].setup)
+        self.assertFalse(schedule[0].use_special_attack)
 
-    def test_ranged_schedule(self):
+    def test_ranged_rotation(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.RANGED, first_ranged=True))
         self.assertEqual(schedule[0].weapon, ZaryteCrossbow)
+        self.assertTrue(schedule[0].use_special_attack)
+        self.assertEqual(schedule[1].weapon, TwistedBow)
 
-    def test_mage_schedule(self):
+    def test_mage_rotation(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.MAGE))
         self.assertEqual(schedule[0].weapon, EyeOfAyak)
-        self.assertEqual(schedule[0].setup, SETUPS["mage"])
+        self.assertEqual(schedule[1].weapon, EyeOfAyak)
 
-    # ── Claws role ─────────────────────────────────────────────────────────
+    # ── CLAWS role ─────────────────────────────────────────────────────────
 
-    def test_first_melee_claws_has_claws_spec(self):
+    def test_claws_first_melee(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.CLAWS)
         schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=True))
         self.assertEqual(schedule[0].weapon, DragonClaws)
+        self.assertTrue(schedule[0].use_special_attack)
+        self.assertEqual(schedule[1].weapon, Scythe)
 
-    def test_ranged_mage_same_as_bgs(self):
-        for phase in [NyloBossPhase.RANGED, NyloBossPhase.MAGE]:
-            bgs = NyloBossAttackSchedule(role=NyloRole.BGS)
-            bgs.update_rotation(_room_state(phase, first_ranged=False))
-            claws = NyloBossAttackSchedule(role=NyloRole.CLAWS)
-            claws.update_rotation(_room_state(phase, first_ranged=False))
-            self.assertEqual(bgs.rotation, claws.rotation)
-
-    def test_first_ranged_zcb_spec(self):
+    def test_claws_repeat_melee(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.CLAWS)
-        schedule.update_rotation(_room_state(NyloBossPhase.RANGED, first_ranged=True))
-        self.assertEqual(schedule[0].weapon, ZaryteCrossbow)
+        schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
+        self.assertEqual(schedule[0].weapon, Scythe)
+        self.assertFalse(schedule[0].use_special_attack)
 
-    def test_ranged_after_first_no_zcb_spec(self):
-        schedule = NyloBossAttackSchedule(role=NyloRole.CLAWS)
-        schedule.update_rotation(_room_state(NyloBossPhase.RANGED, first_ranged=False))
-        self.assertEqual(schedule[0].weapon, TwistedBow)
+    # ── BACKUP_BGS role ────────────────────────────────────────────────────
 
-    # ── Backup BGS role ────────────────────────────────────────────────────
-
-    def test_backup_first_melee_bgs_when_def_high(self):
+    def test_backup_bgs_first_melee(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=True))
-        atk = schedule.get_next_attack(1, room_state=_room_state(NyloBossPhase.MELEE, boss_defense=50))
-        self.assertEqual(atk.weapon, Bgs)
-        self.assertTrue(atk.use_special_attack)
+        self.assertEqual(schedule[0].weapon, Scythe)
 
-    def test_backup_repeat_melee_first_hit_is_scythe(self):
+    def test_backup_bgs_repeat_melee(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
         self.assertEqual(schedule[0].weapon, Scythe)
 
-    def test_get_next_attack_bgs_when_def_high(self):
+    # ── Ranged phase variants ──────────────────────────────────────────────
+
+    def test_ranged_after_mage(self):
+        schedule = NyloBossAttackSchedule(role=NyloRole.BGS)
+        schedule.update_rotation(_room_state(
+            NyloBossPhase.RANGED, first_ranged=False,
+            prev_phase=NyloBossPhase.MAGE,
+        ))
+        self.assertEqual(schedule[0].weapon, ToxicBlowpipe)
+        self.assertEqual(schedule[1].weapon, ToxicBlowpipe)
+        self.assertEqual(schedule[2].weapon, ToxicBlowpipe)
+        self.assertEqual(schedule[3].weapon, TwistedBow)
+
+    def test_ranged_not_first_and_not_after_mage(self):
+        schedule = NyloBossAttackSchedule(role=NyloRole.BGS)
+        schedule.update_rotation(_room_state(
+            NyloBossPhase.RANGED, first_ranged=False,
+            prev_phase=NyloBossPhase.MELEE,
+        ))
+        self.assertEqual(schedule[0].weapon, TwistedBow)
+        self.assertEqual(schedule[1].weapon, TwistedBow)
+
+    def test_regular_ranged_from_initial_ranged(self):
+        schedule = NyloBossAttackSchedule(role=NyloRole.BGS)
+        schedule.update_rotation(_room_state(
+            NyloBossPhase.RANGED, first_ranged=False,
+            prev_phase=NyloBossPhase.MELEE,
+        ))
+        self.assertEqual(schedule[0].weapon, TwistedBow)
+
+    # ── DynamicAttack resolution ───────────────────────────────────────────
+
+    def test_get_next_attack_bgs_above_threshold(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
-        atk = schedule.get_next_attack(1, room_state=_room_state(NyloBossPhase.MELEE, first_melee=False, boss_defense=50))
+        atk = schedule.get_next_attack(1, room=_room_state(NyloBossPhase.MELEE, first_melee=False, boss_defense=50))
         self.assertEqual(atk.weapon, Bgs)
         self.assertTrue(atk.use_special_attack)
 
-    def test_get_next_attack_claws_when_def_low(self):
+    def test_get_next_attack_claws_below_threshold(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
-        atk = schedule.get_next_attack(1, room_state=_room_state(NyloBossPhase.MELEE, first_melee=False, boss_defense=10))
+        atk = schedule.get_next_attack(1, room=_room_state(NyloBossPhase.MELEE, first_melee=False, boss_defense=10))
         self.assertEqual(atk.weapon, DragonClaws)
         self.assertTrue(atk.use_special_attack)
 
     def test_get_next_attack_claws_at_threshold(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
-        atk = schedule.get_next_attack(1, room_state=_room_state(NyloBossPhase.MELEE, first_melee=False, boss_defense=20))
+        atk = schedule.get_next_attack(1, room=_room_state(NyloBossPhase.MELEE, first_melee=False, boss_defense=20))
         self.assertEqual(atk.weapon, DragonClaws)
         self.assertTrue(atk.use_special_attack)
 
     def test_get_next_attack_bgs_just_above_threshold(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
-        atk = schedule.get_next_attack(1, room_state=_room_state(NyloBossPhase.MELEE, first_melee=False, boss_defense=21))
+        atk = schedule.get_next_attack(1, room=_room_state(NyloBossPhase.MELEE, first_melee=False, boss_defense=21))
         self.assertEqual(atk.weapon, Bgs)
         self.assertTrue(atk.use_special_attack)
 
     def test_get_next_attack_pass_through_idx_0(self):
         schedule = NyloBossAttackSchedule(role=NyloRole.BACKUP_BGS)
         schedule.update_rotation(_room_state(NyloBossPhase.MELEE, first_melee=False))
-        atk = schedule.get_next_attack(0, room_state=_room_state(NyloBossPhase.MELEE, first_melee=False, boss_defense=50))
+        atk = schedule.get_next_attack(0, room=_room_state(NyloBossPhase.MELEE, first_melee=False, boss_defense=50))
         self.assertEqual(atk.weapon, Scythe)
 
 
