@@ -10,6 +10,7 @@ from CombatSim.CombatEngine.Domain.Enums.AmmoType import AmmoType
 
 class TwistedBow(Weapon):
     aliases = ["tbow", "twisted bow", "bow"]
+    _HIT_DELAY_TABLE = {1: 1, 2: 1, 3: 2, 4: 2, 5: 2, 6: 2, 7: 2, 8: 2, 9: 3, 10: 3}
 
     def __init__(self):
         stats = Stats({

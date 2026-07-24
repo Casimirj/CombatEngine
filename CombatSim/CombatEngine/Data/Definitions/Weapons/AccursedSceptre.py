@@ -9,6 +9,7 @@ from CombatSim.CombatEngine.Domain.Weapon import Weapon
 
 class AccursedSceptre(Weapon):
     aliases = ["sceptre", "accursed"]
+    _HIT_DELAY_TABLE = {1: 1, 2: 2, 3: 2, 4: 2, 5: 3, 6: 3, 7: 3, 8: 4, 9: 4, 10: 4, 11: 5, 12: 5, 13: 5, 14: 6, 15: 6}
 
     def __init__(self):
 

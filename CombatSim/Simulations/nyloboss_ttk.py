@@ -24,7 +24,20 @@ from CombatSim.Simulations.nyloboss.configs import DEFAULT_PLAYER_CONFIGS
 from CombatSim.Simulations.nyloboss.analytics import run_analytics, run_comparison
 
 
+def _debug_shadow_configs():
+    """Build default 3-player configs using the Shadow attack schedule for debug runs."""
+    from CombatSim.Simulations.nyloboss.NyloBossShadowAttackSchedule import NyloBossShadowAttackSchedule
+    from CombatSim.Simulations.nyloboss.NyloRole import NyloRole
+    from CombatSim.Simulations.nyloboss.simulation import PlayerConfig as PC
+    return [
+        PC(name="P1", attack_schedule=NyloBossShadowAttackSchedule(role=NyloRole.BGS)),
+        PC(name="P2", attack_schedule=NyloBossShadowAttackSchedule(role=NyloRole.BACKUP_BGS)),
+        PC(name="P3", attack_schedule=NyloBossShadowAttackSchedule(role=NyloRole.CLAWS)),
+    ]
+
+
 def main() -> None:
+
     parser = argparse.ArgumentParser(description="NyloBoss TTK Simulation")
     parser.add_argument("-n", "--iterations", type=int, default=1,
                         help="Number of iterations (default: 1 = single debug run)")
@@ -65,7 +78,7 @@ def main() -> None:
     if args.iterations == 1:
         killed, ticks = simulate_kill(
             boss_scale=DEFAULT_BOSS_SCALE,
-            player_configs=DEFAULT_PLAYER_CONFIGS,
+            player_configs=_debug_shadow_configs(),
             debug=args.debug,
         )
         if killed:

@@ -51,10 +51,12 @@ class NyloRoom(Room):
 
     # ── Combat ─────────────────────────────────────────────────────────
 
-    def player_attack(self, attack, player_key: str, enemy_key: str) -> int:
+    def player_attack(self, attack, player_key: str, enemy_key: str, distance: int | None = None) -> int:
         if enemy_key not in self.enemies:
             return 0
-        damage = super().player_attack(attack, player_key, enemy_key)
+        return super().player_attack(attack, player_key, enemy_key, distance=distance)
+
+    def _on_hit_landed(self, enemy_key: str) -> None:
+        """Sync boss_defense whenever a hit actually lands on the boss."""
         if enemy_key in self.enemies:
             self.boss_defense = self.enemies[enemy_key].stats.def_level
-        return damage

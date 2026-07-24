@@ -40,7 +40,7 @@ class PlayerConfig:
 class _PlayerRuntime:
     __slots__ = (
         "player", "config", "attack_schedule", "schedule_idx",
-        "weapon_on_cooldown", "current_weapon_name",
+        "weapon_on_cooldown", "current_weapon_name", "distance_to_boss",
     )
 
     def __init__(self, player: Player, config: PlayerConfig) -> None:
@@ -50,6 +50,7 @@ class _PlayerRuntime:
         self.schedule_idx: int = 0
         self.weapon_on_cooldown: int = 0
         self.current_weapon_name: str = ""
+        self.distance_to_boss: int = 1
 
 
 def _init_player_phase(rt: _PlayerRuntime, room: NyloRoom) -> None:
@@ -131,7 +132,7 @@ def simulate_kill(
             attack = rt.attack_schedule.get_next_attack(rt.schedule_idx, room)
             rt.schedule_idx += 1
 
-            dmg = room.player_attack(attack, rt.config.name, "boss")
+            dmg = room.player_attack(attack, rt.config.name, "boss", distance=rt.distance_to_boss)
 
             hits.append(_HitRecord(
                 player_name=rt.config.name,
@@ -173,18 +174,21 @@ def _dbg_tick_summary(tick, hits, boss_hp=0, boss_defense=0):
     def state():
         return f"  hp={boss_hp}  def={boss_defense}"
     if hits:
-        parts = []
+        prefix = f"  tick {tick:>4}{state()}  "
+        attrs = []
         for h in hits:
             spec_str = " [SPEC]" if h.is_spec else ""
-            parts.append(f"[{h.player_name}] ({h.weapon_name}{spec_str}) dmg={h.damage}")
-        joined = "  ".join(parts)
-        print(f"  tick {tick:>4}  {joined}{state()}")
+            attrs.append(f"[{h.player_name}] dmg={h.damage:>2} ({h.weapon_name}{spec_str})")
+        print(prefix + attrs[0])
+        indent = " " * len(prefix)
+        for a in attrs[1:]:
+            print(indent + a)
     else:
         print(f"  tick {tick:>4}{state()}")
 
 
 def _dbg_phase_change(old, new, tick, boss_hp, boss_defense=0):
-    print(f"  tick {tick:>4}  --- {_PHASE_LABELS[old]} -> {_PHASE_LABELS[new]}  |  boss_hp={boss_hp}  def={boss_defense} ---")
+    print(f"  tick {tick:>4}  hp={boss_hp}  def={boss_defense}  --- {_PHASE_LABELS[old]} -> {_PHASE_LABELS[new]} ---")
 
 
 def run_batch(count, boss_scale=DEFAULT_BOSS_SCALE, player_configs=None):

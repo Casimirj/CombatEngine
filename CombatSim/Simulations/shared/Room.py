@@ -41,6 +41,16 @@ class SpawnEntry:
         return self.factory()
 
 
+
+@dataclass
+class PendingHit:
+    """A deferred hit that lands on enemy_key at lands_at_tick."""
+    enemy_key: str
+    damage: int
+    drain: dict  # {attr_name: amount} to drain from enemy stats on hit landing
+    lands_at_tick: int
+
+
 @dataclass
 class Room:
     players: Dict[str, Player] = field(default_factory=dict)
@@ -53,11 +63,13 @@ class Room:
     actions_blocked_this_tick: bool = field(default=False, init=False, repr=False)
 
     _weapon_cache: Dict[type, Weapon] = field(default_factory=dict, init=False, repr=False)
+    _pending_hits: List[PendingHit] = field(default_factory=list, init=False, repr=False)
 
     # ── Lifecycle hooks ────────────────────────────────────────────────
 
     def step(self):
         self.on_tick_start()
+        self.process_pending_hits()
         spawned = self.spawn_pending()
         self.move_dead_enemies()
         self.advance_tick()
@@ -90,17 +102,22 @@ class Room:
         player.prayer = PrayerRegistry.get(setup.prayer)
         player.boosts = [PotionRegistry.get(b) for b in setup.boosts] if setup.boosts else []
 
-    def player_attack(self, attack, player_key: str, enemy_key: str) -> int:
+    def player_attack(self, attack, player_key: str, enemy_key: str, distance: int | None = None) -> int:
         """Apply the attack's setup (if any), equip its weapon, and
         resolve the hit against the enemy.
 
         Weapon instances are cached per class so the same object is
         reused across ticks.
 
-        Returns the damage dealt (0 on miss).
+        This weapon hit delay is implemented in a really dumb way where it snapshots the monster and restores it afterwards
+        Then it applies the drain to the monster and adds a pending hit to the queue for the future tick when it lands.
 
-        Override in subclasses for encounter-specific post-attack logic
-        (defense sync, phase immunity, etc.).
+        For weapons with hit_delay > 0 (ranged/magic), the damage and
+        side effects are deferred: we snapshot the monster's stats,
+        compute the attack (which may mutate stats), restore the stats,
+        and enqueue a PendingHit for a future tick.
+
+        Returns the damage that will be dealt (0 on miss).
         """
         player = self.players[player_key]
         enemy = self.enemies[enemy_key]
@@ -114,12 +131,60 @@ class Room:
         weapon = self._weapon_cache[weapon_cls]
         player.equip_weapon(weapon)
 
+        snap = enemy.snapshot()
+
         damage = player.do_attack(
             enemy,
             special_attack=attack.use_special_attack,
         )
-        enemy.reduce_hp(damage)
+
+        # Compute stat changes (e.g., BGS def reduction, Accursed sceptre magic drain)
+        _, drain = enemy.compute_drain(snap)
+        enemy.restore_snapshot(snap)
+
+        actual_distance = distance if distance is not None else weapon.attack_range
+        hit_delay = weapon.get_hit_delay(actual_distance)
+
+        if hit_delay == 0:
+            enemy.reduce_hp(damage)
+            self._apply_drain(enemy, drain)
+            self._on_hit_landed(enemy_key)
+        else:
+            self._pending_hits.append(PendingHit(
+                enemy_key=enemy_key,
+                damage=damage,
+                drain=drain,
+                lands_at_tick=self.tick + hit_delay,
+            ))
+
         return damage
+
+    def process_pending_hits(self) -> None:
+        """Apply all PendingHits whose lands_at_tick has been reached."""
+        remaining = []
+        for hit in self._pending_hits:
+            if self.tick >= hit.lands_at_tick:
+                enemy = self.enemies.get(hit.enemy_key)
+                if enemy is None:
+                    continue
+                enemy.reduce_hp(hit.damage)
+                self._apply_drain(enemy, hit.drain)
+                self._on_hit_landed(hit.enemy_key)
+            else:
+                remaining.append(hit)
+        self._pending_hits = remaining
+
+    def _apply_drain(self, enemy: Monster, drain: dict) -> None:
+        """Apply stat changes to a monster from a deferred hit."""
+        for attr, delta in drain.items():
+            if delta == 0:
+                continue
+            current = getattr(enemy.stats, attr, 0)
+            setattr(enemy.stats, attr, current + delta)
+
+    def _on_hit_landed(self, enemy_key: str) -> None:
+        """Hook called when damage lands on an enemy. Override in subclasses."""
+        pass
 
     # ── Spawning ───────────────────────────────────────────────────────
 

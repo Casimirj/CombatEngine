@@ -7,6 +7,7 @@ from CombatSim.CombatEngine.Domain.Monster import Monster
 class Weapon():
 
     aliases: list[str] = []
+    _HIT_DELAY_TABLE: dict[int, int] = {}
 
     def __init__(self, 
         name=None,
@@ -99,3 +100,25 @@ class Weapon():
         """
         import math
         return math.floor(eff_magic_level / 3) + 1
+    def get_hit_delay(self, distance: int) -> int:
+        """Return the hit delay in game ticks for the given Chebyshev distance.
+
+        Melee weapons default to 0 (instant). Ranged and magic weapons override
+        _HIT_DELAY_TABLE with OSRS wiki values. Distances beyond the table
+        max use the highest table value.
+        """
+        if not self._HIT_DELAY_TABLE:
+            return 0
+        if distance in self._HIT_DELAY_TABLE:
+            return self._HIT_DELAY_TABLE[distance]
+        # Clamp to nearest table key
+        keys = sorted(self._HIT_DELAY_TABLE.keys())
+        if distance <= keys[0]:
+            return self._HIT_DELAY_TABLE[keys[0]]
+        if distance >= keys[-1]:
+            return self._HIT_DELAY_TABLE[keys[-1]]
+        # Binary search for closest
+        for i in range(len(keys) - 1):
+            if keys[i] <= distance <= keys[i + 1]:
+                return self._HIT_DELAY_TABLE[keys[i]]
+        return 0

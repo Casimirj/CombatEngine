@@ -9,6 +9,7 @@ from CombatSim.CombatEngine.Domain.Weapon import Weapon
 
 class TumekensShadow(Weapon):
     aliases = ["shadow", "tumekens", "tumeken"]
+    _HIT_DELAY_TABLE = {1: 2, 2: 3, 3: 3, 4: 3, 5: 4, 6: 4, 7: 4, 8: 5, 9: 5, 10: 5}
 
     def __init__(self):
 

@@ -14,6 +14,34 @@ class Monster:
         return self.current_hp
 
 
+
+    def snapshot(self) -> dict:
+        """Capture the monster's mutable state so we can restore it after
+        computing a deferred attack."""
+        return {
+            'current_hp': self.current_hp,
+            'stats': self.stats.copy(),
+        }
+
+    def restore_snapshot(self, snap: dict) -> None:
+        """Restore monster to the state captured by snapshot()."""
+        self.current_hp = snap['current_hp']
+        self.stats = snap['stats']
+
+    def compute_drain(self, snap: dict) -> tuple[int, dict]:
+        """Return (hp_delta, drain_dict) representing the net stat drain
+        caused by the attack between snapshot and current state."""
+        old_stats = snap['stats']
+        new_stats = self.stats
+        hp_delta = self.current_hp - snap['current_hp']
+        drain = {}
+        for key in sorted(set(list(vars(old_stats).keys()) + list(vars(new_stats).keys()))):
+            old_val = getattr(old_stats, key, 0)
+            new_val = getattr(new_stats, key, 0)
+            if old_val != new_val:
+                drain[key] = new_val - old_val
+        return hp_delta, drain
+
     def is_dead(self):
         return self.current_hp == 0
     

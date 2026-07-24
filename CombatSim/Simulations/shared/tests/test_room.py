@@ -12,6 +12,9 @@ def _mock_monster(alive=True):
     m.is_alive.return_value = alive
     m.is_dead.return_value = not alive
     m.stats = MagicMock()
+    m.snapshot.return_value = {}
+    m.compute_drain.return_value = (0, {})
+    m.restore_snapshot = MagicMock()
     return m
 
 
@@ -23,10 +26,12 @@ def _mock_player(alive=True):
     return p
 
 
-def _mock_weapon_cls():
-    class MockWeapon:
-        pass
-    return MockWeapon
+class _MockWeapon:
+    attack_range = 1
+
+    @staticmethod
+    def get_hit_delay(distance):
+        return 0
 
 
 class TestSpawnEntry(unittest.TestCase):
@@ -312,7 +317,7 @@ class TestPlayerAttack(unittest.TestCase):
         player = _mock_player(alive=True)
         monster = _mock_monster(alive=True)
         room = Room(players={"p1": player}, enemies={"boss": monster})
-        attack = Attack(weapon=_mock_weapon_cls())
+        attack = Attack(weapon=_MockWeapon)
 
         with patch.object(player, "do_attack", return_value=25):
             with patch.object(monster, "reduce_hp") as mock_reduce:
@@ -324,7 +329,7 @@ class TestPlayerAttack(unittest.TestCase):
         player = _mock_player(alive=True)
         monster = _mock_monster(alive=True)
         room = Room(players={"p1": player}, enemies={"boss": monster})
-        attack = Attack(weapon=_mock_weapon_cls(), use_special_attack=True)
+        attack = Attack(weapon=_MockWeapon, use_special_attack=True)
 
         with patch.object(player, "do_attack", return_value=40) as mock_do:
             dmg = room.player_attack(attack, "p1", "boss")
@@ -337,7 +342,7 @@ class TestPlayerAttack(unittest.TestCase):
         room = Room(players={"p1": player}, enemies={"boss": monster})
 
         setup = Setup(pieces=[], prayer="piety")
-        attack = Attack(weapon=_mock_weapon_cls(), setup=setup)
+        attack = Attack(weapon=_MockWeapon, setup=setup)
 
         with patch.object(player, "do_attack", return_value=10):
             with patch.object(room, "_equip_setup") as mock_equip:
@@ -349,7 +354,7 @@ class TestPlayerAttack(unittest.TestCase):
         monster = _mock_monster(alive=True)
         room = Room(players={"p1": player}, enemies={"boss": monster})
 
-        cls = _mock_weapon_cls()
+        cls = _MockWeapon
         attack = Attack(weapon=lambda: cls)
 
         with patch.object(player, "do_attack", return_value=10):
@@ -368,7 +373,7 @@ class TestPlayerAttack(unittest.TestCase):
         room = CustomRoom(players={"p1": player}, enemies={"boss": monster})
 
         with patch.object(player, "do_attack", return_value=10):
-            dmg = room.player_attack(Attack(weapon=_mock_weapon_cls()), "p1", "boss")
+            dmg = room.player_attack(Attack(weapon=_MockWeapon), "p1", "boss")
             self.assertEqual(dmg, 20)
 
 
@@ -400,7 +405,7 @@ class TestNyloRoomSubclass(unittest.TestCase):
         nylo = NyloRoom(players={"p1": player}, enemies={"boss": monster}, boss_defense=50)
 
         with patch.object(player, "do_attack", return_value=10):
-            nylo.player_attack(Attack(weapon=_mock_weapon_cls()), "p1", "boss")
+            nylo.player_attack(Attack(weapon=_MockWeapon), "p1", "boss")
             self.assertEqual(nylo.boss_defense, 42)
 
 
